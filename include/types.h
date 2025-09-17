@@ -2,6 +2,19 @@
 #define TYPES_H
 
 #include "logging/logger.h"
+#include <stddef.h>
+#include <stdint.h>
+#include <time.h>
+#include <errno.h>
+
+#define CHECK_STAT(val)\
+    do {if (val != SUCCESS) {stat = val; return stat;}} while (0)
+#define CHECK_INT(val, err)\
+    do {if (val == -1) {stat = err; return stat;}} while (0)
+#define CHECK_PTR(val, err)\
+    do {if (val == NULL) {stat = err; return stat;}} while (0)
+#define CHECK_BOOL(val, err)\
+    do {if (val == false) {stat = err; return stat;}} while (0)
 
 #ifdef LOG_TRACE
     #define LOGT(mod, pos, msg) logging(&logcount, TRACE, mod, pos, msg)
@@ -27,7 +40,20 @@
     #define LOGE(mod, pos, msg)
 #endif
 
+typedef enum {
+    SUCCESS,
+    FAILURE,
+    TIMEOUT,
+    BADARGS
+} status_t;
+
 typedef unsigned char* Buffer;
+
+typedef unsigned int sockfd_t;
+
+typedef unsigned char* ipv4str_t;
+
+typedef uint16_t port_t;
 
 typedef struct {
     unsigned long start_pos;
@@ -43,7 +69,7 @@ typedef struct {
 } FileContext;
 
 static inline void tryexec(signed int val, void (*except)(void)) {
-    if (val != 0)
+    if (val != 0 & except != NULL)
         except();
     return;
 }
