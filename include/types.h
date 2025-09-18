@@ -44,7 +44,8 @@ typedef enum {
     SUCCESS,
     FAILURE,
     TIMEOUT,
-    BADARGS
+    BADARGS,
+    EMALLOC
 } status_t;
 
 typedef unsigned char* Buffer;
@@ -54,6 +55,9 @@ typedef unsigned int sockfd_t;
 typedef unsigned char* ipv4str_t;
 
 typedef uint16_t port_t;
+
+typedef struct {
+} local_info;
 
 typedef struct {
     unsigned long start_pos;
