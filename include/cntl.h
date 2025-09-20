@@ -15,7 +15,7 @@ typedef struct {
     unsigned short remote_port
 } CntlAddrs;
 
-typedef enum {
+typedef union {
     struct cast {
         RUFShareCRC16 crc,
         local_info* info
