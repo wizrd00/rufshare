@@ -13,10 +13,7 @@ status_t start_file_stream(FileContext* filec, const char* path) {
         .mfile = {
             .file = file,
             .pos = 0,
-            .buf = tmp_mfile_buf,
-            .mfread = mfread,
-            .mfwrite = mfwrite,
-            .mfclose = mfclose
+            .buf = tmp_mfile_buf
         },
         .file_size = info.st_size,
         .get_chunk = global_get_chunk
@@ -52,7 +49,7 @@ status_t global_chunk_read(FileContext* filec, size_t* total_size, Buffer buf, s
     for (int i = 0; i < 8; i++) {
         size_t offset = segment_size - read_size;
         LOGD(__FILE__, __func__, "calling memcpy()...");
-        read_size -= filec->mfile->mfread(buf + offset, filec->mfile, read_size);
+        read_size -= mfread(buf + offset, read_size, sizeof (char), filec->mfile);
         if (read_size == 0) {
             LOGD(__FILE__, __func__, "segment has been copied");
             LOGD(__FILE__, __func__, "*total_size -= segment_size");

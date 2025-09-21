@@ -68,9 +68,6 @@ typedef struct {
     FILE* file;
     size_t pos;
     Buffer buf;
-    size_t (*mfread)(Buffer buf, MFILE* mfile, size_t size);
-    size_t (*mfwrite)(Buffer buf, MFILE* mfile, size_t size);
-    int (*mfclose)(MFILE* mfile);
 } MFILE;
 
 typedef struct {
