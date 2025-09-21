@@ -232,6 +232,12 @@ status_t set_socket_timeout(sockfd_t fd, time_t second) {
     return stat;
 }
 
+status_t set_socket_broadcast(sockfd_t fd) {
+    status_t stat = SUCCESS;
+    CHECK_INT(setsockopt(fd, SOL_SOCKET, SO_BROADCAST, true, sizeof (bool)), BADARGS);
+    return stat;
+}
+
 status_t close_socket(sockfd_t fd) {
     status_t stat = SUCCESS;
     if (close(fd) == -1)

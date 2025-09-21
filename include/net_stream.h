@@ -31,6 +31,8 @@ status_t set_socket_sndbufsize(sockfd_t fd, size_t size);
 
 status_t set_socket_timeout(sockfd_t fd, time_t second);
 
+status_t set_socket_broadcast(sockfd_t fd);
+
 status_t close_socket(sockfd_t fd);
 
 #endif

@@ -4,6 +4,7 @@
 #include "logging/logger.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <time.h>
 #include <errno.h>
 
@@ -15,6 +16,10 @@
     do {if (val == NULL) {stat = err; return stat;}} while (0)
 #define CHECK_BOOL(val, err)\
     do {if (val == false) {stat = err; return stat;}} while (0)
+#define CHECK_FCLOSE(val)\
+    do {if (val == EOF) {stat = FAILURE; return stat;}} while (0)
+#define CHECK_MMAP(val)\
+    do {if (val == MAP_FAILED) {stat = FAILURE; return stat;}} while (0)
 
 #ifdef LOG_TRACE
     #define LOGT(mod, pos, msg) logging(&logcount, TRACE, mod, pos, msg)
@@ -60,22 +65,25 @@ typedef struct {
 } local_info;
 
 typedef struct {
+    FILE* file;
+    size_t pos;
+    Buffer buf;
+    size_t (*mfread)(Buffer buf, MFILE* mfile, size_t size);
+    size_t (*mfwrite)(Buffer buf, MFILE* mfile, size_t size);
+    int (*mfclose)(MFILE* mfile);
+} MFILE;
+
+typedef struct {
     unsigned long start_pos;
     size_t chunk_size;
-    signed int (*cread)(size_t* total_size, Buffer buf, size_t len);
-    void (*reset)(unsigned long pos);
+    status_t (*cread)(FileContext* filec, size_t* total_size, Buffer buf, size_t len);
+    void (*reset)(FileContext* filec, unsigned long pos);
 } ChunkContext;
 
 typedef struct {
-    FILE* file;
+    MFILE* mfile;
     size_t file_size;
     ChunkContext (*get_chunk)(unsigned long start_pos, size_t chunk_size);
 } FileContext;
-
-static inline void tryexec(signed int val, void (*except)(void)) {
-    if (val != 0 & except != NULL)
-        except();
-    return;
-}
 
 #endif
