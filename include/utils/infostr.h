@@ -5,6 +5,6 @@
 
 #define INFOSTRSIZE 0 * size(char)
 
-unsigned char* get_infostring(Buffer buf, local_info* info);
+unsigned char *get_infostring(Buffer buf, local_info *info);
 
 #endif

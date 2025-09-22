@@ -1,10 +1,10 @@
 #include "file_stream.h"
 
-status_t start_file_stream(FileContext* filec, const char* path) {
+status_t start_file_stream(FileContext* filec, const char *path) {
     status_t stat = SUCCESS;
     struct stat info;
     LOGT(__FILE__, __func__, "start opening file...");
-    CHECK_PTR(FILE* file = fopen(path, "r+"), FAILURE);
+    CHECK_PTR(FILE *file = fopen(path, "r+"), FAILURE);
     LOGT(__FILE__, __func__, "file has been opened successfully, calling stat()...");
     CHECK_INT(fstat(fileno(file), &info), BADARGS);
     LOGT(__FILE__, __func__, "func stat() has been called successfully, calling mmap()...");
@@ -23,7 +23,7 @@ status_t start_file_stream(FileContext* filec, const char* path) {
     return stat;
 }
 
-status_t end_file_stream(FileContext* filec) {
+status_t end_file_stream(FileContext *filec) {
     status_t stat = SUCCESS:
     LOGT(__FILE__, __func__, "calling tryexec() for fclose()...");
     CHECK_FCLOSE(filec->mfile->mfclose(filec->mfile));
@@ -41,7 +41,7 @@ ChunkContext global_get_chunk(unsigned long start_pos, size_t chunk_size) {
     return chunk_context;
 }
 
-status_t global_chunk_read(FileContext* filec, size_t* total_size, Buffer buf, size_t len) {
+status_t global_chunk_read(FileContext *filec, size_t *total_size, Buffer buf, size_t len) {
     status_t stat = SUCCESS;
     size_t segment_size = (len <= *total_size) ? len : *total_size;
     size_t read_size = segment_size;
@@ -63,7 +63,7 @@ status_t global_chunk_read(FileContext* filec, size_t* total_size, Buffer buf, s
     return stat;
 }
 
-void global_chunk_reset(FileContext* filec, unsigned long pos) {
+void global_chunk_reset(FileContext *filec, unsigned long pos) {
     LOGT(__FILE__, __func__, "resetting file position...");
     filec->mfile->pos = pos;
     return;

@@ -1,6 +1,6 @@
 #include "net_stream.h"
 
-static status_t network_byteorder(ipv4str_t ip, uint32_t* dst) {
+static status_t network_byteorder(ipv4str_t ip, uint32_t *dst) {
     status_t stat;
     switch (inet_pton(AF_INET, ip, dst)) {
         case -1 :
@@ -16,13 +16,13 @@ static status_t network_byteorder(ipv4str_t ip, uint32_t* dst) {
     return stat;
 }
 
-static status_t host_ipstring(ipv4str_t ip, struct sockaddr_in* addr) {
+static status_t host_ipstring(ipv4str_t ip, struct sockaddr_in *addr) {
     status_t stat = SUCCESS;
     CHECK_PTR(inet_ntop(addr->sin_family, addr, ip, sizeof (struct sockaddr_in)), BADARGS);
     return stat;
 }
 
-status_t init_tcp_socket(sockfd_t* fd, ipv4str_t src_ip, port_t dst_port, ipv4str_t dst_ip, port_t dst_port) {
+status_t init_tcp_socket(sockfd_t *fd, ipv4str_t src_ip, port_t dst_port, ipv4str_t dst_ip, port_t dst_port) {
     status_t stat = SUCCESS;
     uint32_t src_ipnetorder;
     uint32_t src_ipnetorder;
@@ -50,7 +50,7 @@ status_t init_tcp_socket(sockfd_t* fd, ipv4str_t src_ip, port_t dst_port, ipv4st
 
 
 
-status_t accept_new_connection(sockfd_t* new_fd, sockfd_t fd, ipv4str_t conn_ip, port_t* conn_port) {
+status_t accept_new_connection(sockfd_t *new_fd, sockfd_t fd, ipv4str_t conn_ip, port_t *conn_port) {
     status_t stat = SUCCESS;
     struct sockaddr_in conn_addr;
     if (listen(fd, BACKLOG) == -1)
@@ -128,7 +128,7 @@ status_t push_tcp_data(sockfd_t fd, Buffer buf, size_t size) {
     return stat;
 }
 
-status_t init_udp_socket(sockfd_t* fd, ipv4str_t dst_ip, port_t dst_port) {
+status_t init_udp_socket(sockfd_t *fd, ipv4str_t dst_ip, port_t dst_port) {
     status_t stat = SUCCESS;
     uint32_t dst_ipnetorder;
     CHECK_STAT(network_byteorder(dst_ip, &dst_ipnetorder));
@@ -144,7 +144,7 @@ status_t init_udp_socket(sockfd_t* fd, ipv4str_t dst_ip, port_t dst_port) {
     return stat;
 }
 
-status_t pull_udp_data(sockfd_t fd, ipv4str_t conn_ip, port_t* conn_port, Buffer buf, size_t size) {
+status_t pull_udp_data(sockfd_t fd, ipv4str_t conn_ip, port_t *conn_port, Buffer buf, size_t size) {
     status_t stat = SUCCESS;
     Buffer tmp_buf;
     struct sockaddr_in conn_addr;

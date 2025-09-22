@@ -53,11 +53,11 @@ typedef enum {
     EMALLOC
 } status_t;
 
-typedef unsigned char* Buffer;
+typedef unsigned char * Buffer;
 
 typedef unsigned int sockfd_t;
 
-typedef unsigned char* ipv4str_t;
+typedef unsigned char * ipv4str_t;
 
 typedef uint16_t port_t;
 
@@ -65,7 +65,7 @@ typedef struct {
 } local_info;
 
 typedef struct {
-    FILE* file;
+    FILE *file;
     size_t pos;
     Buffer buf;
 } MFILE;
@@ -73,12 +73,12 @@ typedef struct {
 typedef struct {
     unsigned long start_pos;
     size_t chunk_size;
-    status_t (*cread)(FileContext* filec, size_t* total_size, Buffer buf, size_t len);
-    void (*reset)(FileContext* filec, unsigned long pos);
+    status_t (*cread)(FileContext *filec, size_t *total_size, Buffer buf, size_t len);
+    void (*reset)(FileContext *filec, unsigned long pos);
 } ChunkContext;
 
 typedef struct {
-    MFILE* mfile;
+    MFILE *mfile;
     size_t file_size;
     ChunkContext (*get_chunk)(unsigned long start_pos, size_t chunk_size);
 } FileContext;

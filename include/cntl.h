@@ -18,7 +18,7 @@ typedef struct {
 typedef union {
     struct cast {
         RUFShareCRC16 crc,
-        local_info* info
+        local_info *info
     },
     struct flow {
         RUFShareChunkSize chunk_size,
@@ -30,7 +30,7 @@ typedef union {
         RUFShareChunkCount chunk_count,
         RUFSharePartialChunkSize partial_chunk_size,
         RUFShareCRC16 crc,
-        local_info* info
+        local_info *info
     },
     struct recv {
         RUFShareACK ack,
@@ -39,9 +39,9 @@ typedef union {
     }
 } HeaderArgs;
 
-status_t start_cntl(CntlAddrs* addr);
+status_t start_cntl(CntlAddrs *addr);
 
-status_t push_header(RUFShareType type, HeaderArgs* args);
+status_t push_header(RUFShareType type, HeaderArgs *args);
 
 extern sockfd_t TCPsock;
 extern time_t SNDtimeout;

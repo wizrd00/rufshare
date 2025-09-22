@@ -59,12 +59,12 @@ SendPacket pack_RUFShare_SendPacket(RUFShareChunkSize chunk_size, RUFShareChunkC
 
 RecvPacket pack_RUFShare_RecvPacket(RUFShareACK ack, RUFShareCRC16 crc, RUFShareSequence sequence);
 
-CastPacket convert_CastPacket_byteorder(CastPacket* packet);
+CastPacket convert_CastPacket_byteorder(CastPacket *packet);
 
-FlowPacket convert_FlowPacket_byteorder(FlowPacket* packet);
+FlowPacket convert_FlowPacket_byteorder(FlowPacket *packet);
 
-SendPacket convert_SendPacket_byteorder(SendPacket* packet);
+SendPacket convert_SendPacket_byteorder(SendPacket *packet);
 
-RecvPacket convert_RecvPacket_byteorder(RecvPacket* packet);
+RecvPacket convert_RecvPacket_byteorder(RecvPacket *packet);
 
 #endif

@@ -22,7 +22,7 @@
         );\
     } while (0)
 
-extern FILE* logfile;
+extern FILE *logfile;
 extern unsigned long logcount;
 
 signed int start_logging(void);
@@ -30,12 +30,12 @@ signed int start_logging(void);
 void end_logging(void);
 
 void logging(
-    const unsigned long* count,
-    const unsigned char* level,
-    const unsigned char* ver,
-    const unsigned char* mod,
-    const unsigned char* pos,
-    const unsigned char* msg
+    const unsigned long *count,
+    const unsigned char *level,
+    const unsigned char *ver,
+    const unsigned char *mod,
+    const unsigned char *pos,
+    const unsigned char *msg
 );
 
 #endif

@@ -4,10 +4,10 @@ sockfd_t TCPsock;
 time_t SNDtimeout;
 time_t RCVtimeout;
 
-status_t start_cntl(CntlAddrs* addr) {
+status_t start_cntl(CntlAddrs *addr) {
 }
 
-status_t push_header(RUFShareType type, HeaderArgs* args) {
+status_t push_header(RUFShareType type, HeaderArgs *args) {
     status_t stat = SUCCESS;
     Buffer infostr[INFOSTRSIZE];
     Buffer buf;

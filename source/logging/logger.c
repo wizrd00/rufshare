@@ -1,6 +1,6 @@
 #include "logger/logger.h"
 
-FILE* logfile;
+FILE *logfile;
 unsigned long logcount;
 
 signed int start_logging(void) {
@@ -17,11 +17,11 @@ void end_logging(void) {
 }
 
 void logging(
-    const unsigned long count,
-    const unsigned char* level,
-    const unsigned char* mod,
-    const unsigned char* pos,
-    const unsigned char* msg
+    const unsigned long *count,
+    const unsigned char *level,
+    const unsigned char *mod,
+    const unsigned char *pos,
+    const unsigned char *msg
 ) {
     unsigned char date[11];
     unsigned char clock[16];
