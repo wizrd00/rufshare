@@ -3,8 +3,9 @@
 
 #include "types.h"
 
-#define INFOSTRSIZE 0 * size(char)
+#define INFOSTRSIZE 312 * sizeof(char)
 
-unsigned char *get_infostring(Buffer buf, local_info *info);
+char *pack_into_infostring(char *infostr, CntlAddrs *info);
+CntlAddrs unpack_from_infostring(char *infostr);
 
 #endif

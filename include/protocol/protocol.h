@@ -19,8 +19,6 @@ typedef uint32_t RUFShareSequence;
 typedef uint32_t RUFShareChunkCount;
 typedef uint32_t RUFShareCRC32;
 
-typedef unsigned char Buffer;
-
 typedef struct {
     RUFShareType type;
     RUFSharePad pad0;

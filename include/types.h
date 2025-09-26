@@ -1,12 +1,17 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "protocol/protocol.h"
 #include "logging/logger.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
 #include <errno.h>
+#include <netinet/in.h>
+
+#define MAXFILENAMESIZE 256
+#define MAXNAMESIZE 32
 
 #define CHECK_STAT(val)\
     do {if (val != SUCCESS) {stat = val; return stat;}} while (0)
@@ -19,7 +24,11 @@
 #define CHECK_FCLOSE(val)\
     do {if (val == EOF) {stat = FAILURE; return stat;}} while (0)
 #define CHECK_MMAP(val)\
-    do {if (val == MAP_FAILED) {stat = FAILURE; return stat;}} while (0)
+    do {if (val == MAP_FAILED) {stat = INVMMAP; return stat;}} while (0)
+#define CHECK_IPV4(ip)\
+    do {if (strlen(ip) + 1 != INET_ADDRSTRLEN) {stat = BADARGS; return stat;}} while (0)
+#define CHECK_PORT(port)\
+    do {if (port == 0) {stat = BADARGS; return stat;}} while (0)
 
 #ifdef LOG_TRACE
     #define LOGT(mod, pos, msg) logging(&logcount, TRACE, mod, pos, msg)
@@ -50,22 +59,50 @@ typedef enum {
     FAILURE,
     TIMEOUT,
     BADARGS,
-    EMALLOC
+    EMALLOC,
+    BADTYPE,
+    INVMMAP
 } status_t;
 
 typedef unsigned char * Buffer;
 
 typedef unsigned int sockfd_t;
 
-typedef unsigned char * ipv4str_t;
+typedef char * ipv4str_t;
 
 typedef uint16_t port_t;
 
 typedef struct {
-} local_info;
+    char filename[MAXFILENAMESIZE];
+    char name[MAXNAMESIZE];
+    char local_ip[INET_ADDRSTRLEN];
+    char remote_ip[INET_ADDRSTRLEN];
+    unsigned short local_port;
+    unsigned short remote_port;
+} CntlAddrs;
+
+typedef union {
+    struct {
+        CastPacket packet;
+        CntlAddrs info;
+    } cast;
+    struct {
+        FlowPacket packet;
+        CntlAddrs info;
+    } flow;
+    struct {
+        SendPacket packet;
+        CntlAddrs info;
+    } send;
+    struct {
+        RecvPacket packet;
+        CntlAddrs info;
+    } recv;
+} HeaderArgs;
 
 typedef struct {
     FILE *file;
+    size_t size;
     size_t pos;
     Buffer buf;
 } MFILE;
@@ -73,13 +110,13 @@ typedef struct {
 typedef struct {
     unsigned long start_pos;
     size_t chunk_size;
-    status_t (*cread)(FileContext *filec, size_t *total_size, Buffer buf, size_t len);
-    void (*reset)(FileContext *filec, unsigned long pos);
+    status_t (*cread)(MFILE *mfile, size_t *total_size, Buffer buf, size_t len);
+    void (*reset)(MFILE *mfile, unsigned long pos);
 } ChunkContext;
 
 typedef struct {
     MFILE *mfile;
-    size_t file_size;
+    size_t size;
     ChunkContext (*get_chunk)(unsigned long start_pos, size_t chunk_size);
 } FileContext;
 

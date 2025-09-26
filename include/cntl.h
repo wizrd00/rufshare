@@ -8,43 +8,24 @@
 #include <poll.h>
 #include <netinet/in.h>
 
-typedef struct {
-    unsigned char local_ip[INET_ADDRSTRLEN],
-    unsigned char remote_ip[INET_ADDRSTRLEN],
-    unsigned short local_port,
-    unsigned short remote_port
-} CntlAddrs;
+status_t start_cntl(CntlAddrs *addr, sockfd_t *sock);
 
-typedef union {
-    struct cast {
-        RUFShareCRC16 crc,
-        local_info *info
-    },
-    struct flow {
-        RUFShareChunkSize chunk_size,
-        RUFShareSequence sequence,
-        RUFShareCRC32 crc
-    },
-    struct send {
-        RUFShareChunkSize chunk_size,
-        RUFShareChunkCount chunk_count,
-        RUFSharePartialChunkSize partial_chunk_size,
-        RUFShareCRC16 crc,
-        local_info *info
-    },
-    struct recv {
-        RUFShareACK ack,
-        RUFShareCRC16 crc,
-        RUFShareSequence sequence
-    }
-} HeaderArgs;
+status_t end_cntl(sockfd_t sock);
 
-status_t start_cntl(CntlAddrs *addr);
+status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout);
 
-status_t push_header(RUFShareType type, HeaderArgs *args);
+status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout);
 
-extern sockfd_t TCPsock;
-extern time_t SNDtimeout;
-extern time_t RCVtimeout;
+status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout);
+
+status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout);
+
+status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout);
+
+status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout);
+
+status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout);
+
+status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout);
 
 #endif

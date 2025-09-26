@@ -6,6 +6,4 @@
 #include "cntl.h"
 #include "data.h"
 
-extern FileContext filec;
-
 #endif
