@@ -21,8 +21,8 @@
     do {if (val == NULL) {stat = err; return stat;}} while (0)
 #define CHECK_BOOL(val, err)\
     do {if (val == false) {stat = err; return stat;}} while (0)
-#define CHECK_FCLOSE(val)\
-    do {if (val == EOF) {stat = FAILURE; return stat;}} while (0)
+#define CHECK_NOTEOF(val, err)\
+    do {if (val == EOF) {stat = err; return stat;}} while (0)
 #define CHECK_MMAP(val)\
     do {if (val == MAP_FAILED) {stat = INVMMAP; return stat;}} while (0)
 #define CHECK_IPV4(ip)\
@@ -61,7 +61,8 @@ typedef enum {
     BADARGS,
     EMALLOC,
     BADTYPE,
-    INVMMAP
+    INVMMAP,
+    TESTVAL
 } status_t;
 
 typedef unsigned char * Buffer;

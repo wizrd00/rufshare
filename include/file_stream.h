@@ -3,7 +3,6 @@
 
 #include "types.h"
 #include "mfile.h"
-#include "utils/getdir.h"
 #include "error/errors.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -13,7 +12,7 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 
-status_t start_file_stream(FileContext* filec, const char *path);
+status_t start_file_stream(FileContext* filec, const char *path, bool create);
 
 status_t end_file_stream(FileContext* filec);
 

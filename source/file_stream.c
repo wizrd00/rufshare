@@ -1,5 +1,19 @@
 #include "file_stream.h"
 
+static void get_dir(const char *path, char *dir) {
+    size_t len = strlen(path) + 1;
+    int i;
+    strcpy(dir, path);
+    for (i = len; i > 0; i--) {
+        dir[i] = '\0';
+        if (dir[i - 1] == '/')
+            break;
+    }
+    if (i == 1)
+        strcpy(dir, "./");
+    return;
+}
+
 static status_t check_available_space(FILE *file, size_t size) {
     status_t stat = SUCCESS;
     struct statvfs info;
@@ -11,14 +25,15 @@ static status_t check_available_space(FILE *file, size_t size) {
 
 static status_t expand_file(FILE *file, size_t size) {
     status_t stat = SUCCESS;
-    CHECK_INT(fseek(file, size, SEEK_SET), FAILURE);
-    fwrite("", 1, sizeof (char), file);
+    CHECK_INT(fseek(file, size - 1, SEEK_SET), FAILURE);
+    fwrite("", sizeof (char), 1, file);
+    CHECK_NOTEOF(fflush(file), FAILURE);
     return stat;
 }
 
-static status_t create_file(FILE **file, const char *path, size_t size) {
+static status_t create_file(FILE **file, const char *path, size_t size, bool create) {
     status_t stat = SUCCESS;
-    *file = fopen(path, "r+");
+    *file = fopen(path, (create) ? "w+" : "r+");
     char dir[strlen(path) + 1];
     get_dir(path, dir);
     CHECK_PTR(*file, FAILURE);
@@ -27,17 +42,17 @@ static status_t create_file(FILE **file, const char *path, size_t size) {
     return stat;
 }
 
-status_t start_file_stream(FileContext* filec, const char *path) {
+status_t start_file_stream(FileContext* filec, const char *path, bool create) {
     status_t stat = SUCCESS;
     FILE *file;
     struct stat info;
     Buffer tmp_mfile_buf;
     LOGT(__FILE__, __func__, "start opening file...");
-    CHECK_STAT(create_file(&file, path, filec->size));
+    CHECK_STAT(create_file(&file, path, filec->size, create));
     LOGT(__FILE__, __func__, "file has been opened successfully, calling stat()...");
     CHECK_INT(fstat(fileno(file), &info), BADARGS);
     LOGT(__FILE__, __func__, "func stat() has been called successfully, calling mmap()...");
-    tmp_mfile_buf = mmap(NULL, info.st_size, PROT_READ | PROT_WRITE, 0, fileno(file), 0);
+    tmp_mfile_buf = mmap(NULL, info.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fileno(file), 0);
     CHECK_MMAP(tmp_mfile_buf);
     filec->mfile->file = file;
     filec->mfile->size = info.st_size;
@@ -52,8 +67,9 @@ status_t start_file_stream(FileContext* filec, const char *path) {
 status_t end_file_stream(FileContext *filec) {
     status_t stat = SUCCESS;
     LOGT(__FILE__, __func__, "calling tryexec() for fclose()...");
-    CHECK_FCLOSE(fclose(filec->mfile->file));
-    CHECK_FCLOSE(mfclose(filec->mfile));
+    CHECK_NOTEOF(fflush(filec->mfile->file), FAILURE);
+    CHECK_NOTEOF(fclose(filec->mfile->file), FAILURE);
+    CHECK_NOTEOF(mfclose(filec->mfile), FAILURE);
     return stat;
 }
 
