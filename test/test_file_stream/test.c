@@ -12,16 +12,15 @@ void setUp(void) {
 }
 
 void tearDown(void) {
-    char *read = (char *) malloc(sizeof (text));
+    char rbuf[sizeof (text)];
     FILE *file = fopen(path, "r");
     if (file != NULL) {
-        size_t rsize = fread(read, sizeof (char), strlen(text) + 1, file);
-        TEST_ASSERT_EQUAL_MESSAGE(sizeof (text), rsize, "testing that DEMOFILE is healthy or not");
-        TEST_ASSERT_EQUAL_STRING(text, read);
+        size_t rsize = fread(rbuf, sizeof (char), sizeof (rbuf), file);
+        TEST_ASSERT_EQUAL(0, ferror(file));
+        TEST_ASSERT_EQUAL_STRING_MESSAGE(text, rbuf, "testing that content of DEMOFILE is ehloworld! or not");
         fclose(file);
     }
     remove(path);
-    free(read);
     return;
 }
 
@@ -30,14 +29,12 @@ void test_start_file_stream(void) {
     FileContext filec;
 
     filec.mfile = &mfile;
-    filec.mfile->size = sizeof (text);
     filec.size = sizeof (text);
 
-    status_t stat0 = start_file_stream(&filec, path, true);
-    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat0, "testing start_file_stream() value return");
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, start_file_stream(&filec, path, true), "testing start_file_stream() value return");
+    rewind(filec.mfile->file);
     TEST_ASSERT_EQUAL_MESSAGE(sizeof (text), fwrite(text, sizeof (char), strlen(text) + 1, filec.mfile->file), "testing filec.mfile->file is valid to write or not");
-    status_t stat1 = end_file_stream(&filec);
-    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat1, "testing closing and unmapping the file");
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, end_file_stream(&filec), "testing closing and unmapping the file");
     return;
 }
 

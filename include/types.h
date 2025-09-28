@@ -15,18 +15,28 @@
 
 #define CHECK_STAT(val)\
     do {if (val != SUCCESS) {stat = val; return stat;}} while (0)
+
 #define CHECK_INT(val, err)\
     do {if (val == -1) {stat = err; return stat;}} while (0)
+
 #define CHECK_PTR(val, err)\
     do {if (val == NULL) {stat = err; return stat;}} while (0)
+
 #define CHECK_BOOL(val, err)\
     do {if (val == false) {stat = err; return stat;}} while (0)
+
 #define CHECK_NOTEOF(val, err)\
     do {if (val == EOF) {stat = err; return stat;}} while (0)
+
 #define CHECK_MMAP(val)\
     do {if (val == MAP_FAILED) {stat = INVMMAP; return stat;}} while (0)
+
+#define CHECK_SIZE(val, size)\
+    do {if (val < size) {stat = LOWSIZE; return stat;}} while (0)
+
 #define CHECK_IPV4(ip)\
     do {if (strlen(ip) + 1 != INET_ADDRSTRLEN) {stat = BADARGS; return stat;}} while (0)
+
 #define CHECK_PORT(port)\
     do {if (port == 0) {stat = BADARGS; return stat;}} while (0)
 
@@ -57,11 +67,13 @@
 typedef enum {
     SUCCESS,
     FAILURE,
+    ECREATE,
     TIMEOUT,
     BADARGS,
     EMALLOC,
     BADTYPE,
     INVMMAP,
+    LOWSIZE,
     TESTVAL
 } status_t;
 
@@ -105,7 +117,7 @@ typedef struct {
     FILE *file;
     size_t size;
     size_t pos;
-    Buffer buf;
+    void *buf;
 } MFILE;
 
 typedef struct {
