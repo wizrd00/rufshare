@@ -1,16 +1,19 @@
 #include "mfile.h"
 
-MFILE mfopen(const char *pathname, const char *mode, size_t size, int prot, int flags) {
+MFILE mfopen(const char *pathname, const char *mode, int prot, int flags) {
     MFILE mfile = {.file = NULL, .size = 0, .pos = 0, .buf = NULL};
     FILE *file = fopen(pathname, mode);
     if (file == NULL)
         return mfile;
     mfile.file = file;
-    void *buf = mmap(NULL, size, prot, flags, fileno(file), 0);
+    struct stat info;
+    if (fstat(fileno(file), &info) == -1)
+        return mfile;
+    mfile.size = info.st_size;
+    void *buf = mmap(NULL, mfile.size, prot, flags, fileno(file), 0);
     if (buf == MAP_FAILED)
         return mfile;
     mfile.buf = buf;
-    mfile.size = size;
     return mfile;
 }
 
@@ -46,5 +49,8 @@ int mfsync(void *addr, size_t length, int flags) {
 }
 
 int mfclose(MFILE *stream) {
-    return munmap(stream->buf, stream->size) | fclose(stream->file);
+    int munmap_stat, fclose_stat;
+    munmap_stat = (stream->buf != NULL) ? munmap(stream->buf, stream->size) : 0;
+    fclose_stat = (stream->file != NULL) ? fclose(stream->file) : 0;
+    return munmap_stat | fclose_stat;
 }

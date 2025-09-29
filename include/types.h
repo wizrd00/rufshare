@@ -14,31 +14,31 @@
 #define MAXNAMESIZE 32
 
 #define CHECK_STAT(val)\
-    do {if (val != SUCCESS) {stat = val; return stat;}} while (0)
+    do {if (val != SUCCESS) {return stat = val;}} while (0)
+
+#define CHECK_NOTEQUAL(val0, val1, err)\
+    do {if (val0 != val1) {return stat = err;}} while (0)
 
 #define CHECK_INT(val, err)\
-    do {if (val == -1) {stat = err; return stat;}} while (0)
+    do {if (val == -1) {return stat = err;}} while (0)
 
 #define CHECK_PTR(val, err)\
-    do {if (val == NULL) {stat = err; return stat;}} while (0)
+    do {if (val == NULL) {return stat = err;}} while (0)
 
 #define CHECK_BOOL(val, err)\
-    do {if (val == false) {stat = err; return stat;}} while (0)
-
-#define CHECK_NOTEOF(val, err)\
-    do {if (val == EOF) {stat = err; return stat;}} while (0)
-
-#define CHECK_MMAP(val)\
-    do {if (val == MAP_FAILED) {stat = INVMMAP; return stat;}} while (0)
+    do {if (val == false) {return stat = err;}} while (0)
 
 #define CHECK_SIZE(val, size)\
-    do {if (val < size) {stat = LOWSIZE; return stat;}} while (0)
+    do {if (val < size) {return stat = LOWSIZE;}} while (0)
 
 #define CHECK_IPV4(ip)\
-    do {if (strlen(ip) + 1 != INET_ADDRSTRLEN) {stat = BADARGS; return stat;}} while (0)
+    do {if (strlen(ip) + 1 != INET_ADDRSTRLEN) {return stat = BADIPV4;}} while (0)
 
 #define CHECK_PORT(port)\
-    do {if (port == 0) {stat = BADARGS; return stat;}} while (0)
+    do {if (port == 0) {return stat = BADPORT;}} while (0)
+
+#define CHECK_MFILE(mfile)\
+    do {if ((mfile.file == NULL) || (mfile.buf == NULL)) {return stat = NOMFILE;}} while (0)
 
 #ifdef LOG_TRACE
     #define LOGT(mod, pos, msg) logging(&logcount, TRACE, mod, pos, msg)
@@ -64,19 +64,6 @@
     #define LOGE(mod, pos, msg)
 #endif
 
-typedef enum {
-    SUCCESS,
-    FAILURE,
-    ECREATE,
-    TIMEOUT,
-    BADARGS,
-    EMALLOC,
-    BADTYPE,
-    INVMMAP,
-    LOWSIZE,
-    TESTVAL
-} status_t;
-
 typedef unsigned char * Buffer;
 
 typedef unsigned int sockfd_t;
@@ -84,6 +71,29 @@ typedef unsigned int sockfd_t;
 typedef char * ipv4str_t;
 
 typedef uint16_t port_t;
+
+typedef enum {
+    SUCCESS,
+    FAILURE,
+    TIMEOUT,
+    BADARGS,
+    EMALLOC,
+    NOMFILE,
+    NOFSTAT,
+    NOAVAIL,
+    NOCREAT,
+    NOTRUNC,
+    BADTYPE,
+    LOWSIZE,
+    BADIPV4,
+    BADPORT,
+    TESTVAL
+} status_t;
+
+typedef enum {
+    MWR,
+    MRD
+} fmode_t;
 
 typedef struct {
     char filename[MAXFILENAMESIZE];
@@ -123,14 +133,12 @@ typedef struct {
 typedef struct {
     unsigned long start_pos;
     size_t chunk_size;
-    status_t (*cread)(MFILE *mfile, size_t *total_size, Buffer buf, size_t len);
-    void (*reset)(MFILE *mfile, unsigned long pos);
 } ChunkContext;
 
 typedef struct {
-    MFILE *mfile;
+    MFILE mfile;
     size_t size;
-    ChunkContext (*get_chunk)(unsigned long start_pos, size_t chunk_size);
+    char name[MAXFILENAMESIZE];
 } FileContext;
 
 #endif

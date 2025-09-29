@@ -2,9 +2,11 @@
 #define MFILE_H
 
 #include "types.h"
+#include <stdio.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 
-MFILE mfopen(const char *pathname, const char *mode, size_t size, int prot, int flags);
+MFILE mfopen(const char *pathname, const char *mode, int prot, int flags);
 
 size_t mfread(void *ptr, size_t size, size_t nmemb, MFILE *stream);
 
