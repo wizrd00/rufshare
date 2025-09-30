@@ -16,7 +16,7 @@
 #define CHECK_STAT(val)\
     do {if (val != SUCCESS) {return stat = val;}} while (0)
 
-#define CHECK_NOTEQUAL(val0, val1, err)\
+#define CHECK_EQUAL(val0, val1, err)\
     do {if (val0 != val1) {return stat = err;}} while (0)
 
 #define CHECK_INT(val, err)\
@@ -83,6 +83,10 @@ typedef enum {
     NOAVAIL,
     NOCREAT,
     NOTRUNC,
+    INVSOCK,
+    ERRBIND,
+    ERRCONN,
+    BADINET,
     BADTYPE,
     LOWSIZE,
     BADIPV4,

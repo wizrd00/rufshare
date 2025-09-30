@@ -1,24 +1,21 @@
 #include "net_stream.h"
 
 static status_t network_byteorder(ipv4str_t ip, uint32_t *dst) {
-    status_t stat;
+    status_t stat = SUCCESS;
     switch (inet_pton(AF_INET, ip, dst)) {
         case -1 :
-            stat = FAILURE;
-            break;
-        case 0 :
             stat = BADARGS;
             break;
-        case 1 :
-            stat = SUCCESS;
+        case 0 :
+            stat = BADIPV4;
             break;
     }
     return stat;
 }
 
-static status_t host_ipstring(ipv4str_t ip, struct sockaddr_in *addr) {
+static status_t host_ipstring(ipv4str_t ip, struct in_addr *addr) {
     status_t stat = SUCCESS;
-    CHECK_PTR(inet_ntop(addr->sin_family, addr, ip, sizeof (struct sockaddr_in)), BADARGS);
+    CHECK_PTR(inet_ntop(AF_INET, addr, ip, INET_ADDRSTRLEN), BADARGS);
     return stat;
 }
 
@@ -44,90 +41,43 @@ status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
         }
     };
     tmpsock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    CHECK_INT(tmpsock, FAILURE);
+    CHECK_INT(tmpsock, INVSOCK);
     *sock = tmpsock;
-    CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), FAILURE);
-    CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), FAILURE);
+    CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND);
+    CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN);
     return stat;
 }
 
-
-
 status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn_ip, port_t *conn_port) {
     status_t stat = SUCCESS;
-    struct sockaddr_in conn_addr;
+    struct sockaddr_storage conn_addr;
+    struct sockaddr_in *tmp_addr;
     socklen_t addr_len;
     int tmpsock;
-    if (listen(sock, BACKLOG) == -1)
-        switch (errno) {
-            case EBADF :
-            case ENOTSOCK :
-                stat = BADARGS;
-                return stat;
-            case EADDRINUSE :
-            case EOPNOTSUPP :
-            default :
-                stat = FAILURE;
-                return stat;
-
-        }
+    CHECK_INT(listen(sock, BACKLOG), FAILURE);
     tmpsock = accept(sock, (struct sockaddr *) &conn_addr, &addr_len);
-    CHECK_INT(tmpsock,FAILURE);
+    CHECK_INT(tmpsock, INVSOCK);
     *new_sock = tmpsock;
-    CHECK_STAT(host_ipstring(conn_ip, &conn_addr));
-    *conn_port = ntohs(conn_addr.sin_port);
+    CHECK_EQUAL(AF_INET, conn_addr.ss_family, BADINET);
+    tmp_addr = (struct sockaddr_in *) &conn_addr;
+    CHECK_STAT(host_ipstring(conn_ip, &(tmp_addr->sin_addr)));
+    *conn_port = ntohs(tmp_addr->sin_port);
     return stat;
 }
 
 status_t pull_tcp_data(sockfd_t sock, Buffer buf, size_t size, bool peek_flag) {
     status_t stat = SUCCESS;
-    Buffer tmp_buf[size];
-    ssize_t received_size = recv(sock, tmp_buf, size, MSG_WAITALL | (peek_flag) ? MSG_PEEK : 0);
-    if (received_size == -1)
-        switch (errno) {
-            case EBADF :
-            case EINVAL :
-            case ENOTSOCK :
-                stat = BADARGS;
-                return stat;
-            case EAGAIN :
-            case ECONNREFUSED :
-            case EFAULT :
-            case EINTR :
-            case ENOMEM :
-            case ENOTCONN :
-            default :
-                stat = FAILURE;
-                return stat;
-        }
-    else
-        memcpy(buf, tmp_buf, size);
+    ssize_t recv_size = recv(sock, buf, size, MSG_WAITALL | (peek_flag) ? MSG_PEEK : 0);
+    CHECK_INT(recv_size, FAILURE);
+    CHECK_SIZE((size_t) recv_size, size);
     return stat;
 }
 
 status_t push_tcp_data(sockfd_t sock, Buffer buf, size_t size) {
     status_t stat = SUCCESS;
-    ssize_t sent_size = send(sock, buf, size, MSG_NOSIGNAL);
-    if (sent_size == -1)
-        switch (errno) {
-            case EBADF :
-            case EFAULT :
-            case EINVAL :
-            case ENOTSOCK :
-            case EOPNOTSUPP :
-                stat = BADARGS;
-                return stat;
-            case EACCES :
-            case EAGAIN :
-            case ECONNRESET :
-            case EDESTADDRREQ :
-            case EINTR :
-            case ENOBUFS :
-            case ENOTCONN :
-            default :
-                stat = FAILURE;
-                return stat;
-        }
+    ssize_t send_size = send(sock, buf, size, MSG_NOSIGNAL);
+    CHECK_INT(send_size, FAILURE);
+    CHECK_SIZE((size_t) send_size, size);
     return stat;
 }
 
@@ -241,16 +191,6 @@ status_t set_socket_broadcast(sockfd_t sock) {
 
 status_t close_socket(sockfd_t sock) {
     status_t stat = SUCCESS;
-    if (close(sock) == -1)
-        switch (errno) {
-            case EBADF :
-                stat = BADARGS;
-                return stat;
-            case EINTR :
-            case EIO :
-            default :
-                stat = FAILURE;
-                return stat;
-        }
+    CHECK_INT(close(sock), FAILURE);
     return stat;
 }

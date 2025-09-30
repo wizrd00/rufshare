@@ -27,7 +27,7 @@ status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode) {
 
 status_t end_file_stream(FileContext *filec) {
     status_t stat = SUCCESS;
-    CHECK_NOTEQUAL(0, mfclose(&(filec->mfile)), FAILURE);
+    CHECK_EQUAL(0, mfclose(&(filec->mfile)), FAILURE);
     return stat;
 }
 
