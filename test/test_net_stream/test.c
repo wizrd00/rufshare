@@ -43,11 +43,34 @@ void test_init_tcp_socket2(void) {
     return;
 }
 
+void test_accept_new_connection(void) {
+    sockfd_t sock;
+    ipv4str_t sip = "192.168.142.207";
+    port_t sport = 4096;
+    ipv4str_t dip = "1.1.1.1";
+    port_t dport = 80;
+    status_t stat0 = init_tcp_socket(&sock, sip, sport, dip, dport);
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat0, "init_tcp_socket failed");
+    sockfd_t newsock;
+    ipv4str_t newip = malloc(INET_ADDRSTRLEN);
+    if (newip == NULL)
+        TEST_FAIL_MESSAGE("malloc returned NULL");
+    port_t newport;
+    status_t stat1 = accept_new_connection(&newsock, sock, newip, &newport);
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat1, "accept_new_connection failed");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("1.1.1.1", newip, "invalid expected ip");
+    TEST_ASSERT_EQUAL_MESSAGE(dport, newport, "invalid expected port");
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, close_socket(sock), "close failed");
+    free(newip);
+    return;
+}
+
 int main(void) {
     UNITY_BEGIN();
     // tests must not run back to back(system needs at least 30s interval because of TCP TIME-WAIT)
     RUN_TEST(test_init_tcp_socket0);
     RUN_TEST(test_init_tcp_socket1);
     RUN_TEST(test_init_tcp_socket2);
+    RUN_TEST(test_accept_new_connection);
     return UNITY_END();
 }

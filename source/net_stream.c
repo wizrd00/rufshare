@@ -23,6 +23,7 @@ status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
     status_t stat = SUCCESS;
     uint32_t src_ipnetorder;
     uint32_t dst_ipnetorder;
+    int optval = 1;
     int tmpsock;
     CHECK_STAT(network_byteorder(src_ip, &src_ipnetorder));
     CHECK_STAT(network_byteorder(dst_ip, &dst_ipnetorder));
@@ -43,6 +44,7 @@ status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
     tmpsock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     CHECK_INT(tmpsock, INVSOCK);
     *sock = tmpsock;
+    CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (optval)), FAILSET);
     CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND);
     CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN);
     return stat;

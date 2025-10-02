@@ -84,6 +84,7 @@ typedef enum {
     NOCREAT,
     NOTRUNC,
     INVSOCK,
+    FAILSET,
     ERRBIND,
     ERRCONN,
     BADINET,
