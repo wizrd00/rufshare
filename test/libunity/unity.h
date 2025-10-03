@@ -14,11 +14,6 @@
 #define UNITY_VERSION_BUILD    2
 #define UNITY_VERSION          ((UNITY_VERSION_MAJOR << 16) | (UNITY_VERSION_MINOR << 8) | UNITY_VERSION_BUILD)
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include "unity_internals.h"
 
 /*-------------------------------------------------------
