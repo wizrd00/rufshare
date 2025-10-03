@@ -1,5 +1,5 @@
-CC := gcc
-CFLAGS := -g -c -Wall -Wextra
+CC := tcc
+CFLAGS := -std=c99 -g -c -Wall -Werror -Wimplicit-function-declaration
 BUILD_DIR := build
 FAKE_DIR := fake
 INCLUDE_DIR := ../../include/
@@ -16,7 +16,7 @@ FAKE_HDR := fake/fake_socket.h
 FAKE_OBJ := $(BUILD_DIR)/fake_socket.o
 TYPES_HDR := ../../include/types.h
 
-test.elf : $(UNITY_OBJ) $(TEST_OBJ) $(NET_STREAM_OBJ) $(FAKE_OBJ) $(TYPES_HDR)
+test.elf : $(UNITY_OBJ) $(TEST_OBJ) $(NET_STREAM_OBJ) $(FAKE_OBJ)
 	@echo linking object files $^
 	$(CC) -o $@ $^
 

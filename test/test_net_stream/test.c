@@ -65,12 +65,79 @@ void test_accept_new_connection(void) {
     return;
 }
 
+void test_pull_tcp_data0(void) {
+    sockfd_t fsock = 8; // this fake socket fd makes the fake recv to copy bytes completely
+    size_t bufsize = 64;
+    Buffer buf = malloc(bufsize);
+    status_t stat = pull_tcp_data(fsock, buf, bufsize, false);
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "in first test of pull_tcp_data stat must be SUCCESS but it isn't");
+    free(buf);
+    return;
+}
+
+void test_pull_tcp_data1(void) {
+    sockfd_t fsock = 64; // this fake socket fd makes the fake recv to copy bytes incompletely
+    size_t bufsize = 64;
+    Buffer buf = malloc(bufsize);
+    status_t stat = pull_tcp_data(fsock, buf, bufsize, false);
+    TEST_ASSERT_EQUAL_MESSAGE(LOWSIZE, stat, "in second test of pull_tcp_data stat must be LOWSIZE but it isn't");
+    free(buf);
+    return;
+}
+
+void test_pull_tcp_data2(void) {
+    sockfd_t fsock = 0; // this fake socket fd makes the fake recv to return -1
+    size_t bufsize = 64;
+    Buffer buf = malloc(bufsize);
+    status_t stat = pull_tcp_data(fsock, buf, bufsize, false);
+    TEST_ASSERT_EQUAL_MESSAGE(FAILURE, stat, "in second test of pull_tcp_data stat must be FAILURE but it isn't");
+    free(buf);
+    return;
+}
+
+void test_init_udp_socket(void) {
+    sockfd_t sock;
+    ipv4str_t sip = "0.0.0.0";
+    port_t sport = 2048;
+    ipv4str_t dip = "1.1.1.1";
+    port_t dport = 53;
+    status_t stat = init_udp_socket(&sock, sip, sport, dip, dport);
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first init_udp_socket test failed");
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, close_socket(sock), "close_socket has failed");
+    return;
+}
+
+void test_set_socket_timeout(void) {
+    int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd == -1)
+        TEST_FAIL_MESSAGE("unable to create socket");
+    status_t stat = set_socket_timeout(sockfd, 10);
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "set_socket_timeout must return SUCCESS but didn't");
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, close_socket(sockfd), "close_socket has failed");
+    return;
+}
+
+void test_set_socket_broadcast(void) {
+    int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd == -1)
+        TEST_FAIL_MESSAGE("unable to create socket");
+    status_t stat = set_socket_broadcast(sockfd);
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "set_socket_broadcast must return SUCCESS but didn't");
+    TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, close_socket(sockfd), "close_socket has failed");
+    return;
+}
+
 int main(void) {
     UNITY_BEGIN();
-    // tests must not run back to back(system needs at least 30s interval because of TCP TIME-WAIT)
     RUN_TEST(test_init_tcp_socket0);
     RUN_TEST(test_init_tcp_socket1);
     RUN_TEST(test_init_tcp_socket2);
     RUN_TEST(test_accept_new_connection);
+    RUN_TEST(test_pull_tcp_data0);
+    RUN_TEST(test_pull_tcp_data1);
+    RUN_TEST(test_pull_tcp_data2);
+    RUN_TEST(test_init_udp_socket);
+    RUN_TEST(test_set_socket_timeout);
+    RUN_TEST(test_set_socket_broadcast);
     return UNITY_END();
 }

@@ -23,8 +23,8 @@ status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
     status_t stat = SUCCESS;
     uint32_t src_ipnetorder;
     uint32_t dst_ipnetorder;
-    int optval = 1;
     int tmpsock;
+    int optval = 1;
     CHECK_STAT(network_byteorder(src_ip, &src_ipnetorder));
     CHECK_STAT(network_byteorder(dst_ip, &dst_ipnetorder));
     struct sockaddr_in local_addr = {
@@ -88,6 +88,7 @@ status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
     uint32_t src_ipnetorder;
     uint32_t dst_ipnetorder;
     int tmpsock;
+    int optval = 1;
     CHECK_STAT(network_byteorder(src_ip, &src_ipnetorder));
     CHECK_STAT(network_byteorder(dst_ip, &dst_ipnetorder));
     struct sockaddr_in local_addr = {
@@ -105,71 +106,39 @@ status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
         }
     };
     tmpsock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    CHECK_INT(tmpsock, FAILURE);
+    CHECK_INT(tmpsock, INVSOCK);
     *sock = tmpsock;
-    CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), FAILURE);
-    CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), FAILURE);
+    CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (optval)), FAILSET);
+    CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND);
+    CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN);
     return stat;
 }
 
 status_t pull_udp_data(sockfd_t sock, Buffer buf, size_t size) {
     status_t stat = SUCCESS;
-    unsigned char tmp_buf[size];
-    ssize_t received_size = recv(sock, tmp_buf, size, 0);
-    if (received_size == -1)
-        switch (errno) {
-            case EBADF :
-            case EINVAL :
-            case ENOTSOCK :
-                stat = BADARGS;
-                return stat;
-            case EAGAIN :
-            case ECONNREFUSED :
-            case EFAULT :
-            case EINTR :
-            case ENOMEM :
-            default :
-                stat = FAILURE;
-                return stat;
-        }
-    else
-        memcpy(buf, tmp_buf, size);
+    ssize_t recv_size = recv(sock, buf, size, 0);
+    CHECK_INT(recv_size, FAILURE);
+    CHECK_SIZE((size_t) recv_size, size);
     return stat;
 }
 
 status_t push_udp_data(sockfd_t sock, Buffer buf, size_t size) {
     status_t stat = SUCCESS;
-    ssize_t sent_size = send(sock, buf, size, 0);
-    if (sent_size == -1)
-        switch (errno) {
-            case EBADF :
-            case EFAULT :
-            case EINVAL :
-            case ENOTSOCK :
-                stat = BADARGS;
-                return stat;
-            case EACCES :
-            case EAGAIN :
-            case ECONNRESET :
-            case EINTR :
-            case ENOBUFS :
-            case ENOMEM :
-            default :
-                stat = FAILURE;
-                return stat;
-        }
+    ssize_t send_size = send(sock, buf, size, 0);
+    CHECK_INT(send_size, FAILURE);
+    CHECK_SIZE((size_t) send_size, size);
     return stat;
 }
 
 status_t set_socket_rcvbufsize(sockfd_t sock, size_t size) {
     status_t stat = SUCCESS;
-    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &size, sizeof (size_t)), BADARGS);
+    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &size, sizeof (size_t)), FAILSET);
     return stat;
 }
 
 status_t set_socket_sndbufsize(sockfd_t sock, size_t size) {
     status_t stat = SUCCESS;
-    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &size, sizeof (size_t)), BADARGS);
+    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &size, sizeof (size_t)), FAILSET);
     return stat;
 }
 
@@ -179,15 +148,15 @@ status_t set_socket_timeout(sockfd_t sock, time_t second) {
         .tv_sec = second,
         .tv_usec = 0
     };
-    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof (struct timeval)), BADARGS);
-    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof (struct timeval)), BADARGS);
+    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof (struct timeval)), FAILSET);
+    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof (struct timeval)), FAILSET);
     return stat;
 }
 
 status_t set_socket_broadcast(sockfd_t sock) {
     status_t stat = SUCCESS;
-    bool optval = true;
-    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (bool)), BADARGS);
+    int optval = 1;
+    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET);
     return stat;
 }
 

@@ -1,5 +1,5 @@
-CC := gcc
-CFLAGS := -g -c -Wall -Wextra
+CC := tcc
+CFLAGS := -std=c99 -g -c -Wall -Werror -Wimplicit-function-declaration
 BUILD_DIR := build
 UNITY_SRC := ../libunity/unity.c
 UNITY_OBJ := ../$(BUILD_DIR)/unity.o
@@ -13,7 +13,7 @@ MFILE_HDR := ../../include/mfile.h
 MFILE_OBJ := $(BUILD_DIR)/mfile.o
 TYPES_HDR := ../../include/types.h
 
-test.elf : $(UNITY_OBJ) $(TEST_OBJ) $(FILE_STREAM_OBJ) $(MFILE_OBJ) $(TYPES_HDR)
+test.elf : $(UNITY_OBJ) $(TEST_OBJ) $(FILE_STREAM_OBJ) $(MFILE_OBJ)
 	@echo linking object files $^
 	$(CC) -o $@ $^
 

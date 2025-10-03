@@ -4,7 +4,7 @@ static status_t create_file(const char *path, size_t size) {
     status_t stat = SUCCESS;
     struct statvfs info;
     FILE *file;
-    CHECK_NOTEQUAL(0, size, BADARGS);
+    CHECK_EQUAL(0, size, BADARGS);
     CHECK_INT(statvfs(path, &info), NOFSTAT);
     if (info.f_bavail * info.f_bsize <= size)
         return stat = NOAVAIL;
