@@ -1,5 +1,5 @@
 CC := tcc
-CFLAGS := -std=c99 -g -c -Wall -Werror -Wimplicit-function-declaration
+CFLAGS := -std=c99 -g -c -Wall -Werror -Wunsupported -Wimplicit-function-declaration
 BUILD_DIR := build
 UNITY_SRC := ../libunity/unity.c
 UNITY_OBJ := ../$(BUILD_DIR)/unity.o
@@ -32,6 +32,10 @@ $(FILE_STREAM_OBJ) : $(FILE_STREAM_SRC) $(FILE_STREAM_HDR) $(TYPES_HDR)
 $(MFILE_OBJ) : $(MFILE_SRC) $(MFILE_HDR) $(TYPES_HDR)
 	@echo compiling $<
 	$(CC) $(CFLAGS) -I../../include -o $@ $<
+
+memcheck : test.elf
+	@echo start checking test.elf for any memory bug
+	valgrind --tool=memcheck ./$^
 
 clean :
 	rm -rf $(TEST_OBJ) $(FILE_STREAM_OBJ) $(MFILE_OBJ) test.elf DEMOFILE

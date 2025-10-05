@@ -4,6 +4,7 @@
 #include "types.h"
 #include "net_stream.h"
 #include "protocol/protocol.h"
+#include "utils/ipcheck.h"
 #include "utils/infostr.h"
 #include <poll.h>
 #include <netinet/in.h>

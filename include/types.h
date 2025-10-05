@@ -11,7 +11,12 @@
 #include <netinet/in.h>
 
 #define MAXFILENAMESIZE 256
+#define MAXFILENAMELEN 255
 #define MAXNAMESIZE 32
+#define MAXNAMELEN 31
+#define MAXPORTLEN 5
+#define MAXIPV4SIZE 16
+#define MAXIPV4LEN 15
 
 #define CHECK_STAT(val)\
     do {if (val != SUCCESS) {return stat = val;}} while (0)
@@ -31,14 +36,14 @@
 #define CHECK_SIZE(val, size)\
     do {if (val < size) {return stat = LOWSIZE;}} while (0)
 
-#define CHECK_IPV4(ip)\
-    do {if (strlen(ip) + 1 != INET_ADDRSTRLEN) {return stat = BADIPV4;}} while (0)
-
 #define CHECK_PORT(port)\
     do {if (port == 0) {return stat = BADPORT;}} while (0)
 
 #define CHECK_MFILE(mfile)\
     do {if ((mfile.file == NULL) || (mfile.buf == NULL)) {return stat = NOMFILE;}} while (0)
+
+#define CHECK_REGEX(val, err)\
+    do {if (val == REG_NOMATCH) {return stat = err;}} while (0)
 
 #ifdef LOG_TRACE
     #define LOGT(mod, pos, msg) logging(&logcount, TRACE, mod, pos, msg)
@@ -76,22 +81,24 @@ typedef enum {
     SUCCESS,
     FAILURE,
     TIMEOUT,
+    LOWSIZE,
+    FAILSET,
     BADARGS,
-    EMALLOC,
+    BADINET,
+    BADTYPE,
+    BADIPV4,
+    BADPORT,
     NOMFILE,
     NOFSTAT,
     NOAVAIL,
     NOCREAT,
     NOTRUNC,
-    INVSOCK,
-    FAILSET,
+    NOREGEX,
     ERRBIND,
     ERRCONN,
-    BADINET,
-    BADTYPE,
-    LOWSIZE,
-    BADIPV4,
-    BADPORT,
+    ERRPOLL,
+    EMALLOC,
+    INVSOCK,
     TESTVAL
 } status_t;
 
@@ -103,8 +110,8 @@ typedef enum {
 typedef struct {
     char filename[MAXFILENAMESIZE];
     char name[MAXNAMESIZE];
-    char local_ip[INET_ADDRSTRLEN];
-    char remote_ip[INET_ADDRSTRLEN];
+    char local_ip[MAXIPV4SIZE];
+    char remote_ip[MAXIPV4SIZE];
     unsigned short local_port;
     unsigned short remote_port;
 } CntlAddrs;

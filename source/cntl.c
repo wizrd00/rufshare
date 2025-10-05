@@ -1,12 +1,12 @@
 #include "cntl.h"
 
-status_t start_cntl(CntlAddrs *addr, sockfd_t *sock) {
+status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock) {
     status_t stat = SUCCESS;
-    CHECK_IPV4(addr->local_ip);
-    CHECK_IPV4(addr->remote_ip);
-    CHECK_PORT(addr->local_port);
-    CHECK_PORT(addr->remote_port);
-    CHECK_STAT(init_tcp_socket(sock, addr->local_ip, addr->local_port, addr->remote_ip, addr->remote_port));
+    CHECK_BOOL(check_ipv4_format(addrs->local_ip), BADIPV4);
+    CHECK_BOOL(check_ipv4_format(addrs->remote_ip), BADIPV4);
+    CHECK_PORT(addrs->local_port);
+    CHECK_PORT(addrs->remote_port);
+    CHECK_STAT(init_tcp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port));
     return stat;
 }
 
@@ -19,7 +19,7 @@ status_t end_cntl(sockfd_t sock) {
 status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     status_t stat = SUCCESS;
     char infostr[INFOSTRSIZE];
-    size_t bufsize = sizeof(CastPacket) + INFOSTRSIZE;
+    size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
     Buffer buf = (Buffer) malloc(bufsize);
     struct pollfd pfd = {.fd = sock, .events = POLLOUT};
     CHECK_PTR(buf, EMALLOC);
@@ -34,7 +34,7 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
             stat = TIMEOUT;
             break;
         default :
-            stat = (pfd.revents > 0) ? push_tcp_data(sock, buf, bufsize) : FAILURE;
+            stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
             break;
     }
     free(buf);
@@ -43,7 +43,7 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 
 status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     status_t stat = SUCCESS;
-    size_t bufsize = sizeof(FlowPacket);
+    size_t bufsize = sizeof (FlowPacket);
     Buffer buf = (Buffer) malloc(bufsize);
     struct pollfd pfd = {.fd = sock, .events = POLLOUT};
     CHECK_PTR(buf, EMALLOC);
@@ -56,7 +56,7 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
             stat = TIMEOUT;
             break;
         default :
-            stat = (pfd.revents > 0) ? push_tcp_data(sock, buf, bufsize) : FAILURE;
+            stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
             break;
     }
     free(buf);
@@ -66,7 +66,7 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     status_t stat = SUCCESS;
     char infostr[INFOSTRSIZE];
-    size_t bufsize = sizeof(SendPacket) + INFOSTRSIZE;
+    size_t bufsize = sizeof (SendPacket) + INFOSTRSIZE;
     Buffer buf = (Buffer) malloc(bufsize);
     struct pollfd pfd = {.fd = sock, .events = POLLOUT};
     CHECK_PTR(buf, EMALLOC);
@@ -81,7 +81,7 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
             stat = TIMEOUT;
             break;
         default :
-            stat = (pfd.revents > 0) ? push_tcp_data(sock, buf, bufsize) : FAILURE;
+            stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
             break;
     }
     free(buf);
@@ -90,7 +90,7 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 
 status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     status_t stat = SUCCESS;
-    size_t bufsize = sizeof(RecvPacket);
+    size_t bufsize = sizeof (RecvPacket);
     Buffer buf = (Buffer) malloc(bufsize);
     struct pollfd pfd = {.fd = sock, .events = POLLOUT};
     CHECK_PTR(buf, EMALLOC);
@@ -103,7 +103,7 @@ status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
             stat = TIMEOUT;
             break;
         default :
-            stat = (pfd.revents > 0) ? push_tcp_data(sock, buf, bufsize) : FAILURE;
+            stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
             break;
     }
     free(buf);
@@ -133,7 +133,7 @@ status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &packet, sizeof (CastPacket), false));
     CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) infostr, sizeof (infostr), false));
     args->cast.packet = convert_CastPacket_byteorder(&packet);
-    args->cast.info = unpack_from_infostring(infostr);
+    unpack_from_infostring(infostr, &(args->cast.info));
     return stat;
 }
 
@@ -184,7 +184,7 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &packet, sizeof (SendPacket), false));
     CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) infostr, sizeof (infostr), false));
     args->send.packet = convert_SendPacket_byteorder(&packet);
-    args->send.info = unpack_from_infostring(infostr);
+    unpack_from_infostring(infostr, &(args->send.info));
     return stat;
 }
 
