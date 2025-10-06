@@ -10,6 +10,12 @@ status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock) {
     return stat;
 }
 
+status_t accept_cntl(CntlAddrs *addrs, sockfd_t *new_sock, sockfd_t sock) {
+    status_t stat = SUCCESS;
+    CHECK_STAT(accept_new_connection(new_sock, sock, addrs->remote_ip, &(addrs->remote_port)));
+    return stat;
+}
+
 status_t end_cntl(sockfd_t sock) {
     status_t stat = SUCCESS;
     CHECK_INT(close(sock), FAILURE);
@@ -112,7 +118,6 @@ status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 
 status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     status_t stat = SUCCESS;
-    sockfd_t conn_sock;
     CastPacket packet;
     char infostr[INFOSTRSIZE];
     RUFShareType tmp_type;
@@ -123,15 +128,13 @@ status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
         case 0 :
             return stat = TIMEOUT;
         default :
-            stat = (pfd.revents > 0) ? accept_new_connection(&conn_sock, sock, args->cast.info.remote_ip, &(args->cast.info.remote_port)) : FAILURE;
+            stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
             CHECK_STAT(stat);
+            CHECK_EQUAL(CAST, tmp_type, BADTYPE);
             break;
     }
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &tmp_type, sizeof (RUFShareType), true));
-    if (ntohs(tmp_type) != CAST)
-        return stat = BADTYPE;
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &packet, sizeof (CastPacket), false));
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) infostr, sizeof (infostr), false));
+    CHECK_STAT(pull_tcp_data(sock, (Buffer) &packet, sizeof (CastPacket), false));
+    CHECK_STAT(pull_tcp_data(sock, (Buffer) infostr, INFOSTRSIZE, false));
     args->cast.packet = convert_CastPacket_byteorder(&packet);
     unpack_from_infostring(infostr, &(args->cast.info));
     return stat;
@@ -139,7 +142,6 @@ status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 
 status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     status_t stat = SUCCESS;
-    sockfd_t conn_sock;
     FlowPacket packet;
     RUFShareType tmp_type;
     struct pollfd pfd = {.fd = sock, .events = POLLIN};
@@ -149,21 +151,18 @@ status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
         case 0 :
             return stat = TIMEOUT;
         default :
-            stat = (pfd.revents > 0) ? accept_new_connection(&conn_sock, sock, args->flow.info.remote_ip, &(args->flow.info.remote_port)) : FAILURE;
+            stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
             CHECK_STAT(stat);
+            CHECK_EQUAL(FLOW, tmp_type, BADTYPE);
             break;
     }
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &tmp_type, sizeof (RUFShareType), true));
-    if (ntohs(tmp_type) != FLOW)
-        return stat = BADTYPE;
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &packet, sizeof (FlowPacket), false));
+    CHECK_STAT(pull_tcp_data(sock, (Buffer) &packet, sizeof (FlowPacket), false));
     args->flow.packet = convert_FlowPacket_byteorder(&packet);
     return stat;
 }
 
 status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     status_t stat = SUCCESS;
-    sockfd_t conn_sock;
     SendPacket packet;
     char infostr[INFOSTRSIZE];
     RUFShareType tmp_type;
@@ -174,15 +173,13 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
         case 0 :
             return stat = TIMEOUT;
         default :
-            stat = (pfd.revents > 0) ? accept_new_connection(&conn_sock, sock, args->send.info.remote_ip, &(args->send.info.remote_port)) : FAILURE;
+            stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
             CHECK_STAT(stat);
+            CHECK_EQUAL(SEND, tmp_type, BADTYPE);
             break;
     }
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &tmp_type, sizeof (RUFShareType), true));
-    if (ntohs(tmp_type) != SEND)
-        return stat = BADTYPE;
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &packet, sizeof (SendPacket), false));
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) infostr, sizeof (infostr), false));
+    CHECK_STAT(pull_tcp_data(sock, (Buffer) &packet, sizeof (SendPacket), false));
+    CHECK_STAT(pull_tcp_data(sock, (Buffer) infostr, INFOSTRSIZE, false));
     args->send.packet = convert_SendPacket_byteorder(&packet);
     unpack_from_infostring(infostr, &(args->send.info));
     return stat;
@@ -190,7 +187,6 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 
 status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
     status_t stat = SUCCESS;
-    sockfd_t conn_sock;
     RecvPacket packet;
     RUFShareType tmp_type;
     struct pollfd pfd = {.fd = sock, .events = POLLIN};
@@ -200,14 +196,12 @@ status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
         case 0 :
             return stat = TIMEOUT;
         default :
-            stat = (pfd.revents > 0) ? accept_new_connection(&conn_sock, sock, args->recv.info.remote_ip, &(args->recv.info.remote_port)) : FAILURE;
+            stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
             CHECK_STAT(stat);
+            CHECK_EQUAL(RECV, tmp_type, BADTYPE);
             break;
     }
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &tmp_type, sizeof (RUFShareType), true));
-    if (ntohs(tmp_type) != RECV)
-        return stat = BADTYPE;
-    CHECK_STAT(pull_tcp_data(conn_sock, (Buffer) &packet, sizeof (RecvPacket), false));
+    CHECK_STAT(pull_tcp_data(sock, (Buffer) &packet, sizeof (RecvPacket), false));
     args->recv.packet = convert_RecvPacket_byteorder(&packet);
     return stat;
 }

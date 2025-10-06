@@ -9,7 +9,9 @@
 #include <poll.h>
 #include <netinet/in.h>
 
-status_t start_cntl(CntlAddrs *addr, sockfd_t *sock);
+status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock);
+
+status_t accept_cntl(CntlAddrs *addrs, sockfd_t *new_sock, sockfd_t sock);
 
 status_t end_cntl(sockfd_t sock);
 

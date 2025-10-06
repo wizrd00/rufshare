@@ -51,7 +51,7 @@ typedef struct {
 
 static inline CastPacket pack_RUFShare_CastPacket(RUFShareCRC16 crc) {
     CastPacket packet = {
-        .type = htons(CAST),
+        .type = CAST,
         .pad0 = 0,
         .crc = htons(crc)
     };
@@ -60,7 +60,7 @@ static inline CastPacket pack_RUFShare_CastPacket(RUFShareCRC16 crc) {
 
 static inline FlowPacket pack_RUFShare_FlowPacket(RUFShareChunkSize chunk_size, RUFShareSequence sequence, RUFShareCRC32 crc) {
     FlowPacket packet = {
-        .type = htons(FLOW),
+        .type = FLOW,
         .pad0 = 0,
         .chunk_size = htons(chunk_size),
         .sequence = htonl(sequence),
@@ -71,7 +71,7 @@ static inline FlowPacket pack_RUFShare_FlowPacket(RUFShareChunkSize chunk_size, 
 
 static inline SendPacket pack_RUFShare_SendPacket(RUFShareChunkSize chunk_size, RUFShareChunkCount chunk_count, RUFSharePartialChunkSize partial_chunk_size, RUFShareCRC16 crc) {
     SendPacket packet = {
-        .type = htons(SEND),
+        .type = SEND,
         .pad0 = 0,
         .chunk_size = htons(chunk_size),
         .chunk_count = htonl(chunk_count),
@@ -83,8 +83,8 @@ static inline SendPacket pack_RUFShare_SendPacket(RUFShareChunkSize chunk_size, 
 
 static inline RecvPacket pack_RUFShare_RecvPacket(RUFShareACK ack, RUFShareCRC16 crc, RUFShareSequence sequence) {
     RecvPacket packet = {
-        .type = htons(RECV),
-        .ack = htons(ack),
+        .type = RECV,
+        .ack = ack,
         .crc = htons(crc),
         .sequence = htonl(sequence)
     };
@@ -93,7 +93,7 @@ static inline RecvPacket pack_RUFShare_RecvPacket(RUFShareACK ack, RUFShareCRC16
 
 static inline CastPacket convert_CastPacket_byteorder(CastPacket *packet) {
     CastPacket new_packet = {
-        .type = ntohs(packet->type),
+        .type = packet->type,
         .pad0 = 0,
         .crc = ntohs(packet->crc)
     };
@@ -102,7 +102,7 @@ static inline CastPacket convert_CastPacket_byteorder(CastPacket *packet) {
 
 static inline FlowPacket convert_FlowPacket_byteorder(FlowPacket *packet) {
     FlowPacket new_packet = {
-        .type = ntohs(packet->type),
+        .type = packet->type,
         .pad0 = 0,
         .chunk_size = ntohs(packet->chunk_size),
         .sequence = ntohl(packet->sequence),
@@ -113,7 +113,7 @@ static inline FlowPacket convert_FlowPacket_byteorder(FlowPacket *packet) {
 
 static inline SendPacket convert_SendPacket_byteorder(SendPacket *packet) {
     SendPacket new_packet = {
-        .type = ntohs(packet->type),
+        .type = packet->type,
         .pad0 = 0,
         .chunk_size = ntohs(packet->chunk_size),
         .chunk_count = ntohl(packet->chunk_count),
@@ -125,8 +125,8 @@ static inline SendPacket convert_SendPacket_byteorder(SendPacket *packet) {
 
 static inline RecvPacket convert_RecvPacket_byteorder(RecvPacket *packet) {
     RecvPacket new_packet = {
-        .type = ntohs(packet->type),
-        .ack = ntohs(packet->ack),
+        .type = packet->type,
+        .ack = packet->ack,
         .crc = ntohs(packet->crc),
         .sequence = ntohl(packet->sequence)
     };
