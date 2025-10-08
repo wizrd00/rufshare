@@ -13,19 +13,19 @@
 #define WARNN "WARNN"
 #define ERROR "ERROR"
 
-#define append_log(count, level, date, clock, mod, pos, msg)\
+#define append_log(count, level, date, clock, mod, pos, fmt)\
     do {\
         fprintf(\
             &logfile,\
-            "[0x%lx][%-5.5s][%-10.10s][%-15.15s][MOD:%-.32s][POS:%-.32s][%-.64s]\n",\
-            count, level, date, clock, mod, pos, msg\
+            "[0x%lx][%-5.5s][%-10.10s][%-15.15s][MOD:%-.32s][POS:%-.32s][%-.128s]\n",\
+            count, level, date, clock, mod, pos, fmt\
         );\
     } while (0)
 
 extern FILE *logfile;
 extern unsigned long logcount;
 
-signed int start_logging(void);
+int start_logging(void);
 
 void end_logging(void);
 

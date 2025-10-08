@@ -42,31 +42,28 @@
 #define CHECK_MFILE(mfile)\
     do {if ((mfile.file == NULL) || (mfile.buf == NULL)) {return stat = NOMFILE;}} while (0)
 
-#define CHECK_REGEX(val, err)\
-    do {if (val == REG_NOMATCH) {return stat = err;}} while (0)
-
 #ifdef LOG_TRACE
-    #define LOGT(mod, pos, msg) logging(&logcount, TRACE, mod, pos, msg)
+    #define LOGT(mod, pos, fmt, ...) logging(&logcount, TRACE, mod, pos, fmt, ##__VA_ARGS__)
 #else
-    #define LOGT(mod, pos, msg)
+    #define LOGT(mod, pos, fmt, ...)
 #endif
 
 #ifdef LOG_DEBUG
-    #define LOGD(mod, pos, msg) logging(&logcount, DEBUG, mod, pos, msg)
+    #define LOGD(mod, pos, fmt, ...) logging(&logcount, DEBUG, mod, pos, fmt, ##__VA_ARGS__)
 #else
-    #define LOGD(mod, pos, msg)
+    #define LOGD(mod, pos, fmt, ...)
 #endif
 
 #ifdef LOG_WARNN
-    #define LOGW(mod, pos, msg) logging(&logcount, WARNN, mod, pos, msg)
+    #define LOGW(mod, pos, fmt, ...) logging(&logcount, WARNN, mod, pos, fmt, ##__VA_ARGS__)
 #else
-    #define LOGW(mod, pos, msg)
+    #define LOGW(mod, pos, fmt, ...)
 #endif
 
 #ifdef LOG_ERROR
-    #define LOGE(mod, pos, msg) logging(&logcount, ERROR, mod, pos, msg)
+    #define LOGE(mod, pos, fmt, ...) logging(&logcount, ERROR, mod, pos, fmt, ##__VA_ARGS__)
 #else
-    #define LOGE(mod, pos, msg)
+    #define LOGE(mod, pos, fmt, ...)
 #endif
 
 typedef unsigned char * Buffer;

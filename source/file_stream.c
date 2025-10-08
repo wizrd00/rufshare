@@ -17,6 +17,7 @@ static status_t create_file(const char *path, size_t size) {
 status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode) {
     status_t stat = SUCCESS;
     MFILE mfile;
+    LOGT(__FILE__, __func__, "start file stream with mode " (mode == MWR) ? "MWR" : "MRD");
     if (mode == MWR)
         create_file(path, filec->size);
     mfile = mfopen(path, "r+", PROT_READ | PROT_WRITE, MAP_SHARED);
@@ -27,6 +28,7 @@ status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode) {
 
 status_t end_file_stream(FileContext *filec) {
     status_t stat = SUCCESS;
+    LOGT(__FILE__, __func__, "end file stream");
     CHECK_EQUAL(0, mfclose(&(filec->mfile)), FAILURE);
     return stat;
 }
