@@ -6,6 +6,8 @@
 #include "protocol/protocol.h"
 #include "utils/ipcheck.h"
 #include "utils/infostr.h"
+#include <time.h>
+#include <unistd.h>
 #include <poll.h>
 #include <netinet/in.h>
 

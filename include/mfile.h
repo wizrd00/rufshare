@@ -12,7 +12,7 @@ size_t mfread(void *ptr, size_t size, size_t nmemb, MFILE *stream);
 
 size_t mfwrite(const void *ptr, size_t size, size_t nmemb, MFILE *stream);
 
-int mfseek(MFILE *stream, long offset);
+int mfseek(MFILE *stream, unsigned long pos);
 
 long mftell(MFILE *stream);
 

@@ -10,12 +10,13 @@
 #include <errno.h>
 #include <netinet/in.h>
 
-#define MAXFILENAMESIZE 256
+#define SEGMENTSIZE 512 * sizeof (char)
+#define MAXFILENAMESIZE 256 * sizeof (char)
 #define MAXFILENAMELEN 255
-#define MAXNAMESIZE 32
+#define MAXNAMESIZE 32 * sizeof (char)
 #define MAXNAMELEN 31
 #define MAXPORTLEN 5
-#define MAXIPV4SIZE 16
+#define MAXIPV4SIZE 16 * sizeof (char)
 #define MAXIPV4LEN 15
 
 #define CHECK_STAT(val)\
@@ -80,6 +81,7 @@ typedef enum {
     TIMEOUT,
     LOWSIZE,
     FAILSET,
+    FAILPOS,
     BADARGS,
     BADINET,
     BADTYPE,
