@@ -113,6 +113,7 @@ void test_pull_RECV_header(void) {
 }
 
 int main(void) {
+    printf("\n\x1b[1;93mStart testing cntl.c\x1b[0m\n\n");
     UNITY_BEGIN();
     RUN_TEST(test_start_cntl);
     RUN_TEST(test_push_CAST_header);

@@ -3,9 +3,8 @@ CFLAGS := -std=c99 -g -c -Wall -Werror -Wunsupported -Wimplicit-function-declara
 BUILD_DIR := build
 FAKE_DIR := fake
 INCLUDE_DIR := ../../include/
-UNITY_DIR := ../libunity/
-UNITY_SRC := ../libunity/unity.c
-UNITY_OBJ := ../$(BUILD_DIR)/unity.o
+UNITY_DIR := ../libunity
+INCLUDE_UNITY_LIB := -L../libunity -lunity -Wl,-rpath=../libunity
 TEST_SRC := test.c
 TEST_OBJ := $(BUILD_DIR)/test.o
 CNTL_SRC := ../../source/cntl.c
@@ -20,13 +19,9 @@ FAKE_HDR := fake/fake_socket.h
 FAKE_OBJ := $(BUILD_DIR)/fake_socket.o
 TYPES_HDR := ../../include/types.h
 
-test.elf : $(UNITY_OBJ) $(TEST_OBJ) $(CNTL_OBJ) $(NET_STREAM_OBJ) $(FAKE_OBJ)
+test.elf : $(TEST_OBJ) $(CNTL_OBJ) $(NET_STREAM_OBJ) $(FAKE_OBJ)
 	@echo linking object files $^
-	$(CC) -o $@ $^
-
-$(UNITY_OBJ) : $(UNITY_SRC)
-	@echo compiling $^
-	$(CC) $(CFLAGS) -I$(UNITY_DIR) -o $@ $^
+	$(CC) $(INCLUDE_UNITY_LIB) -o $@ $^
 
 $(TEST_OBJ) : $(TEST_SRC)
 	@echo compiling $^
