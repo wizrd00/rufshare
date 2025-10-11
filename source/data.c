@@ -18,13 +18,13 @@ status_t push_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, t
     status_t stat = SUCCESS;
     MFILE *stream = &(file->mfile);
     Buffer segbuf = (Buffer) malloc(SEGMENTSIZE);
-    struct pollfd pfd = {.fd = sock, .events = POLLOUT};
     CHECK_PTR(segbuf, EMALLOC);
     size_t rsize = chunk.chunk_size;
-    mfseek(&(file->mfile), chunk.start_pos);
+    mfseek(stream, chunk.start_pos);
     CHECK_STAT(set_socket_sndlowsize(sock, 2 * SEGMENTSIZE));
     while (rsize != 0) {
         size_t segsize = (SEGMENTSIZE <= rsize) ? SEGMENTSIZE : rsize;
+        struct pollfd pfd = {.fd = sock, .events = POLLOUT};
         mfread(segbuf, segsize, sizeof (char), stream);
         switch (poll(&pfd, 1, timeout)) {
             case -1 :
@@ -44,6 +44,34 @@ status_t push_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, t
     return stat;
 }
 
-status_t pull_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, time_t timeout);
+status_t pull_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, time_t timeout) {
+    status_t stat = SUCCESS;
+    MFILE *stream = &(file->mfile);
+    Buffer segbuf = (Buffer) malloc(SEGMENTSIZE);
+    CHECK_PTR(segbuf, EMALLOC);
+    size_t rsize = chunk.chunk_size;
+    mfseek(stream, chunk.start_pos);
+    CHECK_STAT(set_socket_rcvlowsize(sock, 2 * SEGMENTSIZE));
+    while (rsize != 0) {
+        size_t segsize = (SEGMENTSIZE <= rsize) ? SEGMENTSIZE : rsize;
+        struct pollfd pfd = {.fd = sock, .events = POLLIN};
+        switch (poll(&pfd, 1, timeout)) {
+            case -1 :   
+                return stat = FAILURE;
+            case 0 :
+                return stat = TIMEOUT;
+            default :
+                stat = (pfd.revents & POLLIN) ? SUCCESS : ERRPOLL;
+                CHECK_STAT(stat);
+                break;
+        }
+        CHECK_STAT(pull_udp_data(sock, segbuf, segsize));
+        mfwrite(segbuf, segsize, sizeof (char), stream);
+        memset(segbuf, 0, SEGMENTSIZE);
+        rsize -= segsize;
+    }
+    free(segbuf);
+    return stat;
+}
 
 

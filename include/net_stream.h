@@ -27,6 +27,8 @@ status_t push_udp_data(sockfd_t sock, Buffer buf, size_t size);
 
 status_t set_socket_sndlowsize(sockfd_t sock, size_t size);
 
+status_t set_socket_rcvlowsize(sockfd_t sock, size_t size);
+
 status_t set_socket_rcvbufsize(sockfd_t sock, size_t size);
 
 status_t set_socket_sndbufsize(sockfd_t sock, size_t size);
