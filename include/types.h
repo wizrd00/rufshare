@@ -110,6 +110,11 @@ typedef enum {
 } fmode_t;
 
 typedef struct {
+    unsigned char *ip;
+    unsigned short port;
+} addr_pair;
+
+typedef struct {
     char filename[MAXFILENAMESIZE];
     char name[MAXNAMESIZE];
     char local_ip[MAXIPV4SIZE];
@@ -154,5 +159,10 @@ typedef struct {
     size_t size;
     char name[MAXFILENAMESIZE];
 } FileContext;
+
+typedef struct {
+    char name[MAXNAMESIZE];
+    addr_pair addr;
+} PairInfo;
 
 #endif
