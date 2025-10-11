@@ -141,6 +141,13 @@ status_t push_udp_data(sockfd_t sock, Buffer buf, size_t size) {
     return stat;
 }
 
+status_t set_socket_sndlowsize(sockfd_t sock, size_t size) {
+    status_t stat = SUCCESS;
+    LOGT(__FILE__, __func__, "set socket option SO_RCVBUF to size %lu", size);
+    CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDLOWAT , &size, sizeof (size_t)), FAILSET);
+    return stat;
+}
+
 status_t set_socket_rcvbufsize(sockfd_t sock, size_t size) {
     status_t stat = SUCCESS;
     LOGT(__FILE__, __func__, "set socket option SO_RCVBUF to size %lu", size);

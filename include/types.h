@@ -25,6 +25,9 @@
 #define CHECK_EQUAL(val0, val1, err)\
     do {if (val0 != val1) {return stat = err;}} while (0)
 
+#define CHECK_NOTEQUAL(val0, val1, err)\
+    do {if (val0 == val1) {return stat = err;}} while (0)
+
 #define CHECK_INT(val, err)\
     do {if (val == -1) {return stat = err;}} while (0)
 
