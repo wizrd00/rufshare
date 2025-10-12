@@ -14,13 +14,13 @@
 #define ERROR "ERROR"
 
 #define append_log(count, level, date, clock, mod, pos, fmt)\
-    do {\
-        fprintf(\
-            &logfile,\
-            "[0x%lx][%-5.5s][%-10.10s][%-15.15s][MOD:%-.32s][POS:%-.32s][%-.128s]\n",\
-            count, level, date, clock, mod, pos, fmt\
-        );\
-    } while (0)
+	do {\
+		fprintf(\
+			&logfile,\
+			"[0x%lx][%-5.5s][%-10.10s][%-15.15s][MOD:%-.32s][POS:%-.32s][%-.128s]\n",\
+			count, level, date, clock, mod, pos, fmt\
+		);\
+	} while (0)
 
 extern FILE *logfile;
 extern unsigned long logcount;
@@ -30,12 +30,12 @@ int start_logging(void);
 void end_logging(void);
 
 void logging(
-    const unsigned long *count,
-    const unsigned char *level,
-    const unsigned char *ver,
-    const unsigned char *mod,
-    const unsigned char *pos,
-    const unsigned char *msg
+	const unsigned long *count,
+	const unsigned char *level,
+	const unsigned char *ver,
+	const unsigned char *mod,
+	const unsigned char *pos,
+	const unsigned char *msg
 );
 
 #endif
