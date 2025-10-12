@@ -1,1 +1,2 @@
-test/libunity/* linguist-vendored
+*.c linguist-language=C
+*.h linguist-language=C
