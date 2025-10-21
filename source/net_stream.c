@@ -128,7 +128,7 @@ status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 status_t pull_udp_data(sockfd_t sock, Buffer buf, size_t size) {
 	status_t stat = SUCCESS;
 	ssize_t recv_size = recv(sock, buf, size, 0);
-	CHECK_INT(recv_size, FAILURE);
+	CHECK_INT(recv_size, ERRRECV);
 	CHECK_SIZE((size_t) recv_size, size);
 	return stat;
 }
@@ -136,7 +136,7 @@ status_t pull_udp_data(sockfd_t sock, Buffer buf, size_t size) {
 status_t push_udp_data(sockfd_t sock, Buffer buf, size_t size) {
 	status_t stat = SUCCESS;
 	ssize_t send_size = send(sock, buf, size, 0);
-	CHECK_INT(send_size, FAILURE);
+	CHECK_INT(send_size, ERRSEND);
 	CHECK_SIZE((size_t) send_size, size);
 	return stat;
 }

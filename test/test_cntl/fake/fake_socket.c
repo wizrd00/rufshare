@@ -82,6 +82,6 @@ ssize_t send(int sockfd, const void *buf, size_t len, int flags) {
 
 int poll(struct pollfd *fds, nfds_t nfds, int timeout) {
 	fds[0].revents = fds[0].events;
-	sleep(timeout);
+	sleep(timeout / 1000);
 	return 1;
 }

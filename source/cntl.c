@@ -29,7 +29,7 @@ status_t end_cntl(sockfd_t sock) {
 	return stat;
 }
 
-status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
+status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t stat = SUCCESS;
 	char infostr[INFOSTRSIZE];
 	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
@@ -55,7 +55,7 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 	return stat;
 }
 
-status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
+status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t stat = SUCCESS;
 	size_t bufsize = sizeof (FlowPacket);
 	Buffer buf = (Buffer) malloc(bufsize);
@@ -78,7 +78,7 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 	return stat;
 }
 
-status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
+status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t stat = SUCCESS;
 	char infostr[INFOSTRSIZE];
 	size_t bufsize = sizeof (SendPacket) + INFOSTRSIZE;
@@ -104,7 +104,7 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 	return stat;
 }
 
-status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
+status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t stat = SUCCESS;
 	size_t bufsize = sizeof (RecvPacket);
 	Buffer buf = (Buffer) malloc(bufsize);
@@ -127,7 +127,7 @@ status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 	return stat;
 }
 
-status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
+status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t stat = SUCCESS;
 	CastPacket packet;
 	char infostr[INFOSTRSIZE];
@@ -152,7 +152,7 @@ status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 	return stat;
 }
 
-status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
+status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t stat = SUCCESS;
 	FlowPacket packet;
 	RUFShareType tmp_type;
@@ -174,7 +174,7 @@ status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 	return stat;
 }
 
-status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
+status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t stat = SUCCESS;
 	SendPacket packet;
 	char infostr[INFOSTRSIZE];
@@ -199,7 +199,7 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
 	return stat;
 }
 
-status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, time_t timeout) {
+status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t stat = SUCCESS;
 	RecvPacket packet;
 	RUFShareType tmp_type;

@@ -33,7 +33,7 @@ $(FAKE_OBJ) : $(FAKE_SRC) $(FAKE_HDR)
 
 memcheck : test.elf
 	@echo start checking test.elf for any memory bug
-	valgrind --tool=memcheck ./$^
+	valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./$^
 
 clean :
 	rm -rf $(TEST_OBJ) $(NET_STREAM_OBJ) $(FAKE_OBJ) test.elf

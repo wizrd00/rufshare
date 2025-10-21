@@ -39,7 +39,7 @@ void test_push_CAST_header(void) {
 			}
 		}
 	};
-	status_t stat = push_CAST_header(fsock, &args, 0.5);
+	status_t stat = push_CAST_header(fsock, &args, 500);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first push_CAST_header test failed");
 	return;
 }
@@ -52,7 +52,7 @@ void test_push_FLOW_header(void) {
 			.packet = pack_RUFShare_FlowPacket(csize, 1, 0x1337)
 		}
 	};
-	status_t stat = push_FLOW_header(fsock, &args, 0.5);
+	status_t stat = push_FLOW_header(fsock, &args, 500);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first push_FLOW_header test failed");
 	return;
 }
@@ -60,7 +60,7 @@ void test_push_FLOW_header(void) {
 void test_pull_CAST_header(void) {
 	sockfd_t fsock = 8;
 	HeaderArgs args;
-	status_t stat = pull_CAST_header(fsock, &args, 0.1);
+	status_t stat = pull_CAST_header(fsock, &args, 100);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first pull_CAST_header test failed");
 	TEST_ASSERT_EQUAL_MESSAGE(CAST, args.cast.packet.type, "invalid type");
 	TEST_ASSERT_EQUAL_MESSAGE(0x1337, args.cast.packet.crc, "invalid crc");
@@ -74,7 +74,7 @@ void test_pull_CAST_header(void) {
 void test_pull_FLOW_header(void) {
 	sockfd_t fsock = 64;
 	HeaderArgs args;
-	status_t stat = pull_FLOW_header(fsock, &args, 0.1);
+	status_t stat = pull_FLOW_header(fsock, &args, 100);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first pull_FLOW_header test failed");
 	TEST_ASSERT_EQUAL_MESSAGE(FLOW, args.flow.packet.type, "invalid type");
 	TEST_ASSERT_EQUAL_MESSAGE(1337, args.flow.packet.chunk_size, "invalid chunk_size");
@@ -86,7 +86,7 @@ void test_pull_FLOW_header(void) {
 void test_pull_SEND_header(void) {
 	sockfd_t fsock = 512;
 	HeaderArgs args;
-	status_t stat = pull_SEND_header(fsock, &args, 0.1);
+	status_t stat = pull_SEND_header(fsock, &args, 100);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first pull_SEND_header test failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SEND, args.send.packet.type, "invalid type");
 	TEST_ASSERT_EQUAL_MESSAGE(1337, args.send.packet.chunk_size, "invalid chunk_size");
@@ -103,7 +103,7 @@ void test_pull_SEND_header(void) {
 void test_pull_RECV_header(void) {
 	sockfd_t fsock = 4096;
 	HeaderArgs args;
-	status_t stat = pull_RECV_header(fsock, &args, 0.1);
+	status_t stat = pull_RECV_header(fsock, &args, 100);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first pull_RECV_header test failed");
 	TEST_ASSERT_EQUAL_MESSAGE(RECV, args.recv.packet.type, "invalid type");
 	TEST_ASSERT_EQUAL_MESSAGE(1, args.recv.packet.ack, "invalid ack");
@@ -113,7 +113,8 @@ void test_pull_RECV_header(void) {
 }
 
 int main(void) {
-	printf("\n\x1b[1;93mStart testing cntl.c\x1b[0m\n\n");
+	printf("\n\x1b[1;93mStart testing cntl.c\x1b[0m\n");
+	printf("\n\x1b[1;31mThis test required internet access\x1b[0m\n\n");
 	UNITY_BEGIN();
 	RUN_TEST(test_start_cntl);
 	RUN_TEST(test_push_CAST_header);

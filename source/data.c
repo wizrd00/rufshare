@@ -4,7 +4,7 @@ status_t start_data(CntlAddrs *addrs, sockfd_t *sock) {
 	status_t stat = SUCCESS;
 	CHECK_BOOL(check_ipv4_format(addrs->local_ip), BADIPV4);
 	CHECK_PORT(addrs->remote_port);
-	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port);
+	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port));
 	return stat;
 }
 
@@ -14,14 +14,13 @@ status_t end_data(sockfd_t sock) {
 	return stat;
 }
 
-status_t push_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, time_t timeout) {
+status_t push_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, int timeout) {
 	status_t stat = SUCCESS;
 	MFILE *stream = &(file->mfile);
-	Buffer segbuf = (Buffer) malloc(SEGMENTSIZE);
-	CHECK_PTR(segbuf, EMALLOC);
+	unsigned char segbuf[SEGMENTSIZE];
 	size_t rsize = chunk.chunk_size;
+	CHECK_MFILE(file->mfile);
 	mfseek(stream, chunk.start_pos);
-	CHECK_STAT(set_socket_sndlowsize(sock, 2 * SEGMENTSIZE));
 	while (rsize != 0) {
 		size_t segsize = (SEGMENTSIZE <= rsize) ? SEGMENTSIZE : rsize;
 		struct pollfd pfd = {.fd = sock, .events = POLLOUT};
@@ -40,16 +39,15 @@ status_t push_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, t
 		memset(segbuf, 0, SEGMENTSIZE);
 		rsize -= segsize;
 	}
-	free(segbuf);
 	return stat;
 }
 
-status_t pull_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, time_t timeout) {
+status_t pull_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, int timeout) {
 	status_t stat = SUCCESS;
 	MFILE *stream = &(file->mfile);
-	Buffer segbuf = (Buffer) malloc(SEGMENTSIZE);
-	CHECK_PTR(segbuf, EMALLOC);
+	unsigned char segbuf[SEGMENTSIZE];
 	size_t rsize = chunk.chunk_size;
+	CHECK_MFILE(file->mfile);
 	mfseek(stream, chunk.start_pos);
 	CHECK_STAT(set_socket_rcvlowsize(sock, 2 * SEGMENTSIZE));
 	while (rsize != 0) {
@@ -70,8 +68,6 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, t
 		memset(segbuf, 0, SEGMENTSIZE);
 		rsize -= segsize;
 	}
-	free(segbuf);
 	return stat;
+
 }
-
-

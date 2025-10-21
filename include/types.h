@@ -44,7 +44,7 @@
 	do {if (port == 0) {return stat = BADPORT;}} while (0)
 
 #define CHECK_MFILE(mfile)\
-	do {if ((mfile.file == NULL) || (mfile.buf == NULL)) {return stat = NOMFILE;}} while (0)
+	do {if (mfile.open == 0) {return stat = NOMFILE;}} while (0)
 
 #ifdef LOG_TRACE
 	#define LOGT(mod, pos, ...) logging(&logcount, TRACE, mod, pos, __VA_ARGS__)
@@ -95,9 +95,11 @@ typedef enum {
 	NOAVAIL,
 	NOCREAT,
 	NOTRUNC,
-	NOREGEX,
+	NOCLOSE,
 	ERRBIND,
 	ERRCONN,
+	ERRRECV,
+	ERRSEND,
 	ERRPOLL,
 	EMALLOC,
 	INVSOCK,
@@ -144,21 +146,22 @@ typedef union {
 
 typedef struct {
 	FILE *file;
+	short open;
 	size_t size;
 	size_t pos;
 	void *buf;
 } MFILE;
 
 typedef struct {
-	unsigned long start_pos;
-	size_t chunk_size;
-} ChunkContext;
-
-typedef struct {
 	MFILE mfile;
 	size_t size;
 	char name[MAXFILENAMESIZE];
 } FileContext;
+
+typedef struct {
+	unsigned long start_pos;
+	size_t chunk_size;
+} ChunkContext;
 
 typedef struct {
 	char name[MAXNAMESIZE];

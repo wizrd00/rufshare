@@ -3,7 +3,6 @@
 
 #include "types.h"
 #include "mfile.h"
-#include "error/errors.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,7 +14,5 @@
 status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode);
 
 status_t end_file_stream(FileContext* filec);
-
-ChunkContext global_get_chunk(unsigned long start_pos, size_t chunk_size);
 
 #endif

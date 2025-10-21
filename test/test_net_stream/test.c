@@ -128,7 +128,8 @@ void test_set_socket_broadcast(void) {
 }
 
 int main(void) {
-	printf("\n\x1b[1;93mStart testing net_stream.c\x1b[0m\n\n");
+	printf("\n\x1b[1;93mStart testing net_stream.c\x1b[0m\n");
+	printf("\n\x1b[1;31mThis test required internet access\x1b[0m\n\n");
 	UNITY_BEGIN();
 	RUN_TEST(test_init_tcp_socket0);
 	RUN_TEST(test_init_tcp_socket1);

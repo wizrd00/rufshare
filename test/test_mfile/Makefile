@@ -25,7 +25,7 @@ $(MFILE_OBJ) : $(MFILE_SRC) $(MFILE_HDR) $(TYPES_HDR)
 
 memcheck : test.elf
 	@echo start checking test.elf for any memory bug
-	valgrind --tool=memcheck ./$^
+	valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./$^
 
 clean :
 	rm -rf $(TEST_OBJ) $(MFILE_OBJ) test.elf DEMOFILE*
