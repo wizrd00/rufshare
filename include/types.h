@@ -18,6 +18,10 @@
 #define MAXPORTLEN 5
 #define MAXIPV4SIZE 16 * sizeof (char)
 #define MAXIPV4LEN 15
+#define HANDSHAKE_SEND_TIMEOUT 8 * 1000
+#define HANDSHAKE_RECV_TIMEOUT 8 * 1000
+#define VERIFICATION_SEND_TIMEOUT 8 * 1000
+#define VERIFICATION_RECV_TIMEOUT 8 * 1000
 
 #define CHECK_STAT(val)\
 	do {if (val != SUCCESS) {return stat = val;}} while (0)
@@ -83,6 +87,7 @@ typedef enum {
 	FAILURE,
 	TIMEOUT,
 	LOWSIZE,
+	ZEROACK,
 	FAILSET,
 	FAILPOS,
 	BADARGS,

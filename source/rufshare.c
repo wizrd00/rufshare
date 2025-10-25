@@ -1,27 +1,51 @@
 #include "rufshare.h"
 
-static status_t handshake(void);
+RUFShareChunkSize chunk_size;
+RUFSharePartialChunkSize partial_chunk_size;
+RUFShareChunkCount chunk_count;
+sockfd_t cntl_sock;
+sockfd_t data_sock;
+FileContext filec;
+
+static status_t handshake(const char *path, CntlAddrs *addrs) {
+	status_t stat = SUCCESS;
+	HeaderArgs header;
+	CHECK_STAT(start_file_stream(&filec, path, MRD));
+	CHECK_STAT(start_cntl(addrs, *cntl_sock));
+	chunk_count = calc_chunk_count(filec.size, chunk_size, &partial_chunk_size);
+	SendPacket spacket = pack_RUFShare_SendPacket(chunk_size, chunk_count, partial_chunk_size, 0);
+	header.send.packet = spacket;
+	CHECK_STAT(push_SEND_header(cntl_sock, &header, HANDSHAKE_SEND_TIMEOUT));
+	CHECK_STAT(pull_RECV_header(cntl_sock, &header, HANDSHAKE_RECV_TIMEOUT));
+	if (header.recv.packet.ack == 0)
+		stat = ZEROACK;
+	return stat;
+}
+
+static status_t transfer(void);
+
+static status_t verification(void) {
+	status_t stat = SUCCESS;
+	HeaderArgs header;
+	RUFShareCRC16 crc = calc_file_crc16(&filec);
+	SendPacket spacket = pack_RUFShare_SendPacket(chunk_size, chunk_count, partial_chunk_size, crc);
+	header.send.packet = spacket;
+	CHECK_STAT(push_SEND_header(cntl_sock, &header, VERIFICATION_SEND_TIMEOUT));
+	CHECK_STAT(pull_RECV_header(cntl_sock, &header, VERIFICATION_RECV_TIMEOUT));
+	if (header.recv.packet.ack == 0)
+		stat = ZEROACK;
+	return stat;
+}
 
 status_t push_file(const char *name, const char *path, addr_pair *local, addr_pair *remote) {
-	FileContext filec;
-	CntlAddrs cntl_addr = {
-		.local_ip = local->ip,
-		.local_port = local->port,
-		.remote_ip = remote->ip,
-		.remote_port = remote->port
-		};
-	sockfd_t cntl_sock;
-	SendPacket spacket;
-	RecvPacket rpacket;
-	RUFShareChunkSize chunk_size;
-	RUFSharePartialChunkSize partial_chunk_size;
-	RUFShareChunkCount chunk_count;
-	tryexec(start_file_stream(&filec, path, MRD), raise_start_file_stream_error, path);
-	tryexec(start_cntl(&cntl_addr, &cntl_sock), raise_start_cntl_error , local);
-	chunk_size = calc_chunk_size(filec.size);
-	partial_chunk_size = calc_partial_chunk_size(filec.size, chunk_size);
-	chunk_count = calc_chunk_count(filec.size, chunk_size);
-	// TODO
+	status_t stat = SUCCESS;
+	CntlAddrs addrs = {.local_port = local->port, .remote_port = remote->port};
+	strncpy(addrs.name, name, MAXNAMESIZE);
+	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
+	strncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
+	extract_file_name(addrs.filename, path, MAXFILENAMESIZE);
+	CHECK_STAT(handshake(path, addrs));
+	return stat;
 }
 
 status_t pull_file(const char *path, addr_pair *local, addr_pair *remote);

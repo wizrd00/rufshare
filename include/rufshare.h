@@ -7,6 +7,8 @@
 #include "data.h"
 #include "error.h"
 #include "utils/calc.h"
+#include "utils/fname.h"
+#include <string.h>
 
 status_t push_file(const char *path, addr_pair *local, addr_pair *remote);
 

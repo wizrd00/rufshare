@@ -195,7 +195,7 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	CHECK_STAT(pull_tcp_data(sock, (Buffer) infostr, INFOSTRSIZE, false));
 	args->send.packet = convert_SendPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->send.info));
-	LOGD(__FILE__, __func__, "SEND header with chunk_size = %hu, chunk_count = %lu, partial_chunk_size = %hu pulled", args->flow.packet.chunk_size, args->flow.packet.chunk_count, args->flow.packet.partial_chunk_size);
+	LOGD(__FILE__, __func__, "SEND header with chunk_size = %hu, chunk_count = %lu, partial_chunk_size = %hu pulled", args->send.packet.chunk_size, args->send.packet.chunk_count, args->send.packet.partial_chunk_size);
 	return stat;
 }
 
