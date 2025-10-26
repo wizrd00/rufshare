@@ -7,6 +7,7 @@
 #include "data.h"
 #include "error.h"
 #include "utils/calc.h"
+#include "utils/uchunk.h"
 #include "utils/fname.h"
 #include <string.h>
 

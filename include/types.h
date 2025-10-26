@@ -22,6 +22,7 @@
 #define HANDSHAKE_RECV_TIMEOUT 8 * 1000
 #define VERIFICATION_SEND_TIMEOUT 8 * 1000
 #define VERIFICATION_RECV_TIMEOUT 8 * 1000
+#define TRANSFER_TRY_COUNT 3
 
 #define CHECK_STAT(val)\
 	do {if (val != SUCCESS) {return stat = val;}} while (0)
@@ -88,6 +89,7 @@ typedef enum {
 	TIMEOUT,
 	LOWSIZE,
 	ZEROACK,
+	ZEROSEQ,
 	FAILSET,
 	FAILPOS,
 	BADARGS,

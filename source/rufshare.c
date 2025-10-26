@@ -22,7 +22,25 @@ static status_t handshake(const char *path, CntlAddrs *addrs) {
 	return stat;
 }
 
-static status_t transfer(void);
+static status_t transfer(RUFShareSequence *seq, CntlAddrs *addrs) {
+	status_t stat = SUCCESS;
+	unsigned short trycount = TRANSFER_TRY_COUNT;
+	ChunkContext chcon = {.start_pos = 0, .chunk_size = chunk_size};
+	RUFShareCRC32 crc;
+	CHECK_EQUAL(0, *seq, ZEROSEQ);
+	CHECK_STAT(start_data(addrs, &data_sock));
+	while (*seq <= chunk_count) {
+		while (trycount != 0) {
+			chcon.start_pos = (*seq - 1) * chunk_size;
+			chcon.chunk_size = (*seq == chunk_count) ? partial_chunk_size : chunk_size;
+			//TODO
+		}
+		(*seq)++;
+		trycount = TRANSFER_TRY_COUNT;
+	}
+
+
+}
 
 static status_t verification(void) {
 	status_t stat = SUCCESS;
