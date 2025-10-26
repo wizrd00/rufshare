@@ -76,15 +76,22 @@ static status_t verification(void) {
 
 status_t push_file(const char *name, const char *path, addr_pair *local, addr_pair *remote) {
 	status_t stat = SUCCESS;
+	RUFShareSequence seq = 1;
 	CntlAddrs addrs = {.local_port = local->port, .remote_port = remote->port};
 	strncpy(addrs.name, name, MAXNAMESIZE);
 	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
 	strncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
 	extract_file_name(addrs.filename, path, MAXFILENAMESIZE);
 	CHECK_STAT(handshake(path, addrs));
+	CHECK_STAT(transfer(&seq, addrs));
+	CHECK_STAT(verification());
 	return stat;
 }
 
-status_t pull_file(const char *path, addr_pair *local, addr_pair *remote);
+status_t pull_file(const char *path, addr_pair *local, addr_pair *remote) {
+	status_t stat = SUCCESS;
+	RUFShareSequence seq = 1;
+	CntlAddrs addrs = {.local_port = local->port, .remote_port = remote->port};
+}
 
 status_t scan_pair(PairInfo *info, addr_pair *local);
