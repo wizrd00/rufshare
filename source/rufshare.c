@@ -26,20 +26,39 @@ static status_t transfer(RUFShareSequence *seq, CntlAddrs *addrs) {
 	status_t stat = SUCCESS;
 	unsigned short trycount = TRANSFER_TRY_COUNT;
 	ChunkContext chcon = {.start_pos = 0, .chunk_size = chunk_size};
+	HeaderArgs header0;
+	HeaderArgs header1;
 	RUFShareCRC32 crc;
 	CHECK_EQUAL(0, *seq, ZEROSEQ);
 	CHECK_STAT(start_data(addrs, &data_sock));
 	while (*seq <= chunk_count) {
+		chcon.start_pos = (*seq - 1) * chunk_size;
+		chcon.chunk_size = (*seq == chunk_count) ? partial_chunk_size : chunk_size;
+		crc = calc_chunk_crc32(&filec, &chcon);
+		header.flow = pack_FLOW_FlowPacket(((*seq == chunk_count) ? partial_chunk_size : chunk_size), *seq, crc);
 		while (trycount != 0) {
-			chcon.start_pos = (*seq - 1) * chunk_size;
-			chcon.chunk_size = (*seq == chunk_count) ? partial_chunk_size : chunk_size;
-			//TODO
+			CHECK_STAT(push_FLOW_header(cntl_sock, &header0, TRANSFER_FLOW_TIMEOUT));
+			CHECK_STAT(pull_RECV_header(cntl_sock, &header1, TRANSFER_RECV_TIMEOUT));
+			if (header1.recv.ack == 1)
+				break;
+			else
+				trycount--;
 		}
-		(*seq)++;
+		CHECK_NOTEQUAL(0, trycount, EXPTRY0);
 		trycount = TRANSFER_TRY_COUNT;
+		while (trycount != 0) {
+			CHECK_STAT(push_chunk_data(data_sock, &filec, &chcon, TRANSFER_DATA_TIMEOUT));
+			CHECK_STAT(pull_RECV_header(cntl_sock, &header1, TRANSFER_RECV_TIMEOUT));
+			if (header1.recv.ack == 1)
+				break;
+			else
+				trycount--;
+		}
+		CHECK_NOTEQUAL(0, trycount, EXPTRY1);
+		trycount = TRANSFER_TRY_COUNT;
+		(*seq)++;
 	}
-
-
+	return stat;
 }
 
 static status_t verification(void) {

@@ -12,6 +12,8 @@ static inline RUFShareChunkCount calc_chunk_count(size_t file_size, RUFShareChun
 
 static inline RUFShareCRC16 calc_file_crc16(FileContext *filec);
 
-static inline RUFShareCRC32 calc_file_crc32(void);
+static inline RUFShareCRC32 calc_chunk_crc32(FileContext *filec, ChunkContext *chunk) {
+
+}
 
 #endif
