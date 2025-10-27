@@ -1,8 +1,10 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "protocol/protocol.h"
+#ifdef LOG_TRACE | LOG_DEBUG | LOG_WARNN | LOG_ERROR
 #include "logging/logger.h"
+#endif
+#include "protocol/protocol.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
