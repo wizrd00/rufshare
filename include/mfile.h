@@ -14,7 +14,7 @@ size_t mfwrite(const void *ptr, size_t size, size_t nmemb, MFILE *stream);
 
 int mfseek(MFILE *stream, unsigned long pos);
 
-long mftell(MFILE *stream);
+unsigned long mftell(MFILE *stream);
 
 int mfsync(void *addr, size_t length, int flags);
 

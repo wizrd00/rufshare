@@ -53,11 +53,11 @@ int mfseek(MFILE *stream, unsigned long pos) {
 	return value;
 }
 
-long mftell(MFILE *stream) {
-	long value = -1;
+unsigned long mftell(MFILE *stream) {
+	unsigned long value = -1;
 	if (!stream->open)
 		return value;
-	return (long) stream->pos;
+	return (unsigned long) stream->pos;
 }
 
 int mfsync(void *addr, size_t length, int flags) {
