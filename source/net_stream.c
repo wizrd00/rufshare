@@ -19,7 +19,7 @@ static status_t host_ipstring(ipv4str_t ip, struct in_addr *addr) {
 	return stat;
 }
 
-status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4str_t dst_ip, port_t dst_port) {
+status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4str_t dst_ip, port_t dst_port, bool conn) {
 	status_t stat = SUCCESS;
 	uint32_t src_ipnetorder;
 	uint32_t dst_ipnetorder;
@@ -48,8 +48,9 @@ status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (optval)), FAILSET);
 	LOGT(__FILE__, __func__, "bind to address %s:%hu", src_ip, src_port);
 	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND);
-	LOGT(__FILE__, __func__, "connect to address %s:%hu", dst_ip, dst_port);
-	CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN);
+	if (conn)
+		LOGT(__FILE__, __func__, "connect to address %s:%hu", dst_ip, dst_port);
+		CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN);
 	LOGT(__FILE__, __func__, "tcp socket created successfully with fd = %d", *sock);
 	return stat;
 }

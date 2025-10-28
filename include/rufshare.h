@@ -10,6 +10,8 @@
 #include "utils/uchunk.h"
 #include "utils/fname.h"
 #include <string.h>
+#include <pthread.h>
+#include <mqueue.h>
 
 status_t push_file(const char *path, addr_pair *local, addr_pair *remote);
 

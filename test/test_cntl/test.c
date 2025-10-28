@@ -1,5 +1,6 @@
 #include "unity.h"
 #include "cntl.h"
+#include <stdbool.h>
 
 void setUp(void) {
 	return;
@@ -19,7 +20,7 @@ void test_start_cntl(void) {
 		.remote_port = 80
 	};
 	sockfd_t sock;
-	status_t stat = start_cntl(&addrs, &sock);
+	status_t stat = start_cntl(&addrs, &sock, true);
 	// next test needs internet access to three way tcp handshake with remote server
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "start_cntl failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, end_cntl(sock), "end_cntl failed");

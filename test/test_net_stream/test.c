@@ -1,5 +1,6 @@
 #include "unity.h"
 #include "net_stream.h"
+#include <stdbool.h>
 
 void setUp(void) {
 	return;
@@ -15,7 +16,7 @@ void test_init_tcp_socket0(void) {
 	port_t sport = 2048;
 	ipv4str_t dip = "1.1.1.1";
 	port_t dport = 80;
-	status_t stat = init_tcp_socket(&sock, sip, sport, dip, dport);
+	status_t stat = init_tcp_socket(&sock, sip, sport, dip, dport, true);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first init_tcp_socket test failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, close_socket(sock), "close_socket has failed");
 	return;
@@ -27,7 +28,7 @@ void test_init_tcp_socket1(void) {
 	port_t sport = 2048;
 	ipv4str_t dip = "10.10.257.193";
 	port_t dport = 4096;
-	status_t stat = init_tcp_socket(&sock, sip, sport, dip, dport);
+	status_t stat = init_tcp_socket(&sock, sip, sport, dip, dport, true);
 	TEST_ASSERT_EQUAL_MESSAGE(BADIPV4, stat, "second init_tcp_socket test must fails but didn't");
 	return;
 }
@@ -38,7 +39,7 @@ void test_init_tcp_socket2(void) {
 	port_t sport = 2048;
 	ipv4str_t dip = "1.1.1.1";
 	port_t dport = 80;
-	status_t stat = init_tcp_socket(&sock, sip, sport, dip, dport);
+	status_t stat = init_tcp_socket(&sock, sip, sport, dip, dport, true);
 	TEST_ASSERT_EQUAL_MESSAGE(ERRBIND, stat, "third init_tcp_socket test must fails but didn't");
 	return;
 }

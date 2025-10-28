@@ -1,6 +1,6 @@
 #include "cntl.h"
 
-status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock) {
+status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock, bool conn) {
 	status_t stat = SUCCESS;
 	LOGT(__FILE__, __func__, "start cntl with socket fd = %d", sock);
 	LOGD(__FILE__, __func__, "local ip = %s", addrs->local_ip);
@@ -11,7 +11,7 @@ status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock) {
 	CHECK_PORT(addrs->local_port);
 	LOGD(__FILE__, __func__, "remote port = %hu", addrs->remote_port);
 	CHECK_PORT(addrs->remote_port);
-	CHECK_STAT(init_tcp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port));
+	CHECK_STAT(init_tcp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port, conn));
 	return stat;
 }
 

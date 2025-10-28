@@ -1,0 +1,38 @@
+CC := tcc
+CFLAGS := -std=c99 -g -c -Wall -Werror -Wunsupported -Wimplicit-function-declaration
+INCLUDE_UNITY_LIB := -L../libunity -lunity -Wl,-rpath=../libunity
+BUILD_DIR := build
+FAKE_DIR := fake
+INCLUDE_DIR := ../../include/
+UNITY_DIR := ../libunity
+SRC_FILES := ../../source/*.c
+INC_HDRS := ../../include/*.h
+CRC_HDRS := ../../include/libcrc/*.h
+PRT_HDRS := ../../include/protocol/*.h 
+UTIL_HDRS := ../../include/utils/*.h
+TEST_SRC := test.c
+TEST_OBJ := $(BUILD_DIR)/test.o
+IPCHECK_HDR := ../../include/utils/ipcheck.h
+FAKE_SRC := fake/fake_socket.c
+FAKE_HDR := fake/fake_socket.h
+FAKE_OBJ := $(BUILD_DIR)/fake_socket.o
+TYPES_HDR := ../../include/types.h
+
+test.elf : 
+	@echo linking object files $^
+	$(CC) $(INCLUDE_UNITY_LIB) -o $@ $^
+
+$(TEST_OBJ) : $(TEST_SRC)
+	@echo compiling $^
+	$(CC) $(CFLAGS) -I$(FAKE_DIR) -I$(UNITY_DIR) -I$(INCLUDE_DIR) -o $@ $^
+
+$(FAKE_OBJ) : $(FAKE_SRC) $(FAKE_HDR)
+	@echo compiling $<
+	$(CC) $(CFLAGS) -I$(FAKE_DIR) -I$(INCLUDE_DIR) -o $@ $<
+
+memcheck : test.elf
+	@echo start checking test.elf for any memory bug
+	valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./$^
+
+clean :
+	rm -rf $(TEST_OBJ) $(DATA_OBJ) $(MFILE_OBJ) $(NET_STREAM_OBJ) $(FILE_STREAM_OBJ) $(FAKE_OBJ) test.elf DEMOFILE*

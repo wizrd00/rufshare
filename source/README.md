@@ -10,5 +10,10 @@ so before using ```mfopen()```, make sure the desired file has size greater than
 ## data.c
 
 ### push_chunk_data()
-    -this function sets socket low-water mark size to 2 * SEGMENTSIZE
-    -in this function, poll() will wait until the current available space in socket send buffer is equal ot greater than 2 * SEGMENTSIZE
+	-this function sets socket low-water mark size to 2 * SEGMENTSIZE
+	-in this function, poll() will wait until the current available space in socket send buffer is equal ot greater than 2 * SEGMENTSIZE
+
+## rufshare.c
+
+### chunk_count
+	-chunk_count = count of chunks + one partial_chunk_size;

@@ -14,13 +14,13 @@ status_t end_data(sockfd_t sock) {
 	return stat;
 }
 
-status_t push_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, int timeout) {
+status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout) {
 	status_t stat = SUCCESS;
-	MFILE *stream = &(file->mfile);
+	MFILE *stream = &(filec->mfile);
 	unsigned char segbuf[SEGMENTSIZE];
-	size_t rsize = chunk.chunk_size;
-	CHECK_MFILE(file->mfile);
-	mfseek(stream, chunk.start_pos);
+	size_t rsize = chunk->chunk_size;
+	CHECK_MFILE(filec->mfile);
+	mfseek(stream, chunk->start_pos);
 	while (rsize != 0) {
 		size_t segsize = (SEGMENTSIZE <= rsize) ? SEGMENTSIZE : rsize;
 		struct pollfd pfd = {.fd = sock, .events = POLLOUT};
@@ -42,13 +42,13 @@ status_t push_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, i
 	return stat;
 }
 
-status_t pull_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, int timeout) {
+status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout) {
 	status_t stat = SUCCESS;
-	MFILE *stream = &(file->mfile);
+	MFILE *stream = &(filec->mfile);
 	unsigned char segbuf[SEGMENTSIZE];
-	size_t rsize = chunk.chunk_size;
-	CHECK_MFILE(file->mfile);
-	mfseek(stream, chunk.start_pos);
+	size_t rsize = chunk->chunk_size;
+	CHECK_MFILE(filec->mfile);
+	mfseek(stream, chunk->start_pos);
 	CHECK_STAT(set_socket_rcvlowsize(sock, 2 * SEGMENTSIZE));
 	while (rsize != 0) {
 		size_t segsize = (SEGMENTSIZE <= rsize) ? SEGMENTSIZE : rsize;
@@ -69,5 +69,4 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *file, ChunkContext chunk, i
 		rsize -= segsize;
 	}
 	return stat;
-
 }

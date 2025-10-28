@@ -182,4 +182,8 @@ typedef struct {
 	addr_pair addr;
 } PairInfo;
 
+typedef struct {
+	pthread_t handle;
+} BroadCast;
+
 #endif
