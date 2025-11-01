@@ -2,7 +2,14 @@
 
 status_t start_data(CntlAddrs *addrs, sockfd_t *sock) {
 	status_t stat = SUCCESS;
+	LOGT(__FILE__, __func__, "start data");
+	LOGD(__FILE__, __func__, "local ip = %s", addrs->local_ip);
 	CHECK_BOOL(check_ipv4_format(addrs->local_ip), BADIPV4);
+	LOGD(__FILE__, __func__, "remote ip = %s", addrs->remote_ip);
+	CHECK_BOOL(check_ipv4_format(addrs->remote_ip), BADIPV4);
+	LOGD(__FILE__, __func__, "local port = %hu", addrs->local_port);
+	CHECK_PORT(addrs->local_port);
+	LOGD(__FILE__, __func__, "remote port = %hu", addrs->remote_port);
 	CHECK_PORT(addrs->remote_port);
 	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port));
 	return stat;
@@ -10,6 +17,7 @@ status_t start_data(CntlAddrs *addrs, sockfd_t *sock) {
 
 status_t end_data(sockfd_t sock) {
 	status_t stat = SUCCESS;
+	LOGT(__FILE__, __func__, "end data with socket fd = %d", sock);
 	CHECK_INT(close(sock), FAILURE);
 	return stat;
 }
@@ -39,6 +47,7 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		memset(segbuf, 0, SEGMENTSIZE);
 		rsize -= segsize;
 	}
+	LOGD(__FILE__, __func__, "chunk with size %lu pushed", chunk->chunk_size);
 	return stat;
 }
 
@@ -68,5 +77,6 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		memset(segbuf, 0, SEGMENTSIZE);
 		rsize -= segsize;
 	}
+	LOGD(__FILE__, __func__, "chunk with size %lu pulled", chunk->chunk_size);
 	return stat;
 }

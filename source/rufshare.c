@@ -8,14 +8,6 @@ sockfd_t data_sock;
 sockfd_t conn_sock;
 FileContext filec;
 
-static void cancel_connections(void) {
-	end_file_stream(&filec);
-	end_cntl(cntl_sock);
-	end_data(data_sock);
-	end_cntl(conn_sock);
-	return;
-}
-
 static void set_global_variables(HeaderArgs *header) {
 	chunk_size = header->send.packet.chunk_size;
 	partial_chunk_size = header->send.packet.partial_chunk_size;
@@ -26,12 +18,17 @@ static void set_global_variables(HeaderArgs *header) {
 static status_t handshake(void) {
 	status_t stat = SUCCESS;
 	HeaderArgs header;
+	LOGT(__FILE__, __func__, "start handshake");
 	chunk_count = calc_chunk_count(filec.size, chunk_size, &partial_chunk_size);
+	LOGD(__FILE__, __func__, "file with size %lu, splitted into %lu chunks with size %lu", filec.size, chunk_count, chunk_size);
 	header.send.packet = pack_RUFShare_SendPacket(chunk_size, chunk_count, partial_chunk_size, 0);
 	CHECK_STAT(push_SEND_header(cntl_sock, &header, HANDSHAKE_SEND_TIMEOUT));
+	LOGD(__FILE__, __func__, "SEND packet pushed on socked fd %d with %d timeout", cntl_sock, HANDSHAKE_SEND_TIMEOUT);
 	CHECK_STAT(pull_RECV_header(cntl_sock, &header, HANDSHAKE_RECV_TIMEOUT));
+	LOGD(__FILE__, __func__, "RECV packet pulled on socked fd %d with %d timeout", cntl_sock, HANDSHAKE_RECV_TIMEOUT);
 	if (header.recv.packet.ack == 0)
 		stat = ZEROACK;
+	LOGD(__FILE__, __func__, "header.recv.packet.ack = %d", header.recv.packet.ack);
 	return stat;
 }
 
@@ -79,9 +76,12 @@ static status_t verification(void) {
 	RUFShareCRC16 crc = calc_file_crc16(&filec);
 	header.send.packet = pack_RUFShare_SendPacket(chunk_size, chunk_count, partial_chunk_size, crc);
 	CHECK_STAT(push_SEND_header(cntl_sock, &header, VERIFICATION_SEND_TIMEOUT));
+	LOGD(__FILE__, __func__, "SEND packet pushed on socket fd %d with timeout %d", cntl_sock, VERIFICATION_SEND_TIMEOUT);
 	CHECK_STAT(pull_RECV_header(cntl_sock, &header, VERIFICATION_RECV_TIMEOUT));
+	LOGD(__FILE__, __func__, "RECV packet pulled on socked fd %d with %d timeout", cntl_sock, VERIFICATION_RECV_TIMEOUT);
 	if (header.recv.packet.ack == 0)
 		stat = ZEROACK;
+	LOGD(__FILE__, __func__, "header.recv.packet.ack = %d", header.recv.packet.ack);
 	return stat;
 }
 
@@ -89,16 +89,27 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	status_t stat = SUCCESS;
 	RUFShareSequence seq = 1;
 	CntlAddrs cntl_addrs = {.local_port = local->port, .remote_port = remote->port};
+	LOGT(__FILE__, __func__, "start push_file with name %s", name);
 	strncpy(addrs.name, name, MAXNAMESIZE);
+	LOGD(__FILE__, __func__, "push_file() : name = %s", addrs.name);
 	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
+	LOGD(__FILE__, __func__, "push_file() : local_ip = %s", addrs.local_ip);
 	strncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
+	LOGD(__FILE__, __func__, "push_file() : remote_ip = %s", addrs.remote_ip);
 	extract_file_name(addrs.filename, path, MAXFILENAMESIZE);
+	LOGD(__FILE__, __func__, "push_file() : filename = %s", addrs.filename);
 	CHECK_STAT(start_file_stream(&filec, path, MRD));
+	LOGD(__FILE__, __func__, "call start_cntl()");
 	CHECK_STAT(start_cntl(&addrs, &cntl_sock, true));
+	LOGD(__FILE__, __func__, "call handshake()");
 	CHECK_STAT(handshake());
+	LOGD(__FILE__, __func__, "call start_data()");
 	CHECK_STAT(start_data(&addrs, &data_sock));
+	LOGD(__FILE__, __func__, "call transfer()");
 	CHECK_STAT(transfer(&seq));
+	LOGD(__FILE__, __func__, "call verification()");
 	CHECK_STAT(verification());
+	LOGD(__FILE__, __func__, "end push_file with name %s", addrs.name):
 	CHECK_STAT(end_file_stream(&filec));
 	CHECK_STAT(end_cntl(cntl_sock));
 	CHECK_STAT(end_data(data_sock));

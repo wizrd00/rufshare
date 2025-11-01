@@ -2,7 +2,7 @@
 
 status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock, bool conn) {
 	status_t stat = SUCCESS;
-	LOGT(__FILE__, __func__, "start cntl with socket fd = %d", sock);
+	LOGT(__FILE__, __func__, "start cntl");
 	LOGD(__FILE__, __func__, "local ip = %s", addrs->local_ip);
 	CHECK_BOOL(check_ipv4_format(addrs->local_ip), BADIPV4);
 	LOGD(__FILE__, __func__, "remote ip = %s", addrs->remote_ip);
