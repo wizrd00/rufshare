@@ -98,22 +98,21 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	LOGD(__FILE__, __func__, "push_file() : remote_ip = %s", addrs.remote_ip);
 	extract_file_name(addrs.filename, path, MAXFILENAMESIZE);
 	LOGD(__FILE__, __func__, "push_file() : filename = %s", addrs.filename);
-	CHECK_STAT(start_file_stream(&filec, path, MRD));
+	tryexec_start_file_stream(start_file_stream(&filec, path, MRD));
 	LOGD(__FILE__, __func__, "call start_cntl()");
-	CHECK_STAT(start_cntl(&addrs, &cntl_sock, true));
+	tryexec_start_cntl(start_cntl(&addrs, &cntl_sock, true));
 	LOGD(__FILE__, __func__, "call handshake()");
-	CHECK_STAT(handshake());
+	tryexec_handshake(handshake());
 	LOGD(__FILE__, __func__, "call start_data()");
-	CHECK_STAT(start_data(&addrs, &data_sock));
+	tryexec_start_data(start_data(&addrs, &data_sock));
 	LOGD(__FILE__, __func__, "call transfer()");
-	CHECK_STAT(transfer(&seq));
+	tryexec_transfer(transfer(&seq));
 	LOGD(__FILE__, __func__, "call verification()");
-	CHECK_STAT(verification());
+	tryexec_verification(verification());
 	LOGD(__FILE__, __func__, "end push_file with name %s", addrs.name):
-	CHECK_STAT(end_file_stream(&filec));
-	CHECK_STAT(end_cntl(cntl_sock));
-	CHECK_STAT(end_data(data_sock));
-	// TODO : add error exceptions and a terminate function to close sockets instead of CHECK_STAT
+	tryexec_end_file_stream(end_file_stream(&filec));
+	tryexec_end_cntl(end_cntl(cntl_sock));
+	tryexec_end_data(end_data(data_sock));
 	return stat;
 }
 
