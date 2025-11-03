@@ -4,6 +4,7 @@
 #include "types.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 
 #define GLOBAL_ERROR_TEXT(stat) "\n[\x1b[1;31mERROR\x1b[0m] -> " #stat "\n\tstat -> %s" "\n\terrno -> %s (maybe not related)" "\n\tfunc -> %s()\n"
 #define FAILURE_ERROR_TEXT "process failed"
@@ -36,169 +37,169 @@
 #define TESTVAL_ERROR_TEXT "testval"
 
 static inline void raise_failure_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, FAILURE_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILURE), FAILURE_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_timeout_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, TIMEOUT_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(TIMEOUT), TIMEOUT_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_lowsize_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, LOWSIZE_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(LOWSIZE), LOWSIZE_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_exptry0_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, EXPTRY0_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(EXPTRY0), EXPTRY0_ERROR_TEXT, strerrno(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_exptry1_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, EXPTRY1_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(EXPTRY1), EXPTRY1_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_zeroack_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, ZEROACK_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ZEROACK), ZEROACK_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_zeroseq_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, ZEROSEQ_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ZEROSEQ), ZEROSEQ_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_failset_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, FAILSET_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILSET), FAILSET_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_failpos_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, FAILPOS_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILPOS), FAILPOS_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_badargs_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, BADARGS_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(BADARGS), BADARGS_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_badinet_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, BADINET_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(BADINET), BADINET_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_badtype_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, BADTYPE_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(BADTYPE), BADTYPE_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_badipv4_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, BADIPV4_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(BADIPV4), BADIPV4_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_badport_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, BADPORT_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(BADPORT), BADPORT_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_nomfile_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, NOMFILE_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(NOMFILE), NOMFILE_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_nofstat_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, NOFSTAT_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(NOFSTAT), NOFSTAT_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_noavial_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, NOAVAIL_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(NOAVAIL), NOAVAIL_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_nocreat_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, NOCREAT_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(NOCREAT), NOCREAT_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_notrunc_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, NOTRUNC_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(NOTRUNC), NOTRUNC_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_noclose_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, NOCLOSE_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(NOCLOSE), NOCLOSE_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_errbind_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, ERRBIND_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ERRBIND), ERRBIND_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_errconn_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, ERRCONN_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ERRCONN), ERRCONN_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_errrecv_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, ERRRECV_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ERRRECV), ERRRECV_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_errsend_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, ERRSEND_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ERRSEND), ERRSEND_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_errpoll_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, ERRPOLL_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ERRPOLL), ERRPOLL_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_emalloc_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, EMALLOC_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(EMALLOC), EMALLOC_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_invsock_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, INVSOCK_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(INVSOCK), INVSOCK_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
 
 static inline void raise_testval_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT, TESTVAL_ERROR_TEXT, func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(TESTVAL), TESTVAL_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }

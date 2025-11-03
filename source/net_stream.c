@@ -78,7 +78,7 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 status_t pull_tcp_data(sockfd_t sock, Buffer buf, size_t size, bool peek_flag) {
 	status_t stat = SUCCESS;
 	ssize_t recv_size = recv(sock, buf, size, MSG_WAITALL | ((peek_flag) ? MSG_PEEK : 0));
-	CHECK_INT(recv_size, FAILURE);
+	CHECK_INT(recv_size, ERRRECV);
 	CHECK_SIZE((size_t) recv_size, size);
 	return stat;
 }
@@ -86,7 +86,7 @@ status_t pull_tcp_data(sockfd_t sock, Buffer buf, size_t size, bool peek_flag) {
 status_t push_tcp_data(sockfd_t sock, Buffer buf, size_t size) {
 	status_t stat = SUCCESS;
 	ssize_t send_size = send(sock, buf, size, MSG_NOSIGNAL);
-	CHECK_INT(send_size, FAILURE);
+	CHECK_INT(send_size, ERRSEND);
 	CHECK_SIZE((size_t) send_size, size);
 	return stat;
 }

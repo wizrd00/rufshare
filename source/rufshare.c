@@ -39,13 +39,16 @@ static status_t transfer(RUFShareSequence *seq) {
 	HeaderArgs header0;
 	HeaderArgs header1;
 	RUFShareCRC32 crc;
+	LOGT(__FILE__, __func__, "start transfer");
 	CHECK_EQUAL(0, *seq, ZEROSEQ);
 	while (*seq <= chunk_count) {
 		chcon.start_pos = (*seq - 1) * chunk_size;
 		chcon.chunk_size = (*seq == chunk_count) ? partial_chunk_size : chunk_size;
 		crc = calc_chunk_crc32(&filec, &chcon);
 		header.flow.packet = pack_FLOW_FlowPacket(((*seq == chunk_count) ? partial_chunk_size : chunk_size), *seq, crc);
+		LOGD(__FILE__, __func__, "start_pos = %lu, chunk_size = %lu, crc = %lu", chcon.start_pos, chcon.chunk_size, crc);
 		while (trycount != 0) {
+			LOGD(__FILE__, __func__, "sending control headers");
 			CHECK_STAT(push_FLOW_header(cntl_sock, &header0, TRANSFER_FLOW_TIMEOUT));
 			CHECK_STAT(pull_RECV_header(cntl_sock, &header1, TRANSFER_RECV_TIMEOUT));
 			if (header1.recv.packet.ack == 1)
@@ -56,6 +59,7 @@ static status_t transfer(RUFShareSequence *seq) {
 		CHECK_NOTEQUAL(0, trycount, EXPTRY0);
 		trycount = TRANSFER_TRY_COUNT;
 		while (trycount != 0) {
+			LOGD(__FILE__, __func__, "sendign chunk data with size %lu", chcon.chunk_size);
 			CHECK_STAT(push_chunk_data(data_sock, &filec, &chcon, TRANSFER_DATA_TIMEOUT));
 			CHECK_STAT(pull_RECV_header(cntl_sock, &header1, TRANSFER_RECV_TIMEOUT));
 			if (header1.recv.packet.ack == 1)
@@ -65,8 +69,10 @@ static status_t transfer(RUFShareSequence *seq) {
 		}
 		CHECK_NOTEQUAL(0, trycount, EXPTRY1);
 		trycount = TRANSFER_TRY_COUNT;
+
 		(*seq)++;
 	}
+	LOGD(__FILE__, __func__, "transfer complete");
 	return stat;
 }
 
@@ -118,6 +124,7 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 
 status_t pull_file(addr_pair *local, addr_pair *remote) {
 	status_t stat = SUCCESS;
+	status_t start_file_stream_stat = SUCCESS;
 	BroadCast bc_handle;
 	RUFShareSequence seq = 0;
 	CntlAddrs addrs = {.local_port = local->port, .remote_port = remote->port};
@@ -130,16 +137,19 @@ status_t pull_file(addr_pair *local, addr_pair *remote) {
 	char *fname = storage_header.send.info.filename;
 	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
 	strncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
-	CHECK_STAT(start_broadcast(&bc_handle));
-	CHECK_STAT(start_cntl(&addrs, cntl_sock, false)); 
-	CHECK_STAT(start_data(&addrs, data_sock));
-	CHECK_STAT(accept_cntl(&addrs, &conn_sock, cntl_sock));
-	CHECK_STAT(pull_SEND_header(conn_sock, &storage_header, HANDSHAKE_SEND_TIMEOUT));
+	tryexec_start_broadcast(start_broadcast(&bc_handle));
+	tryexec_start_cntl(start_cntl(&addrs, cntl_sock, false)); 
+	tryexec_start_data(start_data(&addrs, data_sock));
+	tryexec_accept_cntl(accept_cntl(&addrs, &conn_sock, cntl_sock));
+	tryexec_pull_SEND_header(pull_SEND_header(conn_sock, &storage_header, HANDSHAKE_SEND_TIMEOUT));
 	set_global_variables(&storage_header);
-	CHECK_STAT(start_file_stream(&filec, ((fname[0] == '\0') ? make_random_file(fname, MAXFILENAMESIZE, "RecvFile") : fname), MWR));
-	// TODO : what start_file_stream returns, specifies ack of RecvPacket
-	header1.recv.packet = pack_RUFShare_RecvPacket(1, 0, seq);
-	CHECK_STAT(push_RECV_header(conn_sock, &header1, HANDSHAKE_RECV_TIMEOUT));
+	start_file_stream_stat = start_file_stream(&filec, ((fname[0] == '\0') ? make_random_file(fname, MAXFILENAMESIZE, "RecvFile") : fname), MWR);
+	if (start_file_stream_stat == SUCCESS)
+		header1.recv.packet = pack_RUFShare_RecvPacket(1, 0, seq);
+	else
+		header1.recv.packet = pack_RUFShare_RecvPacket(0, 0, seq);
+	tryexec_push_RECV_header(push_RECV_header(conn_sock, &header1, HANDSHAKE_RECV_TIMEOUT));
+	tryexec_start_file_stream(start_file_stream_stat);
 	while (seq <= chunk_count) {
 		while (trycount != 0) {
 			CHECK_STAT(pull_FLOW_header(conn_sock, &header0, TRANSFER_FLOW_TIMEOUT));
