@@ -115,7 +115,7 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	tryexec_transfer(transfer(&seq));
 	LOGD(__FILE__, __func__, "call verification()");
 	tryexec_verification(verification());
-	LOGD(__FILE__, __func__, "end push_file with name %s", addrs.name):
+	LOGD(__FILE__, __func__, "end push_file() with name %s", addrs.name):
 	tryexec_end_file_stream(end_file_stream(&filec));
 	tryexec_end_cntl(end_cntl(cntl_sock));
 	tryexec_end_data(end_data(data_sock));
@@ -124,82 +124,7 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 
 status_t pull_file(addr_pair *local, addr_pair *remote) {
 	status_t stat = SUCCESS;
-	status_t start_file_stream_stat = SUCCESS;
-	BroadCast bc_handle;
-	RUFShareSequence seq = 0;
-	CntlAddrs addrs = {.local_port = local->port, .remote_port = remote->port};
-	HeaderArgs storage_header;
-	HeaderArgs header0;
-	HeaderArgs header1;
-	ChunkContext chcon;
-	RUFShareCRC16 file_crc;
-	RUFShareCRC32 chunk_crc;
-	char *fname = storage_header.send.info.filename;
-	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
-	strncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
-	tryexec_start_broadcast(start_broadcast(&bc_handle));
-	tryexec_start_cntl(start_cntl(&addrs, cntl_sock, false)); 
-	tryexec_start_data(start_data(&addrs, data_sock));
-	tryexec_accept_cntl(accept_cntl(&addrs, &conn_sock, cntl_sock));
-	tryexec_pull_SEND_header(pull_SEND_header(conn_sock, &storage_header, HANDSHAKE_SEND_TIMEOUT));
-	set_global_variables(&storage_header);
-	start_file_stream_stat = start_file_stream(&filec, ((fname[0] == '\0') ? make_random_file(fname, MAXFILENAMESIZE, "RecvFile") : fname), MWR);
-	if (start_file_stream_stat == SUCCESS)
-		header1.recv.packet = pack_RUFShare_RecvPacket(1, 0, seq);
-	else
-		header1.recv.packet = pack_RUFShare_RecvPacket(0, 0, seq);
-	tryexec_push_RECV_header(push_RECV_header(conn_sock, &header1, HANDSHAKE_RECV_TIMEOUT));
-	tryexec_start_file_stream(start_file_stream_stat);
-	while (seq <= chunk_count) {
-		while (trycount != 0) {
-			CHECK_STAT(pull_FLOW_header(conn_sock, &header0, TRANSFER_FLOW_TIMEOUT));
-			chunk_crc = header0.flow.packet.crc;
-			if () {
-				// TODO : some matchings that specify ack of RecvPacket and trycount--
-				header1.recv.packet = pack_RUFShare_RecvPacket(1, 0, seq);
-				CHECK_STAT(push_RECV_header(conn_sock, &header1, TRANSFER_RECV_TIMEOUT));
-				break;
-			}
-			else {
-				header1.recv.packet = pack_RUFShare_RecvPacket(0, 0, seq);
-				CHECK_STAT(push_RECV_header(conn_sock, &header1, TRANSFER_RECV_TIMEOUT));
-				trycount--;
-			}
-		}
-		CHECK_NOTEQUAL(0, trycount, EXPTRY1);
-		trycount = TRANSFER_TRY_COUNT;
-		while (trycount != 0) {
-			chcon.start_pos = (seq - 1) * chunk_size;
-			chcon.chunk_size = (seq == chunk_count) ? partial_chunk_size : chunk_size; 
-			CHECK_STAT(pull_chunk_data(data_sock, &filec, &chcon, TRANSFER_DATA_TIMEOUT));
-			if (calc_chunk_crc32(&filec, &chcon) == chunk_crc) {
-				header1.recv.packet = pack_RUFShare_RecvPacket(1, 0, seq);
-				CHECK_STAT(push_RECV_header(conn_sock, &header1, TRANSFER_RECV_TIMEOUT));
-				break;
-			}
-			else {
-				header1.recv.packet = pack_RUFShare_RecvPacket(0, 0, seq);
-				CHECK_STAT(push_RECV_header(conn_sock, &header1, TRANSFER_RECV_TIMEOUT));
-				trycount--;
-			}
-		}
-		CHECK_STAT(pull_SEND_header(conn_sock, &header0, VERIFICATION_SEND_TIMEOUT));
-		file_crc = calc_file_crc16(&filec);
-		if (file_crc == header0.send.packet.crc) {
-			header1.recv.packet = pack_RUFShare_RecvPacket(1, file_crc, seq);
-			CHECK_STAT(push_RECV_header(conn_sock, &header1, VERIFICATION_RECV_TIMEOUT));
-		}
-		else {
-			header1.recv.packet = pack_RUFShare_RecvPacket(0, file_crc, seq);
-			CHECK_STAT(push_RECV_header(conn_sock, &header1, VERIFICATION_RECV_TIMEOUT));
-		}
-	}
-	end_file_stream(&filec);
-	end_cntl(cntl_sock);
-	end_data(data_sock);
-	end_cntl(conn_sock);
-	return;
-	// TODO : add error exceptions and a terminate function to close sockets instead of CHECK_STAT
+	return stat;
 }
 
 status_t scan_pair(PairInfo *info, addr_pair *local);

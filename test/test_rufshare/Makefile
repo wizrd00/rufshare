@@ -1,24 +1,9 @@
 CC := tcc
 CFLAGS := -std=c99 -g -c -Wall -Werror -Wunsupported -Wimplicit-function-declaration
-INCLUDE_UNITY_LIB := -L../libunity -lunity -Wl,-rpath=../libunity
-BUILD_DIR := build
-FAKE_DIR := fake
-INCLUDE_DIR := ../../include/
-UNITY_DIR := ../libunity
-SRC_FILES := ../../source/*.c
-INC_HDRS := ../../include/*.h
-CRC_HDRS := ../../include/libcrc/*.h
-PRT_HDRS := ../../include/protocol/*.h 
-UTIL_HDRS := ../../include/utils/*.h
-TEST_SRC := test.c
-TEST_OBJ := $(BUILD_DIR)/test.o
-IPCHECK_HDR := ../../include/utils/ipcheck.h
-FAKE_SRC := fake/fake_socket.c
-FAKE_HDR := fake/fake_socket.h
-FAKE_OBJ := $(BUILD_DIR)/fake_socket.o
-TYPES_HDR := ../../include/types.h
+RUFSHARE_OBJ := ../../source/rufshare.c
 
-test.elf : 
+
+test.elf : $(RUFSHARE_OBJ)
 	@echo linking object files $^
 	$(CC) $(INCLUDE_UNITY_LIB) -o $@ $^
 
