@@ -16,7 +16,7 @@ static void set_global_variables(HeaderArgs *header) {
 }
 
 static status_t handshake(void) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	LOGT(__FILE__, __func__, "start handshake");
 	chunk_count = calc_chunk_count(filec.size, chunk_size, &partial_chunk_size);
@@ -27,13 +27,13 @@ static status_t handshake(void) {
 	CHECK_STAT(pull_RECV_header(cntl_sock, &header, HANDSHAKE_RECV_TIMEOUT));
 	LOGD(__FILE__, __func__, "RECV packet pulled on socked fd %d with %d timeout", cntl_sock, HANDSHAKE_RECV_TIMEOUT);
 	if (header.recv.packet.ack == 0)
-		stat = ZEROACK;
+		_stat = ZEROACK;
 	LOGD(__FILE__, __func__, "header.recv.packet.ack = %d", header.recv.packet.ack);
-	return stat;
+	return _stat;
 }
 
 static status_t transfer(RUFShareSequence *seq) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	unsigned short trycount = TRANSFER_TRY_COUNT;
 	ChunkContext chcon;
 	HeaderArgs header0;
@@ -73,11 +73,11 @@ static status_t transfer(RUFShareSequence *seq) {
 		(*seq)++;
 	}
 	LOGD(__FILE__, __func__, "transfer complete");
-	return stat;
+	return _stat;
 }
 
 static status_t verification(void) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	RUFShareCRC16 crc = calc_file_crc16(&filec);
 	header.send.packet = pack_RUFShare_SendPacket(chunk_size, chunk_count, partial_chunk_size, crc);
@@ -86,13 +86,13 @@ static status_t verification(void) {
 	CHECK_STAT(pull_RECV_header(cntl_sock, &header, VERIFICATION_RECV_TIMEOUT));
 	LOGD(__FILE__, __func__, "RECV packet pulled on socked fd %d with %d timeout", cntl_sock, VERIFICATION_RECV_TIMEOUT);
 	if (header.recv.packet.ack == 0)
-		stat = ZEROACK;
+		_stat = ZEROACK;
 	LOGD(__FILE__, __func__, "header.recv.packet.ack = %d", header.recv.packet.ack);
-	return stat;
+	return _stat;
 }
 
 status_t push_file(const char *name, const char *path, addr_pair *local, addr_pair *remote) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	RUFShareSequence seq = 1;
 	CntlAddrs cntl_addrs = {.local_port = local->port, .remote_port = remote->port};
 	LOGT(__FILE__, __func__, "start push_file with name %s", name);
@@ -119,12 +119,12 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	tryexec_end_file_stream(end_file_stream(&filec));
 	tryexec_end_cntl(end_cntl(cntl_sock));
 	tryexec_end_data(end_data(data_sock));
-	return stat;
+	return _stat;
 }
 
 status_t pull_file(addr_pair *local, addr_pair *remote) {
-	status_t stat = SUCCESS;
-	return stat;
+	status_t _stat = SUCCESS;
+	return _stat;
 }
 
 status_t scan_pair(PairInfo *info, addr_pair *local);
