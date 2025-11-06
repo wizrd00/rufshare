@@ -1,5 +1,5 @@
 CC := tcc
-CFLAGS := -std=c99 -g -c -Wall -Werror -Wunsupported -Wimplicit-function-declaration
+CFLAGS := -std=c99 -g -c -Wc,-Werror=implicit-function-declaration,-Werror=implicit-int,-Werror=missing-prototypes,-Werror=pointer-sign,-Werror=sign-compare,-Werror=strict-prototypes,-Werror=shadow,-Werror=truncate,-Werror=unreachable-code
 RUFSHARE_OBJ := ../../source/rufshare.c
 
 

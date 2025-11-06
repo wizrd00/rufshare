@@ -1,13 +1,14 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#ifdef LOG_TRACE | LOG_DEBUG | LOG_WARNN | LOG_ERROR
+#if defined(LOG_TRACE) || defined(LOG_DEBUG) || defined(OG_WARNN) || defined(LOG_ERROR)
 #include "logging/logger.h"
 #endif
 #include "protocol/protocol.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <time.h>
 #include <errno.h>
 #include <netinet/in.h>
@@ -30,31 +31,31 @@
 #define TRANSFER_DATA_TIMEOUT 1 * 1000
 
 #define CHECK_STAT(val)\
-	do {if (val != SUCCESS) {return stat = val;}} while (0)
+	do {if (val != SUCCESS) {return _stat = val;}} while (0)
 
 #define CHECK_EQUAL(val0, val1, err)\
-	do {if (val0 != val1) {return stat = err;}} while (0)
+	do {if (val0 != val1) {return _stat = err;}} while (0)
 
 #define CHECK_NOTEQUAL(val0, val1, err)\
-	do {if (val0 == val1) {return stat = err;}} while (0)
+	do {if (val0 == val1) {return _stat = err;}} while (0)
 
 #define CHECK_INT(val, err)\
-	do {if (val == -1) {return stat = err;}} while (0)
+	do {if (val == -1) {return _stat = err;}} while (0)
 
 #define CHECK_PTR(val, err)\
-	do {if (val == NULL) {return stat = err;}} while (0)
+	do {if (val == NULL) {return _stat = err;}} while (0)
 
 #define CHECK_BOOL(val, err)\
-	do {if (val == false) {return stat = err;}} while (0)
+	do {if (val == false) {return _stat = err;}} while (0)
 
 #define CHECK_SIZE(val, size)\
-	do {if (val < size) {return stat = LOWSIZE;}} while (0)
+	do {if (val < size) {return _stat = LOWSIZE;}} while (0)
 
 #define CHECK_PORT(port)\
-	do {if (port == 0) {return stat = BADPORT;}} while (0)
+	do {if (port == 0) {return _stat = BADPORT;}} while (0)
 
 #define CHECK_MFILE(mfile)\
-	do {if (mfile.open == 0) {return stat = NOMFILE;}} while (0)
+	do {if (mfile.open == 0) {return _stat = NOMFILE;}} while (0)
 
 #ifdef LOG_TRACE
 	#define LOGT(mod, pos, ...) logging(&logcount, TRACE, mod, pos, __VA_ARGS__)
@@ -183,7 +184,7 @@ typedef struct {
 } PairInfo;
 
 typedef struct {
-	pthread_t handle;
+	int handle;
 } BroadCast;
 
 #endif

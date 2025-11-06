@@ -1,10 +1,10 @@
-CC := tcc
-CFLAGS := -std=c99 -g -c -Wall -Werror -Wunsupported -Wimplicit-function-declaration
+CC := pcc
+CFLAGS := -std=c99 -g -c -Wc,-Werror=implicit-function-declaration,-Werror=implicit-int,-Werror=missing-prototypes,-Werror=pointer-sign,-Werror=sign-compare,-Werror=strict-prototypes,-Werror=shadow,-Werror=truncate,-Werror=unreachable-code
 BUILD_DIR := build
 FAKE_DIR := fake
 INCLUDE_DIR := ../../include/
 UNITY_DIR := ../libunity
-INCLUDE_UNITY_LIB := -L../libunity -lunity -Wl,-rpath=../libunity
+INCLUDE_UNITY_LIB := -Wl,--library-path=../libunity,--library=unity,-rpath=../libunity
 TEST_SRC := test.c
 TEST_OBJ := $(BUILD_DIR)/test.o
 DATA_SRC := ../../source/data.c

@@ -1,26 +1,26 @@
 #include "net_stream.h"
 
 static status_t network_byteorder(ipv4str_t ip, uint32_t *dst) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	switch (inet_pton(AF_INET, ip, dst)) {
 		case -1 :
-			stat = BADARGS;
+			_stat = BADARGS;
 			break;
 		case 0 :
-			stat = BADIPV4;
+			_stat = BADIPV4;
 			break;
 	}
-	return stat;
+	return _stat;
 }
 
 static status_t host_ipstring(ipv4str_t ip, struct in_addr *addr) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	CHECK_PTR(inet_ntop(AF_INET, addr, ip, INET_ADDRSTRLEN), BADARGS);
-	return stat;
+	return _stat;
 }
 
 status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4str_t dst_ip, port_t dst_port, bool conn) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	uint32_t src_ipnetorder;
 	uint32_t dst_ipnetorder;
 	int tmpsock;
@@ -52,11 +52,11 @@ status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 		LOGT(__FILE__, __func__, "connect to address %s:%hu", dst_ip, dst_port);
 		CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN);
 	LOGT(__FILE__, __func__, "tcp socket created successfully with fd = %d", *sock);
-	return stat;
+	return _stat;
 }
 
 status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn_ip, port_t *conn_port) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	struct sockaddr_storage conn_addr;
 	struct sockaddr_in *tmp_addr;
 	socklen_t addr_len;
@@ -72,27 +72,27 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 	CHECK_STAT(host_ipstring(conn_ip, &(tmp_addr->sin_addr)));
 	*conn_port = ntohs(tmp_addr->sin_port);
 	LOGT(__FILE__, __func__, "new connection with address %s:%hu accepted successfully", conn_ip, *conn_port);
-	return stat;
+	return _stat;
 }
 
 status_t pull_tcp_data(sockfd_t sock, Buffer buf, size_t size, bool peek_flag) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	ssize_t recv_size = recv(sock, buf, size, MSG_WAITALL | ((peek_flag) ? MSG_PEEK : 0));
 	CHECK_INT(recv_size, ERRRECV);
 	CHECK_SIZE((size_t) recv_size, size);
-	return stat;
+	return _stat;
 }
 
 status_t push_tcp_data(sockfd_t sock, Buffer buf, size_t size) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	ssize_t send_size = send(sock, buf, size, MSG_NOSIGNAL);
 	CHECK_INT(send_size, ERRSEND);
 	CHECK_SIZE((size_t) send_size, size);
-	return stat;
+	return _stat;
 }
 
 status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4str_t dst_ip, port_t dst_port) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	uint32_t src_ipnetorder;
 	uint32_t dst_ipnetorder;
 	int tmpsock;
@@ -123,55 +123,55 @@ status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 	LOGT(__FILE__, __func__, "connect to address %s:%hu", dst_ip, dst_port);
 	CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN);
 	LOGT(__FILE__, __func__, "udp socket created successfully with fd = %d", *sock);
-	return stat;
+	return _stat;
 }
 
 status_t pull_udp_data(sockfd_t sock, Buffer buf, size_t size) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	ssize_t recv_size = recv(sock, buf, size, 0);
 	CHECK_INT(recv_size, ERRRECV);
 	CHECK_SIZE((size_t) recv_size, size);
-	return stat;
+	return _stat;
 }
 
 status_t push_udp_data(sockfd_t sock, Buffer buf, size_t size) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	ssize_t send_size = send(sock, buf, size, 0);
 	CHECK_INT(send_size, ERRSEND);
 	CHECK_SIZE((size_t) send_size, size);
-	return stat;
+	return _stat;
 }
 
 status_t set_socket_rcvlowsize(sockfd_t sock, size_t size) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	LOGT(__FILE__, __func__, "set socket option SO_RCVLOWAT to size %lu", size);
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVLOWAT , &size, sizeof (size_t)), FAILSET);
-	return stat;
+	return _stat;
 }
 
 status_t set_socket_sndlowsize(sockfd_t sock, size_t size) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	LOGT(__FILE__, __func__, "set socket option SO_SNDLOWAT to size %lu", size);
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDLOWAT , &size, sizeof (size_t)), FAILSET);
-	return stat;
+	return _stat;
 }
 
 status_t set_socket_rcvbufsize(sockfd_t sock, size_t size) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	LOGT(__FILE__, __func__, "set socket option SO_RCVBUF to size %lu", size);
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &size, sizeof (size_t)), FAILSET);
-	return stat;
+	return _stat;
 }
 
 status_t set_socket_sndbufsize(sockfd_t sock, size_t size) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	LOGT(__FILE__, __func__, "set socket option SO_SNDBUF to size %lu", size);
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &size, sizeof (size_t)), FAILSET);
-	return stat;
+	return _stat;
 }
 
 status_t set_socket_timeout(sockfd_t sock, time_t second) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	struct timeval timeout = {
 		.tv_sec = second,
 		.tv_usec = 0
@@ -179,20 +179,20 @@ status_t set_socket_timeout(sockfd_t sock, time_t second) {
 	LOGT(__FILE__, __func__, "set socket timeout to %.6f", second);
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof (struct timeval)), FAILSET);
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof (struct timeval)), FAILSET);
-	return stat;
+	return _stat;
 }
 
 status_t set_socket_broadcast(sockfd_t sock) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	int optval = 1;
 	LOGT(__FILE__, __func__, "set socket option SO_BROADCAST on");
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET);
-	return stat;
+	return _stat;
 }
 
 status_t close_socket(sockfd_t sock) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	LOGT(__FILE__, __func__, "closing socket with fd = %d", sock);
 	CHECK_INT(close(sock), FAILURE);
-	return stat;
+	return _stat;
 }

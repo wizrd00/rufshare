@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "utils/infostr.h"
+#include <stdlib.h>
 #include <unistd.h>
 #include <poll.h>
 #include <sys/socket.h>

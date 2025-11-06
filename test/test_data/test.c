@@ -33,8 +33,8 @@ void test_start_data(void) {
 		.remote_ip = "1.1.1.1",
 		.remote_port = 80
 	};
-	status_t stat = start_data(&addrs, &sock);
-	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "start_data did not return SUCCESS");
+	status_t _stat = start_data(&addrs, &sock);
+	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "start_data did not return SUCCESS");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, end_data(sock), "end_data did not return SUCCESS");
 	return;
 }
@@ -53,8 +53,8 @@ void test_push_chunk_data(void) {
 	};
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, start_file_stream(&filec, "DEMOFILE0", MRD), "start_file_stream has failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, start_data(&addrs, &sock), "start_data did not return SUCCESS");
-	status_t stat = push_chunk_data(sock, &filec, chunkc, 1000);
-	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "push_chunk_data has failed");
+	status_t _stat = push_chunk_data(sock, &filec, &chunkc, 1000);
+	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "push_chunk_data has failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, end_data(sock), "end_data has failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, end_file_stream(&filec), "end_file_stream has failed");
 	return;
@@ -74,8 +74,8 @@ void test_pull_chunk_data(void) {
 	};
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, start_file_stream(&filec, "DEMOFILE1", MWR), "start_file_stream has failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, start_data(&addrs, &sock), "start_data did not return SUCCESS");
-	status_t stat = pull_chunk_data(sock, &filec, chunkc, 1000);
-	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "pull_chunk_data has failed");
+	status_t _stat = pull_chunk_data(sock, &filec, &chunkc, 1000);
+	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "pull_chunk_data has failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, end_data(sock), "end_data has failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, end_file_stream(&filec), "end_file_stream has failed");
 	return;

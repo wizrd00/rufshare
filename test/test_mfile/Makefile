@@ -1,9 +1,9 @@
-CC := tcc
+CC := pcc
 CFLAGS := -std=c99 -g -c -Wall -Werror -Wunsupported -Wimplicit-function-declaration
 BUILD_DIR := build
 INCLUDE_DIR := ../../include
 UNITY_DIR := ../libunity
-INCLUDE_UNITY_LIB := -L../libunity -lunity -Wl,-rpath=../libunity
+INCLUDE_UNITY_LIB := -Wl,--library-path=../libunity -Wl,--library=unity -Wl,-rpath=../libunity
 TEST_SRC := test.c
 TEST_OBJ := $(BUILD_DIR)/test.o
 MFILE_SRC := ../../source/mfile.c

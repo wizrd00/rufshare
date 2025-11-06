@@ -1,7 +1,7 @@
 #include "data.h"
 
 status_t start_data(CntlAddrs *addrs, sockfd_t *sock) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	LOGT(__FILE__, __func__, "start data");
 	LOGD(__FILE__, __func__, "local ip = %s", addrs->local_ip);
 	CHECK_BOOL(check_ipv4_format(addrs->local_ip), BADIPV4);
@@ -12,18 +12,18 @@ status_t start_data(CntlAddrs *addrs, sockfd_t *sock) {
 	LOGD(__FILE__, __func__, "remote port = %hu", addrs->remote_port);
 	CHECK_PORT(addrs->remote_port);
 	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port));
-	return stat;
+	return _stat;
 }
 
 status_t end_data(sockfd_t sock) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	LOGT(__FILE__, __func__, "end data with socket fd = %d", sock);
 	CHECK_INT(close(sock), FAILURE);
-	return stat;
+	return _stat;
 }
 
 status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	MFILE *stream = &(filec->mfile);
 	unsigned char segbuf[SEGMENTSIZE];
 	size_t rsize = chunk->chunk_size;
@@ -35,12 +35,12 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		mfread(segbuf, segsize, sizeof (char), stream);
 		switch (poll(&pfd, 1, timeout)) {
 			case -1 :
-				return stat = FAILURE;
+				return _stat = FAILURE;
 			case 0 :
-				return stat = TIMEOUT;
+				return _stat = TIMEOUT;
 			default :
-				stat = (pfd.revents & POLLOUT) ? SUCCESS : ERRPOLL;
-				CHECK_STAT(stat);
+				_stat = (pfd.revents & POLLOUT) ? SUCCESS : ERRPOLL;
+				CHECK_STAT(_stat);
 				break;
 		}
 		CHECK_STAT(push_udp_data(sock, segbuf, segsize));
@@ -48,11 +48,11 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		rsize -= segsize;
 	}
 	LOGD(__FILE__, __func__, "chunk with size %lu pushed", chunk->chunk_size);
-	return stat;
+	return _stat;
 }
 
 status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout) {
-	status_t stat = SUCCESS;
+	status_t _stat = SUCCESS;
 	MFILE *stream = &(filec->mfile);
 	unsigned char segbuf[SEGMENTSIZE];
 	size_t rsize = chunk->chunk_size;
@@ -64,12 +64,12 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		struct pollfd pfd = {.fd = sock, .events = POLLIN};
 		switch (poll(&pfd, 1, timeout)) {
 			case -1 :   
-				return stat = FAILURE;
+				return _stat = FAILURE;
 			case 0 :
-				return stat = TIMEOUT;
+				return _stat = TIMEOUT;
 			default :
-				stat = (pfd.revents & POLLIN) ? SUCCESS : ERRPOLL;
-				CHECK_STAT(stat);
+				_stat = (pfd.revents & POLLIN) ? SUCCESS : ERRPOLL;
+				CHECK_STAT(_stat);
 				break;
 		}
 		CHECK_STAT(pull_udp_data(sock, segbuf, segsize));
@@ -78,5 +78,5 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		rsize -= segsize;
 	}
 	LOGD(__FILE__, __func__, "chunk with size %lu pulled", chunk->chunk_size);
-	return stat;
+	return _stat;
 }
