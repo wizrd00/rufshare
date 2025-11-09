@@ -43,7 +43,21 @@ static inline void tryexec_accept_cntl(status_t stat) {
 	return;
 }
 
-static inline void tryexec_handshake(status_t stat) {
+static inline void tryexec_start_data(status_t stat) {
+	switch (stat) {
+		case BADIPV4 : raise_badipv4_error(__func__); break;
+		case BADPORT : raise_badport_error(__func__); break;
+		case BADARGS : raise_badargs_error(__func__); break;
+		case INVSOCK : raise_invsock_error(__func__); break;
+		case FAILSET : raise_failset_error(__func__); break;
+		case ERRBIND : raise_errbind_error(__func__); break;
+		case ERRCONN : raise_errconn_error(__func__); break;
+		default : return;
+	}
+	return;
+}
+
+static inline void tryexec_push_handshake(status_t stat) {
 	switch (stat) {
 		case EMALLOC : raise_emalloc_error(__func__); break;
 		case FAILURE : raise_failure_error(__func__); break;
@@ -59,21 +73,7 @@ static inline void tryexec_handshake(status_t stat) {
 	return;
 }
 
-static inline void tryexec_start_data(status_t stat) {
-	switch (stat) {
-		case BADIPV4 : raise_badipv4_error(__func__); break;
-		case BADPORT : raise_badport_error(__func__); break;
-		case BADARGS : raise_badargs_error(__func__); break;
-		case INVSOCK : raise_invsock_error(__func__); break;
-		case FAILSET : raise_failset_error(__func__); break;
-		case ERRBIND : raise_errbind_error(__func__); break;
-		case ERRCONN : raise_errconn_error(__func__); break;
-		default : return;
-	}
-	return;
-}
-
-static inline void tryexec_transfer(status_t stat) {
+static inline void tryexec_push_transfer(status_t stat) {
 	switch (stat) {
 		case ZEROSEQ : raise_zeroseq_error(__func__); break;
 		case EMALLOC : raise_emalloc_error(__func__); break;
@@ -92,7 +92,7 @@ static inline void tryexec_transfer(status_t stat) {
 	return;
 }
 
-static inline void tryexec_verification(status_t stat) {
+static inline void tryexec_push_verification(status_t stat) {
 	switch (stat) {
 		case EMALLOC : raise_emalloc_error(__func__); break;
 		case FAILURE : raise_failure_error(__func__); break;

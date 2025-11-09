@@ -12,6 +12,10 @@ static inline RUFShareChunkCount calc_chunk_count(size_t file_size, RUFShareChun
 	return val + 1;
 }
 
+static inline size_t calc_file_size(RUFShareChunkCount chunk_count, RUFShareChunkSize chunk_size, RUFSharePartialChunkSize partial_chunk_size) {
+	return (size_t) ((chunk_count - 1) * chunk_size + partial_chunk_size);
+}
+
 static inline RUFShareCRC16 calc_file_crc16(FileContext *filec) {
 	return (RUFShareCRC16) crc_16(filec->mfile->buf, filec->size);
 }

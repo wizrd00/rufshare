@@ -15,7 +15,7 @@ static void set_global_variables(HeaderArgs *header) {
 	return;
 }
 
-static status_t handshake(void) {
+static status_t push_handshake(void) {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	LOGT(__FILE__, __func__, "start handshake");
@@ -32,7 +32,19 @@ static status_t handshake(void) {
 	return _stat;
 }
 
-static status_t transfer(RUFShareSequence *seq) {
+static status_t pull_handshake(const char *path) {
+	status_t _stat = SUCCESS;
+	HeaderArgs header;
+	CHECK_STAT(pull_SEND_header(cntl_sock, &header, HANDSHAKE_SEND_TIMEOUT));
+	size_t file_size = calc_file_size(chunk_count, chunk_size, partial_chunk_size);
+	CHECK_NOTEQUAL(0, file_size, LOWSIZE);
+	header.recv.packet = pack_RUFShare_RecvPacket((start_file_stream(&filec, path, MWR) == SUCCESS) ? 1 : 0, 0, 0);
+	CHECK_STAT(push_RECV_header(cntl_sock, &header, HANDSHAKE_RECV_TIMEOUT));
+	return _stat;
+
+}
+
+static status_t push_transfer(RUFShareSequence *seq) {
 	status_t _stat = SUCCESS;
 	unsigned short trycount = TRANSFER_TRY_COUNT;
 	ChunkContext chcon;
@@ -76,7 +88,14 @@ static status_t transfer(RUFShareSequence *seq) {
 	return _stat;
 }
 
-static status_t verification(void) {
+static status_t pull_transfer(RUFShareSequence *seq) {
+	status_t _stat = SUCCESS;
+	HeaderArgs header;
+	unsigned short trycount = TRANSFER_TRY_COUNT;
+	CHECK_STAT(pull_FLOW_header(cntl_sock, &header, TRANSFER_FLOW_TIMEOUT));
+}
+
+static status_t push_verification(void) {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	RUFShareCRC16 crc = calc_file_crc16(&filec);
