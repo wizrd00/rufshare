@@ -15,6 +15,10 @@ static void set_global_variables(HeaderArgs *header) {
 	return;
 }
 
+static bool match_flow(HeaderArgs *header, RUFShareSequence *seq, RUFShareCRC32 crc) {
+	return ((header->flow.packet.sequence != *seq) || (header->flow.packet.chunk_size != chunk_size)) ? false : true;
+}
+
 static status_t push_handshake(void) {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
@@ -81,7 +85,6 @@ static status_t push_transfer(RUFShareSequence *seq) {
 		}
 		CHECK_NOTEQUAL(0, trycount, EXPTRY1);
 		trycount = TRANSFER_TRY_COUNT;
-
 		(*seq)++;
 	}
 	LOGD(__FILE__, __func__, "transfer complete");
@@ -90,9 +93,45 @@ static status_t push_transfer(RUFShareSequence *seq) {
 
 static status_t pull_transfer(RUFShareSequence *seq) {
 	status_t _stat = SUCCESS;
-	HeaderArgs header;
+	ChunkContext chcon;
+	HeaderArgs header0;
+	HeaderArgs header1;
+	RUFShareCRC32 crc;
 	unsigned short trycount = TRANSFER_TRY_COUNT;
-	CHECK_STAT(pull_FLOW_header(cntl_sock, &header, TRANSFER_FLOW_TIMEOUT));
+	CHECK_EQUAL(0, *seq, ZEROSEQ);
+	while (*seq <= chunk_count) {
+		chcon.start_pos = (*seq - 1) * chunk_size;
+		chcon.chunk_size = (*seq == chunk_count) ? partial_chunk_size : chunk_size;
+		CHECK_STAT(pull_FLOW_header(cntl_sock, &header0, TRANSFER_FLOW_TIMEOUT));
+		if (match_flow(&header0, seq)) {
+			header1.recv.packet = pack_RUFShare_RecvPacket(1, 0, *seq);
+			CHECK_STAT(push_RECV_header(cntl_sock, &header1, TRANSFER_RECV_TIMEOUT));
+			while (trycount != 0) {
+				CHECK_STAT(pull_chunk_data(data_sock, &filec, &chcon, TRANSFER_DATA_TIMEOUT));	
+				crc = calc_chunk_crc32(&filec, &chcon);
+				if (header0.flow.packet.crc == crc) {
+					header1.recv.packet = pack_RUFShare_RecvPacket(1, 0, *seq);
+					CHECK_STAT(push_RECV_header(cntl_sock, &header1, TRANSFER_RECV_TIMEOUT));
+					break;
+				}
+				else {
+					header1.recv.packet = pack_RUFShare_RecvPacket(0, 0, *seq);
+					CHECK_STAT(push_RECV_header(cntl_sock, &header1, TRANSFER_RECV_TIMEOUT));
+					trycount--;
+				}
+			}
+			CHECK_NOTEQUAL(0, trycount, EXPTRY0);
+			trycount = TRANSFER_TRY_COUNT;
+			(*seq)++;
+		}
+		else {
+			header1.recv.packet = pack_RUFShare_RecvPacket(0, 0, *seq);
+			push_RECV_header(cntl_sock, &header1, TRANSFER_RECV_TIMEOUT);
+			_stat = BADFLOW;
+			break;
+		}
+	}
+	return _stat;
 }
 
 static status_t push_verification(void) {
@@ -108,6 +147,11 @@ static status_t push_verification(void) {
 		_stat = ZEROACK;
 	LOGD(__FILE__, __func__, "header.recv.packet.ack = %d", header.recv.packet.ack);
 	return _stat;
+}
+
+static status_t pull_verification(void) {
+	status_t _stat = SUCCESS;
+	// TODO
 }
 
 status_t push_file(const char *name, const char *path, addr_pair *local, addr_pair *remote) {
@@ -147,3 +191,7 @@ status_t pull_file(addr_pair *local, addr_pair *remote) {
 }
 
 status_t scan_pair(PairInfo *info, addr_pair *local);
+
+int main(void) {
+	return 0;
+}

@@ -6,6 +6,7 @@
 #include "cntl.h"
 #include "data.h"
 #include "error.h"
+#include "utils/sigs.h"
 #include "utils/calc.h"
 #include "utils/uchunk.h"
 #include "utils/fname.h"

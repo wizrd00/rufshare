@@ -16,6 +16,7 @@
 #define ZEROSEQ_ERROR_TEXT "transfer function received sequence = 0"
 #define FAILSET_ERROR_TEXT "process failed to set socket option"
 #define FAILPOS_ERROR_TEXT ""
+#define BADFLOW_ERROR_TEXT "process received bad flow packet"
 #define BADARGS_ERROR_TEXT "process received bad argument"
 #define BADINET_ERROR_TEXT "process received invalid address family"
 #define BADTYPE_ERROR_TEXT "process received invalid header type"
@@ -86,6 +87,12 @@ static inline void raise_failset_error(void *func) {
 
 static inline void raise_failpos_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILPOS), FAILPOS_ERROR_TEXT, strerror(errno), func);
+	exit(EXIT_FAILURE);
+	return;
+}
+
+static inline void raise_badflow_error(void *func) {
+	fprintf(stderr, GLOBAL_ERROR_TEXT(BADFLOW), BADFLOW_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
