@@ -57,6 +57,9 @@
 #define CHECK_MFILE(mfile)\
 	do {if (mfile.open == 0) {return _stat = NOMFILE;}} while (0)
 
+#define CHECK_THREAD(val)\
+	do {if (val != 0) {return _stat = ETHREAD;}} while (0)
+
 #ifdef LOG_TRACE
 	#define LOGT(mod, pos, ...) logging(&logcount, TRACE, mod, pos, __VA_ARGS__)
 #else
@@ -99,7 +102,7 @@ typedef enum {
 	ZEROACK,
 	ZEROSEQ,
 	FAILSET,
-	FAILPOS,
+	FAILCRC,
 	BADFLOW,
 	BADARGS,
 	BADINET,
@@ -118,6 +121,7 @@ typedef enum {
 	ERRSEND,
 	ERRPOLL,
 	EMALLOC,
+	ETHREAD,
 	INVSOCK,
 	TESTVAL
 } status_t;

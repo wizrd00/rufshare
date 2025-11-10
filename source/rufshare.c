@@ -7,6 +7,7 @@ sockfd_t cntl_sock;
 sockfd_t data_sock;
 sockfd_t conn_sock;
 FileContext filec;
+CntlAddrs addrs;
 
 static void set_global_variables(HeaderArgs *header) {
 	chunk_size = header->send.packet.chunk_size;
@@ -19,7 +20,13 @@ static bool match_flow(HeaderArgs *header, RUFShareSequence *seq, RUFShareCRC32 
 	return ((header->flow.packet.sequence != *seq) || (header->flow.packet.chunk_size != chunk_size)) ? false : true;
 }
 
-static status_t push_handshake(void) {
+static void thread_calc_file_crc16(void *arg) {
+	RUFShareCRC16 *crc = (RUFShareCRC16 *) arg;
+	*crc = calc_file_crc16(&filec);
+	return;
+}
+
+static status_t push_handshake(const char *name) {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	LOGT(__FILE__, __func__, "start handshake");
@@ -40,12 +47,16 @@ static status_t pull_handshake(const char *path) {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	CHECK_STAT(pull_SEND_header(cntl_sock, &header, HANDSHAKE_SEND_TIMEOUT));
+	strncpy(filec.name, header.send.info.filename, MAXFILENAMESIZE);
+	strncpy(addrs.filename, header.send.info.filename, MAXFILENAMESIZE);
+	strncpy(addrs.name, header.send.info.name, MAXNAMESIZE);
+	strncpy(addrs.remote_ip, header.send.info.local_ip, MAXIPV4SIZE);
+	addrs.remote_port = header.send.info.local_port;
 	size_t file_size = calc_file_size(chunk_count, chunk_size, partial_chunk_size);
 	CHECK_NOTEQUAL(0, file_size, LOWSIZE);
 	header.recv.packet = pack_RUFShare_RecvPacket((start_file_stream(&filec, path, MWR) == SUCCESS) ? 1 : 0, 0, 0);
 	CHECK_STAT(push_RECV_header(cntl_sock, &header, HANDSHAKE_RECV_TIMEOUT));
 	return _stat;
-
 }
 
 static status_t push_transfer(RUFShareSequence *seq) {
@@ -149,15 +160,24 @@ static status_t push_verification(void) {
 	return _stat;
 }
 
-static status_t pull_verification(void) {
+static status_t pull_verification(RUFShareSequence *seq) {
 	status_t _stat = SUCCESS;
-	// TODO
+	HeaderArgs header;
+	RUFShareCRC16 crc;
+	pthread_t handle;
+	CHECK_THREAD(pthread_create(&handle, NULL, thread_calc_file_crc16, (void *) &crc));
+	CHECK_STAT(pull_SEND_header(cntl_sock, &header, VERIFICATION_SEND_TIMEOUT));
+	CHECK_THREAD(pthread_join(&handle, NULL));
+	header.recv.packet = pack_RUFShare_RecvPacket((header.send.packet.crc == crc) ? 1 : 0, 0, *seq); 
+	CHECK_STAT(push_RECV_header(cntl_sock, &header, VERIFICATION_RECV_TIMEOUT));
+	if (header.send.packet.crc == 0)
+		_stat = FAILCRC;
+	return _stat;
 }
 
 status_t push_file(const char *name, const char *path, addr_pair *local, addr_pair *remote) {
 	status_t _stat = SUCCESS;
 	RUFShareSequence seq = 1;
-	CntlAddrs cntl_addrs = {.local_port = local->port, .remote_port = remote->port};
 	LOGT(__FILE__, __func__, "start push_file with name %s", name);
 	strncpy(addrs.name, name, MAXNAMESIZE);
 	LOGD(__FILE__, __func__, "push_file() : name = %s", addrs.name);
@@ -167,6 +187,8 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	LOGD(__FILE__, __func__, "push_file() : remote_ip = %s", addrs.remote_ip);
 	extract_file_name(addrs.filename, path, MAXFILENAMESIZE);
 	LOGD(__FILE__, __func__, "push_file() : filename = %s", addrs.filename);
+	addrs.local_port = local->port;
+	addrs.remote_port = remote->port;
 	tryexec_start_file_stream(start_file_stream(&filec, path, MRD));
 	LOGD(__FILE__, __func__, "call start_cntl()");
 	tryexec_start_cntl(start_cntl(&addrs, &cntl_sock, true));
@@ -185,8 +207,22 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	return _stat;
 }
 
-status_t pull_file(addr_pair *local, addr_pair *remote) {
+status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pair *remote) {
 	status_t _stat = SUCCESS;
+	RUFShareSequence seq = 1;
+	strncpy(addrs.name, name, MAXNAMESIZE);
+	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
+	strncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
+	addrs.local_port = local->port;
+	addrs.remote_port = remote->port;
+	tryexec_start_cntl(start_cntl(&addrs, &cntl_sock, false));
+	tryexec_pull_handshake(pull_handshake(path));
+	tryexec_start_data(start_data(&addrs, &data_sock));
+	tryexec_pull_transfer(pull_transfer(&seq));
+	tryexec_pull_verification(pull_verification(&seq));
+	tryexec_end_file_stream(end_file_stream(&filec));
+	tryexec_end_cntl(end_cntl(cntl_sock));
+	tryexec_end_data(end_data(data_sock));
 	return _stat;
 }
 
