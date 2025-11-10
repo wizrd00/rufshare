@@ -5,6 +5,7 @@
 #include "file_stream.h"
 #include "cntl.h"
 #include "data.h"
+#include "broadcast.h"
 #include "error.h"
 #include "utils/sigs.h"
 #include "utils/calc.h"

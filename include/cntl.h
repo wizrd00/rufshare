@@ -13,7 +13,7 @@
 
 status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock, bool conn);
 
-status_t accept_cntl(CntlAddrs *addrs, sockfd_t *new_sock, sockfd_t sock);
+status_t accept_cntl(CntlAddrs *addrs, sockfd_t *new_sock, sockfd_t sock, int timeout);
 
 status_t end_cntl(sockfd_t sock);
 

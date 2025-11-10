@@ -4,6 +4,7 @@
 #include "types.h"
 #include <string.h>
 #include <unistd.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <netinet/ip.h>
@@ -13,7 +14,7 @@
 
 status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4str_t dst_ip, port_t dst_port, bool conn);
 
-status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn_ip, port_t *conn_port);
+status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn_ip, port_t *conn_port, int timeout);
 
 status_t pull_tcp_data(sockfd_t sock, Buffer buf, size_t size, bool peek_flag);
 

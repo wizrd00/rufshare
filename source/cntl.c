@@ -15,10 +15,10 @@ status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock, bool conn) {
 	return _stat;
 }
 
-status_t accept_cntl(CntlAddrs *addrs, sockfd_t *new_sock, sockfd_t sock) {
+status_t accept_cntl(CntlAddrs *addrs, sockfd_t *new_sock, sockfd_t sock, int timeout) {
 	status_t _stat = SUCCESS;
 	LOGT(__FILE__, __func__, "start accept cntl headers");
-	CHECK_STAT(accept_new_connection(new_sock, sock, addrs->remote_ip, &(addrs->remote_port)));
+	CHECK_STAT(accept_new_connection(new_sock, sock, addrs->remote_ip, &(addrs->remote_port), timeout));
 	return _stat;
 }
 

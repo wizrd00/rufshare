@@ -55,14 +55,21 @@ status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 	return _stat;
 }
 
-status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn_ip, port_t *conn_port) {
+status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn_ip, port_t *conn_port, int timeout) {
 	status_t _stat = SUCCESS;
 	struct sockaddr_storage conn_addr;
 	struct sockaddr_in *tmp_addr;
+	struct pollfd pfd = {.fd = sock, .events = POLLIN};
 	socklen_t addr_len;
 	int tmpsock;
 	LOGT(__FILE__, __func__, "listen on socket with BACKLOG = %d", BACKLOG);
 	CHECK_INT(listen(sock, BACKLOG), FAILURE);
+	switch (poll(&pfd, timeout)) {
+		case -1 :
+			return _stat = FAILURE;
+		case 0 :
+			return _stat = TIMEOUT;
+	}
 	LOGT(__FILE__, __func__, "accept on socket");
 	tmpsock = accept(sock, (struct sockaddr *) &conn_addr, &addr_len);
 	CHECK_INT(tmpsock, INVSOCK);
