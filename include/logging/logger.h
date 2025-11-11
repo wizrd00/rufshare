@@ -31,11 +31,12 @@ void end_logging(void);
 
 void logging(
 	const unsigned long *count,
-	const unsigned char *level,
-	const unsigned char *ver,
-	const unsigned char *mod,
-	const unsigned char *pos,
-	const unsigned char *msg
+	const char level[],
+	const char ver[],
+	const char mod[],
+	const char pos[],
+	const char fmt[],
+	...
 );
 
 #endif

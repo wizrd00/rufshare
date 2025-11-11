@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 
-status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode);
+status_t start_file_stream(FileContext* filec, const char path[], fmode_t mode);
 
 status_t end_file_stream(FileContext* filec);
 

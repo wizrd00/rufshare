@@ -124,6 +124,7 @@ typedef enum {
 	EMALLOC,
 	ETHREAD,
 	INVSOCK,
+	INVPATH,
 	TESTVAL
 } status_t;
 

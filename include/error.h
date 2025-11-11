@@ -35,6 +35,7 @@
 #define ERRPOLL_ERROR_TEXT "poll() function failed"
 #define EMALLOC_ERROR_TEXT "malloc() function failed"
 #define INVSOCK_ERROR_TEXT "invalid socket fd"
+#define INVPATH_ERROR_TEXT "invalid file path"
 #define TESTVAL_ERROR_TEXT "testval"
 #define UNKNOWN_ERROR_TEXT "unknown error"
 
@@ -202,6 +203,12 @@ static inline void raise_emalloc_error(void *func) {
 
 static inline void raise_invsock_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(INVSOCK), INVSOCK_ERROR_TEXT, strerror(errno), func);
+	exit(EXIT_FAILURE);
+	return;
+}
+
+static inline void raise_invpath_error(void *func) {
+	fprintf(stderr, GLOBAL_ERROR_TEXT(INVPATH), INVPATH_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
