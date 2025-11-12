@@ -48,6 +48,7 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
+			CHECK_SSTAT(_stat, buf);
 			break;
 	}
 	LOGD(__FILE__, __func__, "CAST header pushed");
@@ -71,6 +72,7 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
+			CHECK_SSTAT(_stat, buf);
 			break;
 	}
 	LOGD(__FILE__, __func__, "FLOW header with chunk_size = %hu, sequence = %lu pushed", args->flow.packet.chunk_size, args->flow.packet.sequence);
@@ -97,6 +99,7 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
+			CHECK_SSTAT(_stat, buf);
 			break;
 	}
 	LOGT(__FILE__, __func__, "SEND header with chunk_size = %hu, chunk_count = %lu, partial_chunk_size = %hu pushed", args->send.packet.chunk_size,args->send.packet.chunk_count,args->send.packet.partial_chunk_size);
@@ -120,6 +123,7 @@ status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
+			CHECK_SSTAT(_stat, buf);
 			break;
 	}
 	LOGD(__FILE__, __func__, " RECV header with ack = %u pushed", args->recv.packet.ack);

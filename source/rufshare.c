@@ -261,8 +261,13 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pair *remote) {
 	status_t _stat = SUCCESS;
 	RUFShareSequence seq = 1;
+	CntlAddrs broadcast_addrs = {.local_port = addrs.local_port, .remote_port = addrs.remote_port};
 	pthread_t handle;
 	LOGT(__FILE__, __func__, "start pull_file with name %s", name);
+	strncpy(broadcast_addrs.filename , name, MAXFILENAMESIZE); 
+	strncpy(broadcast_addrs.name , name, MAXNAMESIZE); 
+	strncpy(broadcast_addrs.local_ip, local->ip, MAXIPV4SIZE);
+	strncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
 	strncpy(addrs.name, name, MAXNAMESIZE);
 	LOGD(__FILE__, __func__, "pull_file() : name = %s", addrs.name);
 	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
@@ -274,7 +279,7 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	LOGD(__FILE__, __func__, "pull_file() : local_port = %hu & remote_port = %hu", addrs.local_port, addrs.remote_port);
 	LOGD(__FILE__, __func__, "call start_cntl() with conn = false");
 	tryexec_start_cntl(start_cntl(&addrs, &cntl_sock, false));
-	CHECK_THREAD(pthread_create(&handle, NULL, thread_start_broadcast, (void *) addrs));
+	CHECK_THREAD(pthread_create(&handle, NULL, thread_start_broadcast, (void *) broadcast_addrs));
 	LOGD(__FILE__, __func__, "call accept_cntl()");
 	tryexec_accept_cntl(accept_cntl(&addrs, &conn_sock, cntl_sock, FOREVER_TIMEOUT));
 	CHECK_THREAD(pthread_cancel(&handle));
@@ -288,6 +293,7 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	tryexec_pull_verification(pull_verification(&seq));
 	LOGT(__FILE__, __func__, "end pull_file() with name %s", addrs.name):
 	tryexec_end_file_stream(end_file_stream(&filec));
+	tryexec_end_data(end_data(cast_sock));
 	tryexec_end_cntl(end_cntl(cntl_sock));
 	tryexec_end_cntl(end_cntl(conn_sock));
 	tryexec_end_data(end_data(data_sock));
