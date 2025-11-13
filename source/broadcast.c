@@ -2,7 +2,7 @@
 
 status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
-	char infostr[INFOSTRSIZE];
+	char infostr[INFOSTRSIZE] = {0};
 	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
 	Buffer buf = (Buffer) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
@@ -29,17 +29,17 @@ status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 status_t start_broadcast(CntlAddrs *addrs, sockfd_t *sock) {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
-	unsigned short trycount = BROADCAST_TRY_COUNT;
-	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, &(addrs->remote_port)));
-	CHECK_STAT(set_socket_broadcast(*sock));
+	int trycount = BROADCAST_TRY_COUNT;
+	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port, true));
 	header.cast.packet = pack_RUFShare_CastPacket(0);
 	header.cast.info = *addrs;
 	while (1) {
-		while (trycount != 0)
+		while (trycount != 0) {
 			if (push_broadcast_header(*sock, &header, BROADCAST_CAST_TIMEOUT) != SUCCESS)
 				trycount--;
+			sleep(BROADCAST_INTERVAL);
+		}
 		CHECK_NOTEQUAL(0, trycount, EXPTRY0);
-		trycount = BROADCAST_TRY_COUNT;
 	}
 	return _stat;
 }

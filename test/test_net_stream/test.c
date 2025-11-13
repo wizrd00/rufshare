@@ -58,7 +58,7 @@ void test_accept_new_connection(void) {
 	if (newip == NULL)
 		TEST_FAIL_MESSAGE("malloc returned NULL");
 	port_t newport;
-	status_t stat1 = accept_new_connection(&newsock, sock, newip, &newport);
+	status_t stat1 = accept_new_connection(&newsock, sock, newip, &newport, 1000);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat1, "accept_new_connection failed");
 	TEST_ASSERT_EQUAL_STRING_MESSAGE("1.1.1.1", newip, "invalid expected ip");
 	TEST_ASSERT_EQUAL_MESSAGE(dport, newport, "invalid expected port");
@@ -93,7 +93,7 @@ void test_init_udp_socket(void) {
 	port_t sport = 2048;
 	ipv4str_t dip = "1.1.1.1";
 	port_t dport = 53;
-	status_t _stat = init_udp_socket(&sock, sip, sport, dip, dport);
+	status_t _stat = init_udp_socket(&sock, sip, sport, dip, dport, true);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "first init_udp_socket test failed");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, close_socket(sock), "close_socket has failed");
 	return;
@@ -105,16 +105,6 @@ void test_set_socket_timeout(void) {
 		TEST_FAIL_MESSAGE("unable to create socket");
 	status_t _stat = set_socket_timeout(sockfd, 10);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "set_socket_timeout must return SUCCESS but didn't");
-	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, close_socket(sockfd), "close_socket has failed");
-	return;
-}
-
-void test_set_socket_broadcast(void) {
-	int sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (sockfd == -1)
-		TEST_FAIL_MESSAGE("unable to create socket");
-	status_t _stat = set_socket_broadcast(sockfd);
-	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "set_socket_broadcast must return SUCCESS but didn't");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, close_socket(sockfd), "close_socket has failed");
 	return;
 }
@@ -131,6 +121,5 @@ int main(void) {
 	RUN_TEST(test_pull_tcp_data1);
 	RUN_TEST(test_init_udp_socket);
 	RUN_TEST(test_set_socket_timeout);
-	RUN_TEST(test_set_socket_broadcast);
 	return UNITY_END();
 }

@@ -11,7 +11,7 @@ status_t start_data(CntlAddrs *addrs, sockfd_t *sock) {
 	CHECK_PORT(addrs->local_port);
 	LOGD(__FILE__, __func__, "remote port = %hu", addrs->remote_port);
 	CHECK_PORT(addrs->remote_port);
-	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port));
+	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port, false));
 	return _stat;
 }
 

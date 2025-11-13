@@ -2,8 +2,11 @@
 #define BROADCAST_H
 
 #include "types.h"
+#include "net_stream.h"
+#include "utils/infostr.h"
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/socket.h>
 
 status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout);

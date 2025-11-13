@@ -84,7 +84,7 @@ static status_t pull_handshake(const char *path) {
 
 static status_t push_transfer(RUFShareSequence *seq) {
 	status_t _stat = SUCCESS;
-	unsigned short trycount = TRANSFER_TRY_COUNT;
+	int trycount = TRANSFER_TRY_COUNT;
 	ChunkContext chcon;
 	HeaderArgs header0;
 	HeaderArgs header1;
@@ -133,7 +133,7 @@ static status_t pull_transfer(RUFShareSequence *seq) {
 	HeaderArgs header0;
 	HeaderArgs header1;
 	RUFShareCRC32 crc;
-	unsigned short trycount = TRANSFER_TRY_COUNT;
+	int trycount = TRANSFER_TRY_COUNT;
 	LOGT(__FILE__, __func__, "start transfer");
 	CHECK_EQUAL(0, *seq, ZEROSEQ);
 	while (*seq <= chunk_count) {

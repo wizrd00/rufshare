@@ -32,6 +32,7 @@
 #define BROADCAST_CAST_TIMEOUT 1 * 1000
 #define TRANSFER_TRY_COUNT 3
 #define BROADCAST_TRY_COUNT 3
+#define BROADCAST_INTERVAL 2
 #define BROADCAST_IPV4 "255.255.255.255"
 
 #define CHECK_SSTAT(val, ptr)\
@@ -92,7 +93,7 @@
 
 typedef unsigned char * Buffer;
 
-typedef unsigned int sockfd_t;
+typedef int sockfd_t;
 
 typedef char * ipv4str_t;
 

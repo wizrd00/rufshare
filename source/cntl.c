@@ -31,7 +31,7 @@ status_t end_cntl(sockfd_t sock) {
 
 status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
-	char infostr[INFOSTRSIZE];
+	char infostr[INFOSTRSIZE] = {0};
 	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
 	Buffer buf = (Buffer) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
@@ -82,7 +82,7 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 
 status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
-	char infostr[INFOSTRSIZE];
+	char infostr[INFOSTRSIZE] = {0};
 	size_t bufsize = sizeof (SendPacket) + INFOSTRSIZE;
 	Buffer buf = (Buffer) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
@@ -134,7 +134,7 @@ status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
 	CastPacket packet;
-	char infostr[INFOSTRSIZE];
+	char infostr[INFOSTRSIZE] = {0};
 	RUFShareType tmp_type;
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
 	switch (poll(&pfd, 1, timeout)) {
@@ -181,7 +181,7 @@ status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
 	SendPacket packet;
-	char infostr[INFOSTRSIZE];
+	char infostr[INFOSTRSIZE] = {0};
 	RUFShareType tmp_type;
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
 	switch (poll(&pfd, 1, timeout)) {

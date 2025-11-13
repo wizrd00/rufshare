@@ -64,7 +64,7 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 	int tmpsock;
 	LOGT(__FILE__, __func__, "listen on socket with BACKLOG = %d", BACKLOG);
 	CHECK_INT(listen(sock, BACKLOG), FAILURE);
-	switch (poll(&pfd, timeout)) {
+	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
 			return _stat = FAILURE;
 		case 0 :
@@ -98,7 +98,7 @@ status_t push_tcp_data(sockfd_t sock, Buffer buf, size_t size) {
 	return _stat;
 }
 
-status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4str_t dst_ip, port_t dst_port) {
+status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4str_t dst_ip, port_t dst_port, bool broadcast) {
 	status_t _stat = SUCCESS;
 	uint32_t src_ipnetorder;
 	uint32_t dst_ipnetorder;
@@ -124,6 +124,8 @@ status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 	tmpsock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	CHECK_INT(tmpsock, INVSOCK);
 	*sock = tmpsock;
+	if (broadcast)
+		CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET);
 	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (optval)), FAILSET);
 	LOGT(__FILE__, __func__, "bind to address %s:%hu", src_ip, src_port);
 	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND);
@@ -186,14 +188,6 @@ status_t set_socket_timeout(sockfd_t sock, time_t second) {
 	LOGT(__FILE__, __func__, "set socket timeout to %.6f", second);
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof (struct timeval)), FAILSET);
 	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof (struct timeval)), FAILSET);
-	return _stat;
-}
-
-status_t set_socket_broadcast(sockfd_t sock) {
-	status_t _stat = SUCCESS;
-	int optval = 1;
-	LOGT(__FILE__, __func__, "set socket option SO_BROADCAST on");
-	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET);
 	return _stat;
 }
 
