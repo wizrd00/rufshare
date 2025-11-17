@@ -269,6 +269,8 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	strncpy(broadcast_addrs.local_ip, local->ip, MAXIPV4SIZE);
 	strncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
 	strncpy(addrs.name, name, MAXNAMESIZE);
+	broadcast_addrs.local_port = local->port;
+	broadcast_addrs.remote_port = BROADCAST_PORT;
 	LOGD(__FILE__, __func__, "pull_file() : name = %s", addrs.name);
 	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
 	LOGD(__FILE__, __func__, "pull_file() : local_ip = %s", addrs.local_ip);
@@ -300,7 +302,17 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	return _stat;
 }
 
-status_t scan_pair(PairInfo *info, addr_pair *local);
+status_t scan_pair(PairInfo *info, size_t *len, addr_pair *local) {
+	status_t _stat = SUCCESS;
+	CntlAddrs broadcast_addrs = {
+		.local_ip = local->ip,
+		.local_port = local->port,
+		.remote_port = BROADCAST_PORT
+	};
+	strncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
+	tryexec_start_scanpair(start_scanpair(&broadcast_addrs, &cast_sock, info, len, SCANPAIR_TIMEOUT));
+	return _stat;
+}
 
 int main(void) {
 	return 0;

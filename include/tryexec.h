@@ -5,6 +5,8 @@
 
 static inline void tryexec_start_broadcast(status_t _stat); 
 
+static inline void tryexec_start_scanpair(status_t _stat); 
+
 static inline void tryexec_start_file_stream(status_t _stat) {
 	switch (_stat) {
 		case NOCREAT : raise_nocreat_error(__func__); break;
