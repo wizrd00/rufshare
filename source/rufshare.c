@@ -240,21 +240,21 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	addrs.remote_port = remote->port;
 	LOGD(__FILE__, __func__, "push_file() : local_port = %hu & remote_port = %hu", addrs.local_port, addrs.remote_port);
 	LOGD(__FILE__, __func__, "call start_file_stream()");
-	tryexec_start_file_stream(start_file_stream(&filec, path, MRD));
+	tryexec(start_file_stream(&filec, path, MRD));
 	LOGD(__FILE__, __func__, "call start_cntl() with conn = true");
-	tryexec_start_cntl(start_cntl(&addrs, &cntl_sock, true));
+	tryexec(start_cntl(&addrs, &cntl_sock, true));
 	LOGD(__FILE__, __func__, "call push_handshake()");
-	tryexec_handshake(handshake());
+	tryexec(handshake());
 	LOGD(__FILE__, __func__, "call start_data()");
-	tryexec_start_data(start_data(&addrs, &data_sock));
+	tryexec(start_data(&addrs, &data_sock));
 	LOGD(__FILE__, __func__, "call push_transfer()");
-	tryexec_transfer(transfer(&seq));
+	tryexec(transfer(&seq));
 	LOGD(__FILE__, __func__, "call push_verification()");
-	tryexec_verification(verification());
+	tryexec(verification());
 	LOGT(__FILE__, __func__, "end push_file() with name %s", addrs.name):
-	tryexec_end_file_stream(end_file_stream(&filec));
-	tryexec_end_cntl(end_cntl(cntl_sock));
-	tryexec_end_data(end_data(data_sock));
+	tryexec(end_file_stream(&filec));
+	tryexec(end_cntl(cntl_sock));
+	tryexec(end_data(data_sock));
 	return _stat;
 }
 
@@ -280,25 +280,25 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	addrs.remote_port = remote->port;
 	LOGD(__FILE__, __func__, "pull_file() : local_port = %hu & remote_port = %hu", addrs.local_port, addrs.remote_port);
 	LOGD(__FILE__, __func__, "call start_cntl() with conn = false");
-	tryexec_start_cntl(start_cntl(&addrs, &cntl_sock, false));
+	tryexec(start_cntl(&addrs, &cntl_sock, false));
 	CHECK_THREAD(pthread_create(&handle, NULL, thread_start_broadcast, (void *) broadcast_addrs));
 	LOGD(__FILE__, __func__, "call accept_cntl()");
-	tryexec_accept_cntl(accept_cntl(&addrs, &conn_sock, cntl_sock, FOREVER_TIMEOUT));
+	tryexec(accept_cntl(&addrs, &conn_sock, cntl_sock, FOREVER_TIMEOUT));
 	CHECK_THREAD(pthread_cancel(&handle));
 	LOGD(__FILE__, __func__, "call pull_handshake()");
-	tryexec_pull_handshake(pull_handshake(path));
+	tryexec(pull_handshake(path));
 	LOGD(__FILE__, __func__, "call start_data()");
-	tryexec_start_data(start_data(&addrs, &data_sock));
+	tryexec(start_data(&addrs, &data_sock));
 	LOGD(__FILE__, __func__, "call transfer()");
-	tryexec_pull_transfer(pull_transfer(&seq));
+	tryexec(pull_transfer(&seq));
 	LOGD(__FILE__, __func__, "call pull_verification()");
-	tryexec_pull_verification(pull_verification(&seq));
+	tryexec(pull_verification(&seq));
 	LOGT(__FILE__, __func__, "end pull_file() with name %s", addrs.name):
-	tryexec_end_file_stream(end_file_stream(&filec));
-	tryexec_end_data(end_data(cast_sock));
-	tryexec_end_cntl(end_cntl(cntl_sock));
-	tryexec_end_cntl(end_cntl(conn_sock));
-	tryexec_end_data(end_data(data_sock));
+	tryexec(end_file_stream(&filec));
+	tryexec(end_data(cast_sock));
+	tryexec(end_cntl(cntl_sock));
+	tryexec(end_cntl(conn_sock));
+	tryexec(end_data(data_sock));
 	return _stat;
 }
 
@@ -310,7 +310,7 @@ status_t scan_pair(PairInfo *info, size_t *len, addr_pair *local) {
 		.remote_port = BROADCAST_PORT
 	};
 	strncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
-	tryexec_start_scanpair(start_scanpair(&broadcast_addrs, &cast_sock, info, len, SCANPAIR_TIMEOUT));
+	tryexec(start_scanpair(&broadcast_addrs, &cast_sock, info, len, SCANPAIR_TIMEOUT));
 	return _stat;
 }
 
