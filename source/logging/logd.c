@@ -1,15 +1,20 @@
-#include "logger/logger.h"
+#include "logger/logd.h"
 
 FILE *logfile;
 unsigned long logcount;
+mqd_t logqueue;
 
-int start_logging(void) {
+int start_logd(void) {
 	char filename[FILENAME_MAX];
-	snprintf(filename, FILENAME_MAX, "logfile_%ld.log", (long) time(NULL));
+	time_t time_tag = time(NULL);
+	snprintf(filename, FILENAME_MAX, "logfile_%ld.log", (time_tag != -1) ? (long) time_tag : (long) (rand() % 0xffff));
 	logfile = fopen(filename, "w");
-	if (logfile == NULL)
-		fprintf(stderr, "Error(logger) : %s, %s\n\n", strerror(errno), filename);
-	return (logfile != NULL) ? 0 : -1;
+	logqueue = mq_open(LOGQUEUE_NAME, O_RDWR);	
+	if ((logfile == NULL) || (logqueue == -1)) {
+		fprintf(stderr, LOGERROR_TEXT, strerror(errno), "failed to create logger context");
+		return -1;
+	}
+	return 0;
 }
 
 void end_logging(void) {

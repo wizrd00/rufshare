@@ -1,12 +1,17 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef LOGD_H
+#define LOGD_H
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <mqueue.h>
 #include <errno.h>
+
+#define LOGQUEUE_NAME "logqueue"
+#define LOGERROR_TEXT "\nError(logger) : %s, %s\n\n"
 
 #define TRACE "TRACE"
 #define DEBUG "DEBUG"
