@@ -10,7 +10,7 @@ void tearDown(void) {
 	return;
 }
 
-void test_start_cntl(void) {
+void test_start_cntl0(void) {
 	CntlAddrs addrs = {
 		.filename = "DEMOFILE0",
 		.name = "TestMan",
@@ -20,10 +20,37 @@ void test_start_cntl(void) {
 		.remote_port = 80
 	};
 	sockfd_t sock;
-	status_t stat = start_cntl(&addrs, &sock, true);
-	// next test needs internet access to three way tcp handshake with remote server
-	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "start_cntl failed");
+	status_t _stat = start_cntl(&addrs, &sock, true);
+	// this test needs internet access to three way tcp handshake with remote server
+	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "start_cntl didn't return SUCCESS");
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, end_cntl(sock), "end_cntl failed");
+	return;
+}
+
+void test_start_cntl1(void) {
+	CntlAddrs addrs0 = {
+		.filename = "DEMOFILE1",
+		.name = "TestMan",
+		.local_ip = "10.10.1.7", // invalid local address so bind() must fail
+		.local_port = 4096,
+		.remote_ip = "1.1.1.1",
+		.remote_port = 80
+	};
+	CntlAddrs addrs1 = {
+		.filename = "DEMOFILE1",
+		.name = "TestMan",
+		.local_ip = "0.0.0.0",
+		.local_port = 4096,
+		.remote_ip = "0.0.0.0", // invalid remote address so connect() must fail
+		.remote_port = 80
+	};
+	sockfd_t sock;
+	status_t _stat0 = start_cntl(&addrs0, &sock, true);
+	TEST_ASSERT_EQUAL_MESSAGE(ERRBIND, _stat0, "start_cntl didn't return ERRBIND");
+	TEST_ASSERT_EQUAL(SUCCESS, end_cntl(sock));
+	status_t _stat1 = start_cntl(&addrs1, &sock, true);
+	TEST_ASSERT_EQUAL_MESSAGE(ERRCONN, _stat1, "start_cntl didn't return ERRCONN");
+	TEST_ASSERT_EQUAL(SUCCESS, end_cntl(sock));
 	return;
 }
 
@@ -40,8 +67,8 @@ void test_push_CAST_header(void) {
 			}
 		}
 	};
-	status_t stat = push_CAST_header(fsock, &args, 500);
-	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first push_CAST_header test failed");
+	status_t _stat = push_CAST_header(fsock, &args, 500);
+	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "push_CAST_header test failed");
 	return;
 }
 
@@ -53,8 +80,44 @@ void test_push_FLOW_header(void) {
 			.packet = pack_RUFShare_FlowPacket(csize, 1, 0x1337)
 		}
 	};
-	status_t stat = push_FLOW_header(fsock, &args, 500);
-	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, stat, "first push_FLOW_header test failed");
+	status_t _stat = push_FLOW_header(fsock, &args, 500);
+	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "push_FLOW_header test failed");
+	return;
+}
+
+void test_push_SEND_header(void) {
+	sockfd_t fsock = 8;
+	RUFShareChunkSize csize = 16777216;
+	RUFShareChunkCount ccount = 1024;
+	RUFSharePartialChunkSize pcsize = 512;
+	RUFShareCRC16 crc = 13252;
+	HeaderArgs args = {
+		.send = {
+			.packet = pack_RUFShare_SendPacket(csize, ccount, pcsize, crc),
+			.info = {
+				.filename = "DEMOFILE0",
+				.name = "TestMan",
+				.local_ip = "0.0.0.0",
+				.local_port = 4096,
+				.remote_ip = "1.1.1.1",
+				.remote_port = 80
+			}
+		}
+	};
+	status_t _stat = push_SEND_header(fsock, &args, 500);
+	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "push_SEND_header test failed");
+	return;
+}
+
+void test_push_RECV_header(void) {
+	sockfd_t fsock = 8;
+	HeaderArgs args = {
+		.flow = {
+			.packet = pack_RUFShare_FlowPacket(1, 3252, 0x1337)
+		}
+	};
+	status_t _stat = push_RECV_header(fsock, &args, 500);
+	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "push_RECV_header test failed");
 	return;
 }
 
@@ -117,9 +180,12 @@ int main(void) {
 	printf("\n\x1b[1;93mStart testing cntl.c\x1b[0m\n");
 	printf("\n\x1b[1;31mThis test required internet access\x1b[0m\n\n");
 	UNITY_BEGIN();
-	RUN_TEST(test_start_cntl);
+	RUN_TEST(test_start_cntl0);
+	RUN_TEST(test_start_cntl1);
 	RUN_TEST(test_push_CAST_header);
 	RUN_TEST(test_push_FLOW_header);
+	RUN_TEST(test_push_SEND_header);
+	RUN_TEST(test_push_RECV_header);
 	RUN_TEST(test_pull_CAST_header);
 	RUN_TEST(test_pull_FLOW_header);
 	RUN_TEST(test_pull_SEND_header);

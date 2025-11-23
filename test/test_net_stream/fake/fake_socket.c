@@ -43,31 +43,7 @@ ssize_t recv(int sockfd, void *buf, size_t len, int flags) {
 		offset += ((flags & MSG_PEEK) ? 0 : len);
 		offset = (bufsize == offset) ? 0 : offset;
 		free(tbuf);
-		return len;
-	}
-	else if (sockfd == 512) {
-		SendPacket pack = pack_RUFShare_SendPacket(1337, 1337, 2, 0x1337);
-		char infostr[320] = "DEMOFILE1:TestMan@192.168.43.81:4096";
-		size_t bufsize = sizeof (SendPacket) + 320;
-		char *tbuf = malloc(bufsize);
-		memcpy(tbuf, (Buffer) &pack, sizeof (SendPacket));
-		strcpy(tbuf + sizeof (SendPacket), infostr);
-		memcpy(buf, tbuf + offset, len);
-		offset += ((flags & MSG_PEEK) ? 0 : len);
-		offset = (bufsize == offset) ? 0 : offset;
-		free(tbuf);
-		return len;
-	}
-	else if (sockfd == 4096) {
-		RecvPacket pack = pack_RUFShare_RecvPacket(1, 0x1337, 1337);
-		size_t bufsize = sizeof (RecvPacket);
-		unsigned char *tbuf = malloc(bufsize);
-		memcpy(tbuf, (Buffer) &pack, sizeof (RecvPacket));
-		memcpy(buf, tbuf + offset, len);
-		offset += ((flags & MSG_PEEK) ? 0 : len);
-		offset = (bufsize == offset) ? 0 : offset;
-		free(tbuf);
-		return len;
+		return len - 1;
 	}
 	return -1;
 }

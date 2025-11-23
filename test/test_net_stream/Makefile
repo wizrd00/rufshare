@@ -34,7 +34,7 @@ $(NET_STREAM_OBJ) : $(NET_STREAM_SRC) $(NET_STREAM_HDR) $(TYPES_HDR)
 
 $(FAKE_OBJ) : $(FAKE_SRC) $(FAKE_HDR)
 	@echo compiling $<
-	$(CC) -c $(CFLAGS) -I$(FAKE_DIR) -o $@ $<
+	$(CC) -c $(CFLAGS) -I$(FAKE_DIR) -I$(INCLUDE_DIR) -o $@ $<
 
 memcheck : test.elf
 	@echo start checking test.elf for any memory bug

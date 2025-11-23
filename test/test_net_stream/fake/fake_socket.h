@@ -1,8 +1,11 @@
 #ifndef FAKE_SOCKET_H
 #define FAKE_SOCKET_H
 
+#include "types.h"
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

@@ -73,11 +73,7 @@ ssize_t recv(int sockfd, void *buf, size_t len, int flags) {
 }
 
 ssize_t send(int sockfd, const void *buf, size_t len, int flags) {
-	if (sockfd == 8)
-		return len;
-	else if (sockfd == 64)
-		return len - 8;
-	return -1;
+	return len;
 }
 
 int poll(struct pollfd *fds, nfds_t nfds, int timeout) {

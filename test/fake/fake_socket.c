@@ -1,6 +1,8 @@
 #include "fake_socket.h"
 #include <string.h>
 
+size_t offset = 0;
+
 int listen(int sockfd, int backlog) {
 	return 0;
 }
@@ -19,16 +21,67 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
 }
 
 ssize_t recv(int sockfd, void *buf, size_t len, int flags) {
-	char *fbuf = // PI with 100 digit
-		"3.141592653589793238462643383279502884197169399375"
-		"1058209749445923078164062862089986280348253421170679";
 	if (sockfd == 8) {
-		memcpy(buf, fbuf, len); // to fake complete recv data
+		CastPacket pack = pack_RUFShare_CastPacket(0x1337);
+		char infostr[320] = "DEMOFILE0:TestMan@192.168.43.81:4096";
+		size_t bufsize = sizeof (CastPacket) + 320;
+		char *tbuf = malloc(bufsize);
+		memcpy(tbuf, (Buffer) &pack, sizeof (CastPacket));
+		strcpy(tbuf + sizeof (CastPacket), infostr);
+		memcpy(buf, tbuf + offset, len);
+		offset += ((flags & MSG_PEEK) ? 0 : len);
+		offset = (bufsize == offset) ? 0 : offset;
+		free(tbuf);
 		return len;
 	}
 	else if (sockfd == 64) {
-		memcpy(buf, fbuf, len - 8); // to fake incomplete recv data
-		return len - 8;
+		FlowPacket pack = pack_RUFShare_FlowPacket(1337, 1337, 0x1337);
+		size_t bufsize = sizeof (FlowPacket);
+		unsigned char *tbuf = malloc(bufsize);
+		memcpy(tbuf, (Buffer) &pack, sizeof (FlowPacket));
+		memcpy(buf, tbuf + offset, len);
+		offset += ((flags & MSG_PEEK) ? 0 : len);
+		offset = (bufsize == offset) ? 0 : offset;
+		free(tbuf);
+		return len;
 	}
-	return -1; // to fake unsuccessful recv call
+	else if (sockfd == 512) {
+		SendPacket pack = pack_RUFShare_SendPacket(1337, 1337, 2, 0x1337);
+		char infostr[320] = "DEMOFILE1:TestMan@192.168.43.81:4096";
+		size_t bufsize = sizeof (SendPacket) + 320;
+		char *tbuf = malloc(bufsize);
+		memcpy(tbuf, (Buffer) &pack, sizeof (SendPacket));
+		strcpy(tbuf + sizeof (SendPacket), infostr);
+		memcpy(buf, tbuf + offset, len);
+		offset += ((flags & MSG_PEEK) ? 0 : len);
+		offset = (bufsize == offset) ? 0 : offset;
+		free(tbuf);
+		return len;
+	}
+	else if (sockfd == 4096) {
+		RecvPacket pack = pack_RUFShare_RecvPacket(1, 0x1337, 1337);
+		size_t bufsize = sizeof (RecvPacket);
+		unsigned char *tbuf = malloc(bufsize);
+		memcpy(tbuf, (Buffer) &pack, sizeof (RecvPacket));
+		memcpy(buf, tbuf + offset, len);
+		offset += ((flags & MSG_PEEK) ? 0 : len);
+		offset = (bufsize == offset) ? 0 : offset;
+		free(tbuf);
+		return len;
+	}
+	return -1;
+}
+
+ssize_t send(int sockfd, const void *buf, size_t len, int flags) {
+	if (sockfd == 8)
+		return len;
+	else if (sockfd == 64)
+		return len - 8;
+	return -1;
+}
+
+int poll(struct pollfd *fds, nfds_t nfds, int timeout) {
+	fds[0].revents = fds[0].events;
+	sleep(timeout / 1000);
+	return 1;
 }
