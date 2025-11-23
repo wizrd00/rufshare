@@ -1,18 +1,23 @@
 #include "logger/logd.h"
 
-FILE *logfile;
-unsigned long logcount;
-mqd_t logqueue;
+LogContext logc;
 
 int start_logd(void) {
 	char filename[FILENAME_MAX];
 	time_t time_tag = time(NULL);
+	LogMsg logmsg;
+	logc.logcount = 0;
 	snprintf(filename, FILENAME_MAX, "logfile_%ld.log", (time_tag != -1) ? (long) time_tag : (long) (rand() % 0xffff));
-	logfile = fopen(filename, "w");
-	logqueue = mq_open(LOGQUEUE_NAME, O_RDWR);	
-	if ((logfile == NULL) || (logqueue == -1)) {
+	logc.logfile = fopen(filename, "w");
+	logc.logqueue = mq_open(LOGQUEUE_NAME, O_RDWR);	
+	if ((logc.logfile == NULL) || (logc.logqueue == -1)) {
 		fprintf(stderr, LOGERROR_TEXT, strerror(errno), "failed to create logger context");
 		return -1;
+	}
+	while (1) {
+		if (mq_receive(logc.logqueue, (char *) &logmsg, sizeof (LogMsg), NULL) != sizeof (LogMsg))
+			return -1;
+		append_log(logc.logcount, logmsg.level, logmsg.date, logmsg.mod, logmsg.pos, logmsg.msg);
 	}
 	return 0;
 }
@@ -29,15 +34,20 @@ void logging(
 	const unsigned char *fmt,
 	...
 ) {
-	char date[11], clock[16], msg[128];
+	char msg[MSGSIZE];
+	LogMsg logmsg;
 	struct tm ltime = localtime(time(NULL));
 	va_list ap;
+	strncpy(logmsg.level, level, LEVELSIZE);
+	strftime(logmsg.date, sizeof (date), "%Y-%m-%d", &ltime);
+	strftime(logmsg.clock, sizeof (clock), "%H:%M:%S.%f", &ltime);
+	strncpy(logmsg.mod, mod, MODSIZE);
+	strncpy(logmsg.pos, pos, POSSIZE);
 	va_start(ap, fmt);
 	vsnprintf(msg, sizeof (msg), fmt, ap);
-	strftime(date, sizeof (date), "%Y-%m-%d", &ltime);
-	strftime(clock, sizeof (clock), "%H:%M:%S.%f", &ltime);
-	append_log(*count, level, date, clock, mod, pos, msg);
+	strncpy(logmsg.msg, msg, MSGSIZE);
 	va_end(ap);
+	mq_send(logc.logqueue, (const char *) &logmsg, sizeof (logmsg), 0);
 	(*count)++;
 	return;
 }
