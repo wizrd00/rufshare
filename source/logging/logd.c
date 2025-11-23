@@ -22,25 +22,20 @@ int start_logd(void) {
 	return 0;
 }
 
-void end_logging(void) {
-	fclose(logfile);
+void end_logd(void) {
+	fclose(logc.logfile);
+	mq_close(logc.logqueue);
+	return;
 }
 
-void logging(
-	const unsigned long *count,
-	const unsigned char *level,
-	const unsigned char *mod,
-	const unsigned char *pos,
-	const unsigned char *fmt,
-	...
-) {
-	char msg[MSGSIZE];
+void logging(const unsigned long *count, const unsigned char *level, const unsigned char *mod, const unsigned char *pos, const unsigned char *fmt, ...) {
 	LogMsg logmsg;
-	struct tm ltime = localtime(time(NULL));
+	struct tm *ltime = localtime(time(NULL));
+	char msg[MSGSIZE];
 	va_list ap;
 	strncpy(logmsg.level, level, LEVELSIZE);
-	strftime(logmsg.date, sizeof (date), "%Y-%m-%d", &ltime);
-	strftime(logmsg.clock, sizeof (clock), "%H:%M:%S.%f", &ltime);
+	strftime(logmsg.date, sizeof (date), "%Y-%m-%d", ltime);
+	strftime(logmsg.clock, sizeof (clock), "%H:%M:%S.%f", ltime);
 	strncpy(logmsg.mod, mod, MODSIZE);
 	strncpy(logmsg.pos, pos, POSSIZE);
 	va_start(ap, fmt);

@@ -36,19 +36,11 @@
 extern FILE *logfile;
 extern unsigned long logcount;
 
-int start_logging(void);
+int start_logd(void);
 
-void end_logging(void);
+void end_logd(void);
 
-void logging(
-	const unsigned long *count,
-	const char *level,
-	const char *ver,
-	const char *mod,
-	const char *pos,
-	const char *fmt,
-	...
-);
+void logging(const unsigned long *count, const unsigned char *level, const unsigned char *mod, const unsigned char *pos, const unsigned char *fmt, ...);
 
 typedef struct {
 	level[LEVELSIZE];

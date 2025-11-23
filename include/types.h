@@ -2,6 +2,7 @@
 #define TYPES_H
 
 #if defined(LOG_TRACE) || defined(LOG_DEBUG) || defined(OG_WARNN) || defined(LOG_ERROR)
+#define LOGGING
 #include "logging/logger.h"
 #endif
 #include "protocol/protocol.h"

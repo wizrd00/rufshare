@@ -10,6 +10,19 @@ sockfd_t cast_sock;
 FileContext filec;
 CntlAddrs addrs;
 
+#ifdef LOGGING
+static void thread_start_logd(void *arg) {
+	start_logd();
+	return;
+}
+
+static status_t start_logging(thread_t *handle) {
+	status_t _stat = SUCCESS;
+	CHECK_THREAD(pthread_create(handle, NULL, thread_start_logd, NULL));
+	return _stat;
+}
+#endif
+
 static void set_global_variables(HeaderArgs *header) {
 	chunk_size = header->send.packet.chunk_size;
 	partial_chunk_size = header->send.packet.partial_chunk_size;
@@ -228,6 +241,7 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	status_t _stat = SUCCESS;
 	RUFShareSequence seq = 1;
 	LOGT(__FILE__, __func__, "start push_file with name %s", name);
+	CHECK_STAT(start_logging(&handle[0]));
 	extract_file_name(addrs.filename, path, MAXFILENAMESIZE);
 	LOGD(__FILE__, __func__, "push_file() : filename = %s", addrs.filename);
 	strncpy(addrs.name, name, MAXNAMESIZE);
@@ -262,8 +276,9 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	status_t _stat = SUCCESS;
 	RUFShareSequence seq = 1;
 	CntlAddrs broadcast_addrs = {.local_port = addrs.local_port, .remote_port = addrs.remote_port};
-	pthread_t handle;
+	pthread_t handle[2];
 	LOGT(__FILE__, __func__, "start pull_file with name %s", name);
+	CHECK_STAT(start_logging(&handle[0]));
 	strncpy(broadcast_addrs.filename , name, MAXFILENAMESIZE); 
 	strncpy(broadcast_addrs.name , name, MAXNAMESIZE); 
 	strncpy(broadcast_addrs.local_ip, local->ip, MAXIPV4SIZE);
@@ -281,10 +296,10 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	LOGD(__FILE__, __func__, "pull_file() : local_port = %hu & remote_port = %hu", addrs.local_port, addrs.remote_port);
 	LOGD(__FILE__, __func__, "call start_cntl() with conn = false");
 	tryexec(start_cntl(&addrs, &cntl_sock, false));
-	CHECK_THREAD(pthread_create(&handle, NULL, thread_start_broadcast, (void *) broadcast_addrs));
+	CHECK_THREAD(pthread_create(&handle[1], NULL, thread_start_broadcast, (void *) broadcast_addrs));
 	LOGD(__FILE__, __func__, "call accept_cntl()");
 	tryexec(accept_cntl(&addrs, &conn_sock, cntl_sock, FOREVER_TIMEOUT));
-	CHECK_THREAD(pthread_cancel(&handle));
+	CHECK_THREAD(pthread_cancel(&handle[1]));
 	LOGD(__FILE__, __func__, "call pull_handshake()");
 	tryexec(pull_handshake(path));
 	LOGD(__FILE__, __func__, "call start_data()");
@@ -309,11 +324,8 @@ status_t scan_pair(PairInfo *info, size_t *len, addr_pair *local) {
 		.local_port = local->port,
 		.remote_port = BROADCAST_PORT
 	};
+	CHECK_STAT(start_logging(&handle[0]));
 	strncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
 	tryexec(start_scanpair(&broadcast_addrs, &cast_sock, info, len, SCANPAIR_TIMEOUT));
 	return _stat;
-}
-
-int main(void) {
-	return 0;
 }
