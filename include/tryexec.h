@@ -2,6 +2,7 @@
 #define TRYEXEC_H
 
 #include "types.h"
+#include "error.h"
 
 static inline void tryexec(status_t _stat) {
 	switch (_stat) {
@@ -12,6 +13,7 @@ static inline void tryexec(status_t _stat) {
 		case EXPTRY1 : raise_exptry1_error(__func__); break;
 		case ZEROACK : raise_zeroack_error(__func__); break;
 		case ZEROSEQ : raise_zeroseq_error(__func__); break;
+		case ZEROCHK : raise_zerochk_error(__func__); break;
 		case FAILSET : raise_failset_error(__func__); break;
 		case FAILCRC : raise_failcrc_error(__func__); break;
 		case BADFLOW : raise_badflow_error(__func__); break;

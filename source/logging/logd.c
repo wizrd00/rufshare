@@ -1,4 +1,4 @@
-#include "logger/logd.h"
+#include "logging/logd.h"
 
 LogContext logc;
 
@@ -17,7 +17,7 @@ int start_logd(void) {
 	while (1) {
 		if (mq_receive(logc.logqueue, (char *) &logmsg, sizeof (LogMsg), NULL) != sizeof (LogMsg))
 			return -1;
-		append_log(logc.logcount, logmsg.level, logmsg.date, logmsg.mod, logmsg.pos, logmsg.msg);
+		append_log(logc.logcount, logmsg.level, logmsg.date, logmsg.clock, logmsg.mod, logmsg.pos, logmsg.msg);
 	}
 	return 0;
 }
@@ -28,14 +28,17 @@ void end_logd(void) {
 	return;
 }
 
-void logging(const unsigned long *count, const unsigned char *level, const unsigned char *mod, const unsigned char *pos, const unsigned char *fmt, ...) {
+void logging(const unsigned long *count, const char *level, const char *mod, const char *pos, const char *fmt, ...) {
 	LogMsg logmsg;
-	struct tm *ltime = localtime(time(NULL));
+	time_t now_time = time(NULL);
+	struct tm *ltime = localtime(&now_time);
+	if (ltime == NULL)
+		return;
 	char msg[MSGSIZE];
 	va_list ap;
 	strncpy(logmsg.level, level, LEVELSIZE);
-	strftime(logmsg.date, sizeof (date), "%Y-%m-%d", ltime);
-	strftime(logmsg.clock, sizeof (clock), "%H:%M:%S.%f", ltime);
+	strftime(logmsg.date, DATESIZE, "%Y-%m-%d", ltime);
+	strftime(logmsg.clock, CLOCKSIZE, "%H:%M:%S.%f", ltime);
 	strncpy(logmsg.mod, mod, MODSIZE);
 	strncpy(logmsg.pos, pos, POSSIZE);
 	va_start(ap, fmt);

@@ -14,6 +14,7 @@
 #define EXPTRY1_ERROR_TEXT "try count reached zero"
 #define ZEROACK_ERROR_TEXT "process received RECV-NACK"
 #define ZEROSEQ_ERROR_TEXT "transfer function received sequence = 0"
+#define ZEROCHK_ERROR_TEXT "chunk_size = 0"
 #define FAILSET_ERROR_TEXT "process failed to set socket option"
 #define FAILCRC_ERROR_TEXT "file crc does not match"
 #define BADFLOW_ERROR_TEXT "process received bad flow packet"
@@ -33,8 +34,9 @@
 #define ERRRECV_ERROR_TEXT "recv() function failed"
 #define ERRSEND_ERROR_TEXT "send() function failed"
 #define ERRPOLL_ERROR_TEXT "poll() function failed"
-#define ERRTIME_ERROR_TEST "time() function failed"
+#define ERRTIME_ERROR_TEXT "time() function failed"
 #define EMALLOC_ERROR_TEXT "malloc() function failed"
+#define ETHREAD_ERROR_TEXT "pthread's function failed"
 #define INVSOCK_ERROR_TEXT "invalid socket fd"
 #define INVPATH_ERROR_TEXT "invalid file path"
 #define TESTVAL_ERROR_TEXT "testval"
@@ -59,7 +61,7 @@ static inline void raise_lowsize_error(void *func) {
 }
 
 static inline void raise_exptry0_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT(EXPTRY0), EXPTRY0_ERROR_TEXT, strerrno(errno), func);
+	fprintf(stderr, GLOBAL_ERROR_TEXT(EXPTRY0), EXPTRY0_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
@@ -81,6 +83,13 @@ static inline void raise_zeroseq_error(void *func) {
 	exit(EXIT_FAILURE);
 	return;
 }
+
+static inline void raise_zerochk_error(void *func) {
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ZEROCHK), ZEROCHK_ERROR_TEXT, strerror(errno), func);
+	exit(EXIT_FAILURE);
+	return;
+}
+
 
 static inline void raise_failset_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILSET), FAILSET_ERROR_TEXT, strerror(errno), func);
@@ -142,7 +151,7 @@ static inline void raise_nofstat_error(void *func) {
 	return;
 }
 
-static inline void raise_noavial_error(void *func) {
+static inline void raise_noavail_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(NOAVAIL), NOAVAIL_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
@@ -207,6 +216,13 @@ static inline void raise_emalloc_error(void *func) {
 	exit(EXIT_FAILURE);
 	return;
 }
+
+static inline void raise_ethread_error(void *func) {
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ETHREAD), ETHREAD_ERROR_TEXT, strerror(errno), func);
+	exit(EXIT_FAILURE);
+	return;
+}
+
 
 static inline void raise_invsock_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(INVSOCK), INVSOCK_ERROR_TEXT, strerror(errno), func);

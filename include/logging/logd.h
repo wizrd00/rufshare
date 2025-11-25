@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #include <time.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <mqueue.h>
 #include <errno.h>
 
@@ -25,30 +27,21 @@
 #define MSGSIZE 128
 
 #define append_log(count, level, date, clock, mod, pos, fmt)\
-	do {\
-		fprintf(\
-			&logfile,\
-			"[0x%lx][%-5.5s][%-10.10s][%-15.15s][MOD:%-.31s][POS:%-.31s][%-.127s]\n",\
-			count, level, date, clock, mod, pos, fmt\
-		);\
-	} while (0)
-
-extern FILE *logfile;
-extern unsigned long logcount;
+	do {fprintf(logc.logfile, "[0x%lx][%-5.5s][%-10.10s][%-15.15s][MOD:%-.31s][POS:%-.31s][%-.127s]\n", count, level, date, clock, mod, pos, fmt);} while (0)
 
 int start_logd(void);
 
 void end_logd(void);
 
-void logging(const unsigned long *count, const unsigned char *level, const unsigned char *mod, const unsigned char *pos, const unsigned char *fmt, ...);
+void logging(const unsigned long *count, const char *level, const char *mod, const char *pos, const char *fmt, ...);
 
 typedef struct {
-	level[LEVELSIZE];
-	date[DATESIZE];
-	clock[CLOCKSIZE];
-	mod[MODSIZE];
-	pos[POSSIZE];
-	msg[MSGSIZE];
+	char level[LEVELSIZE];
+	char date[DATESIZE];
+	char clock[CLOCKSIZE];
+	char mod[MODSIZE];
+	char pos[POSSIZE];
+	char msg[MSGSIZE];
 } LogMsg;
 
 typedef struct {
@@ -56,5 +49,7 @@ typedef struct {
 	mqd_t logqueue;
 	unsigned long logcount;
 } LogContext;
+
+extern LogContext logc;
 
 #endif

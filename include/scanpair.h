@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "net_stream.h"
+#include "utils/infostr.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>

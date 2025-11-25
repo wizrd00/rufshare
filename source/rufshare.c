@@ -11,17 +11,21 @@ FileContext filec;
 CntlAddrs addrs;
 
 #ifdef LOGGING
-static void thread_start_logd(void *arg) {
+static void *thread_start_logd(void *arg) {
 	start_logd();
-	return;
-}
-
-static status_t start_logging(thread_t *handle) {
-	status_t _stat = SUCCESS;
-	CHECK_THREAD(pthread_create(handle, NULL, thread_start_logd, NULL));
-	return _stat;
+	return arg;
 }
 #endif
+
+static status_t start_logging(pthread_t *handle) {
+	status_t _stat = SUCCESS;
+	#ifdef LOGGING
+	CHECK_THREAD(pthread_create(handle, NULL, thread_start_logd, NULL));
+	#else
+	*handle = 0;
+	#endif
+	return _stat;
+}
 
 static void set_global_variables(HeaderArgs *header) {
 	chunk_size = header->send.packet.chunk_size;
@@ -30,19 +34,19 @@ static void set_global_variables(HeaderArgs *header) {
 	return;
 }
 
-static bool match_flow(HeaderArgs *header, RUFShareSequence *seq, RUFShareCRC32 crc) {
+static bool match_flow(HeaderArgs *header, RUFShareSequence *seq) {
 	return ((header->flow.packet.sequence != *seq) || (header->flow.packet.chunk_size != chunk_size)) ? false : true;
 }
 
-static void thread_calc_file_crc16(void *arg) {
+static void *thread_calc_file_crc16(void *arg) {
 	RUFShareCRC16 *crc = (RUFShareCRC16 *) arg;
 	*crc = calc_file_crc16(&filec);
-	return;
+	return arg;
 }
 
-static void thread_start_broadcast(void *arg) {
+static void *thread_start_broadcast(void *arg) {
 	start_broadcast((CntlAddrs *) arg, &cast_sock);
-	return;
+	return arg;
 }
 
 static status_t push_handshake(const char *name) {
@@ -70,6 +74,7 @@ static status_t pull_handshake(const char *path) {
 	LOGT(__FILE__, __func__, "start handshake");
 	CHECK_STAT(pull_SEND_header(conn_sock, &header, FOREVER_TIMEOUT));
 	LOGD(__FILE__, __func__, "SEND packet pulled on socket fd %d with %d timeout", conn_sock, FOREVER_TIMEOUT);
+	set_global_variables(&header);
 	strncpy(filec.name, header.send.info.filename, MAXFILENAMESIZE);
 	strncpy(addrs.filename, header.send.info.filename, MAXFILENAMESIZE);
 	LOGD(__FILE__, __func__, "filename %s copied into filec.name and addrs.filename", addrs.filename);
@@ -108,7 +113,7 @@ static status_t push_transfer(RUFShareSequence *seq) {
 		chcon.start_pos = (*seq - 1) * chunk_size;
 		chcon.chunk_size = (*seq == chunk_count) ? partial_chunk_size : chunk_size;
 		crc = calc_chunk_crc32(&filec, &chcon);
-		header.flow.packet = pack_FLOW_FlowPacket(((*seq == chunk_count) ? partial_chunk_size : chunk_size), *seq, crc);
+		header0.flow.packet = pack_RUFShare_FlowPacket(((*seq == chunk_count) ? partial_chunk_size : chunk_size), *seq, crc);
 		LOGD(__FILE__, __func__, "start_pos = %lu, chunk_size = %lu, crc = %lu", chcon.start_pos, chcon.chunk_size, crc);
 		while (trycount != 0) {
 			LOGD(__FILE__, __func__, "%d tries remained in control section");
@@ -225,7 +230,7 @@ static status_t pull_verification(RUFShareSequence *seq) {
 	CHECK_STAT(pull_SEND_header(conn_sock, &header, VERIFICATION_SEND_TIMEOUT));
 	LOGD(__FILE__, __func__, "SEND packet pulled on socket fd %d with timeout %d", conn_sock, VERIFICATION_SEND_TIMEOUT);
 	LOGD(__FILE__, __func__, "wait for crc calculation thread to join");
-	CHECK_THREAD(pthread_join(&handle, NULL));
+	CHECK_THREAD(pthread_join(handle, NULL));
 	header.recv.packet = pack_RUFShare_RecvPacket((header.send.packet.crc == crc) ? 1 : 0, 0, *seq); 
 	CHECK_STAT(push_RECV_header(conn_sock, &header, VERIFICATION_RECV_TIMEOUT));
 	LOGD(__FILE__, __func__, "RECV packet pushed on socket fd %d with %d timeout and ack = %d", conn_sock, VERIFICATION_RECV_TIMEOUT, header.recv.packet.ack);
@@ -237,11 +242,14 @@ static status_t pull_verification(RUFShareSequence *seq) {
 	return _stat;
 }
 
-status_t push_file(const char *name, const char *path, addr_pair *local, addr_pair *remote) {
+status_t push_file(const char *name, const char *path, addr_pair *local, addr_pair *remote, size_t _chunk_size) {
 	status_t _stat = SUCCESS;
 	RUFShareSequence seq = 1;
+	pthread_t handle;
+	chunk_size = (RUFShareChunkSize) _chunk_size;
+	CHECK_NOTEQUAL(0, chunk_size, ZEROCHK);
 	LOGT(__FILE__, __func__, "start push_file with name %s", name);
-	CHECK_STAT(start_logging(&handle[0]));
+	CHECK_STAT(start_logging(&handle));
 	extract_file_name(addrs.filename, path, MAXFILENAMESIZE);
 	LOGD(__FILE__, __func__, "push_file() : filename = %s", addrs.filename);
 	strncpy(addrs.name, name, MAXNAMESIZE);
@@ -258,14 +266,14 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	LOGD(__FILE__, __func__, "call start_cntl() with conn = true");
 	tryexec(start_cntl(&addrs, &cntl_sock, true));
 	LOGD(__FILE__, __func__, "call push_handshake()");
-	tryexec(handshake());
+	tryexec(push_handshake(name));
 	LOGD(__FILE__, __func__, "call start_data()");
 	tryexec(start_data(&addrs, &data_sock));
 	LOGD(__FILE__, __func__, "call push_transfer()");
-	tryexec(transfer(&seq));
+	tryexec(push_transfer(&seq));
 	LOGD(__FILE__, __func__, "call push_verification()");
-	tryexec(verification());
-	LOGT(__FILE__, __func__, "end push_file() with name %s", addrs.name):
+	tryexec(push_verification());
+	LOGT(__FILE__, __func__, "end push_file() with name %s", addrs.name);
 	tryexec(end_file_stream(&filec));
 	tryexec(end_cntl(cntl_sock));
 	tryexec(end_data(data_sock));
@@ -296,10 +304,10 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	LOGD(__FILE__, __func__, "pull_file() : local_port = %hu & remote_port = %hu", addrs.local_port, addrs.remote_port);
 	LOGD(__FILE__, __func__, "call start_cntl() with conn = false");
 	tryexec(start_cntl(&addrs, &cntl_sock, false));
-	CHECK_THREAD(pthread_create(&handle[1], NULL, thread_start_broadcast, (void *) broadcast_addrs));
+	CHECK_THREAD(pthread_create(&handle[1], NULL, thread_start_broadcast, (void *) &broadcast_addrs));
 	LOGD(__FILE__, __func__, "call accept_cntl()");
 	tryexec(accept_cntl(&addrs, &conn_sock, cntl_sock, FOREVER_TIMEOUT));
-	CHECK_THREAD(pthread_cancel(&handle[1]));
+	CHECK_THREAD(pthread_cancel(handle[1]));
 	LOGD(__FILE__, __func__, "call pull_handshake()");
 	tryexec(pull_handshake(path));
 	LOGD(__FILE__, __func__, "call start_data()");
@@ -308,7 +316,7 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	tryexec(pull_transfer(&seq));
 	LOGD(__FILE__, __func__, "call pull_verification()");
 	tryexec(pull_verification(&seq));
-	LOGT(__FILE__, __func__, "end pull_file() with name %s", addrs.name):
+	LOGT(__FILE__, __func__, "end pull_file() with name %s", addrs.name);
 	tryexec(end_file_stream(&filec));
 	tryexec(end_data(cast_sock));
 	tryexec(end_cntl(cntl_sock));
@@ -320,11 +328,12 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 status_t scan_pair(PairInfo *info, size_t *len, addr_pair *local) {
 	status_t _stat = SUCCESS;
 	CntlAddrs broadcast_addrs = {
-		.local_ip = local->ip,
 		.local_port = local->port,
 		.remote_port = BROADCAST_PORT
 	};
-	CHECK_STAT(start_logging(&handle[0]));
+	pthread_t handle;
+	CHECK_STAT(start_logging(&handle));
+	strncpy(broadcast_addrs.local_ip, local->ip, MAXIPV4SIZE);
 	strncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
 	tryexec(start_scanpair(&broadcast_addrs, &cast_sock, info, len, SCANPAIR_TIMEOUT));
 	return _stat;

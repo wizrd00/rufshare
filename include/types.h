@@ -39,10 +39,11 @@
 #define SCANPAIR_INTERVAL 8 * 1000
 #define SCANPAIR_TIMEOUT 1 * 1000
 
-#define CHECK_SSTAT(val, ptr)\
-	do {if (val != SUCCESS) {free(buf); return _stat = val;}} while (0)
 #define CHECK_STAT(val)\
 	do {if (val != SUCCESS) {return _stat = val;}} while (0)
+
+#define CHECK_SSTAT(val, ptr)\
+	do {if (val != SUCCESS) {free(ptr); return _stat = val;}} while (0)
 
 #define CHECK_EQUAL(val0, val1, err)\
 	do {if (val0 != val1) {return _stat = err;}} while (0)
@@ -112,6 +113,7 @@ typedef enum {
 	EXPTRY1,
 	ZEROACK,
 	ZEROSEQ,
+	ZEROCHK,
 	FAILSET,
 	FAILCRC,
 	BADFLOW,
@@ -145,7 +147,7 @@ typedef enum {
 } fmode_t;
 
 typedef struct {
-	unsigned char *ip;
+	char *ip;
 	unsigned short port;
 } addr_pair;
 
