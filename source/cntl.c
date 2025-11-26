@@ -33,7 +33,7 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
 	char infostr[INFOSTRSIZE] = {0};
 	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
-	Buffer buf = (Buffer) malloc(bufsize);
+	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
 	pack_into_infostring(infostr, &(args->cast.info));
@@ -59,7 +59,7 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
 	size_t bufsize = sizeof (FlowPacket);
-	Buffer buf = (Buffer) malloc(bufsize);
+	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
 	memcpy(buf, &(args->flow.packet), sizeof (FlowPacket));
@@ -84,7 +84,7 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
 	char infostr[INFOSTRSIZE] = {0};
 	size_t bufsize = sizeof (SendPacket) + INFOSTRSIZE;
-	Buffer buf = (Buffer) malloc(bufsize);
+	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
 	pack_into_infostring(infostr, &(args->send.info));
@@ -110,7 +110,7 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
 	size_t bufsize = sizeof (RecvPacket);
-	Buffer buf = (Buffer) malloc(bufsize);
+	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
 	memcpy(buf, &(args->recv.packet), sizeof (RecvPacket));
@@ -143,13 +143,13 @@ status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 		case 0 :
 			return _stat = TIMEOUT;
 		default :
-			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
+			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(CAST, tmp_type, BADTYPE);
 			break;
 	}
-	CHECK_STAT(pull_tcp_data(sock, (Buffer) &packet, sizeof (CastPacket), false));
-	CHECK_STAT(pull_tcp_data(sock, (Buffer) infostr, INFOSTRSIZE, false));
+	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (CastPacket), false));
+	CHECK_STAT(pull_tcp_data(sock, (buffer_t) infostr, INFOSTRSIZE, false));
 	args->cast.packet = convert_CastPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->cast.info));
 	LOGD(__FILE__, __func__, "CAST header with %s:%s:%hu pulled", args->cast.info.name, args->cast.info.remote_ip, args->cast.info.remote_port);
@@ -167,12 +167,12 @@ status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 		case 0 :
 			return _stat = TIMEOUT;
 		default :
-			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
+			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(FLOW, tmp_type, BADTYPE);
 			break;
 	}
-	CHECK_STAT(pull_tcp_data(sock, (Buffer) &packet, sizeof (FlowPacket), false));
+	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (FlowPacket), false));
 	args->flow.packet = convert_FlowPacket_byteorder(&packet);
 	LOGD(__FILE__, __func__, "FLOW header with chunk_size = %hu, sequence = %lu pulled", args->flow.packet.chunk_size, args->flow.packet.sequence);
 	return _stat;
@@ -190,13 +190,13 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 		case 0 :
 			return _stat = TIMEOUT;
 		default :
-			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
+			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(SEND, tmp_type, BADTYPE);
 			break;
 	}
-	CHECK_STAT(pull_tcp_data(sock, (Buffer) &packet, sizeof (SendPacket), false));
-	CHECK_STAT(pull_tcp_data(sock, (Buffer) infostr, INFOSTRSIZE, false));
+	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (SendPacket), false));
+	CHECK_STAT(pull_tcp_data(sock, (buffer_t) infostr, INFOSTRSIZE, false));
 	args->send.packet = convert_SendPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->send.info));
 	LOGD(__FILE__, __func__, "SEND header with chunk_size = %hu, chunk_count = %lu, partial_chunk_size = %hu pulled", args->send.packet.chunk_size, args->send.packet.chunk_count, args->send.packet.partial_chunk_size);
@@ -214,12 +214,12 @@ status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 		case 0 :
 			return _stat = TIMEOUT;
 		default :
-			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
+			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(RECV, tmp_type, BADTYPE);
 			break;
 	}
-	CHECK_STAT(pull_tcp_data(sock, (Buffer) &packet, sizeof (RecvPacket), false));
+	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (RecvPacket), false));
 	args->recv.packet = convert_RecvPacket_byteorder(&packet);
 	LOGD(__FILE__, __func__, "RECV header with ack = %u pulled", args->recv.packet.ack);
 	return _stat;

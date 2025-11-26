@@ -4,7 +4,7 @@ status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	status_t _stat = SUCCESS;
 	char infostr[INFOSTRSIZE] = {0};
 	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
-	Buffer buf = (Buffer) malloc(bufsize);
+	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
 	pack_into_infostring(infostr, &(args->cast.info));

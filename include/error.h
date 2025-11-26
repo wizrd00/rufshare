@@ -17,6 +17,7 @@
 #define ZEROCHK_ERROR_TEXT "chunk_size = 0"
 #define FAILSET_ERROR_TEXT "process failed to set socket option"
 #define FAILCRC_ERROR_TEXT "file crc does not match"
+#define BADCONF_ERROR_TEXT "bad config to initiate the process"
 #define BADFLOW_ERROR_TEXT "process received bad flow packet"
 #define BADARGS_ERROR_TEXT "process received bad argument"
 #define BADINET_ERROR_TEXT "process received invalid address family"
@@ -99,6 +100,12 @@ static inline void raise_failset_error(void *func) {
 
 static inline void raise_failcrc_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILCRC), FAILCRC_ERROR_TEXT, strerror(errno), func);
+	exit(EXIT_FAILURE);
+	return;
+}
+
+static inline void raise_badconf_error(void *func) {
+	fprintf(stderr, GLOBAL_ERROR_TEXT(BADCONF), BADCONF_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }

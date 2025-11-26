@@ -82,7 +82,7 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 	return _stat;
 }
 
-status_t pull_tcp_data(sockfd_t sock, Buffer buf, size_t size, bool peek_flag) {
+status_t pull_tcp_data(sockfd_t sock, buffer_t buf, size_t size, bool peek_flag) {
 	status_t _stat = SUCCESS;
 	ssize_t recv_size = recv(sock, buf, size, MSG_WAITALL | ((peek_flag) ? MSG_PEEK : 0));
 	CHECK_INT(recv_size, ERRRECV);
@@ -90,7 +90,7 @@ status_t pull_tcp_data(sockfd_t sock, Buffer buf, size_t size, bool peek_flag) {
 	return _stat;
 }
 
-status_t push_tcp_data(sockfd_t sock, Buffer buf, size_t size) {
+status_t push_tcp_data(sockfd_t sock, buffer_t buf, size_t size) {
 	status_t _stat = SUCCESS;
 	ssize_t send_size = send(sock, buf, size, MSG_NOSIGNAL);
 	CHECK_INT(send_size, ERRSEND);
@@ -135,7 +135,7 @@ status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 	return _stat;
 }
 
-status_t pull_udp_data(sockfd_t sock, Buffer buf, size_t size) {
+status_t pull_udp_data(sockfd_t sock, buffer_t buf, size_t size) {
 	status_t _stat = SUCCESS;
 	ssize_t recv_size = recv(sock, buf, size, 0);
 	CHECK_INT(recv_size, ERRRECV);
@@ -143,7 +143,7 @@ status_t pull_udp_data(sockfd_t sock, Buffer buf, size_t size) {
 	return _stat;
 }
 
-status_t push_udp_data(sockfd_t sock, Buffer buf, size_t size) {
+status_t push_udp_data(sockfd_t sock, buffer_t buf, size_t size) {
 	status_t _stat = SUCCESS;
 	ssize_t send_size = send(sock, buf, size, 0);
 	CHECK_INT(send_size, ERRSEND);

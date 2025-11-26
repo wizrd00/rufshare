@@ -16,6 +16,7 @@ static inline void tryexec(status_t _stat) {
 		case ZEROCHK : raise_zerochk_error(__func__); break;
 		case FAILSET : raise_failset_error(__func__); break;
 		case FAILCRC : raise_failcrc_error(__func__); break;
+		case BADCONF : raise_badconf_error(__func__); break;
 		case BADFLOW : raise_badflow_error(__func__); break;
 		case BADARGS : raise_badargs_error(__func__); break;
 		case BADINET : raise_badinet_error(__func__); break;

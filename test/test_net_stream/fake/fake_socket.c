@@ -26,7 +26,7 @@ ssize_t recv(int sockfd, void *buf, size_t len, int flags) {
 		char infostr[320] = "DEMOFILE0:TestMan@192.168.43.81:4096";
 		size_t bufsize = sizeof (CastPacket) + 320;
 		char *tbuf = malloc(bufsize);
-		memcpy(tbuf, (Buffer) &pack, sizeof (CastPacket));
+		memcpy(tbuf, (buffer_t) &pack, sizeof (CastPacket));
 		strcpy(tbuf + sizeof (CastPacket), infostr);
 		memcpy(buf, tbuf + offset, len);
 		offset += ((flags & MSG_PEEK) ? 0 : len);
@@ -38,7 +38,7 @@ ssize_t recv(int sockfd, void *buf, size_t len, int flags) {
 		FlowPacket pack = pack_RUFShare_FlowPacket(1337, 1337, 0x1337);
 		size_t bufsize = sizeof (FlowPacket);
 		unsigned char *tbuf = malloc(bufsize);
-		memcpy(tbuf, (Buffer) &pack, sizeof (FlowPacket));
+		memcpy(tbuf, (buffer_t) &pack, sizeof (FlowPacket));
 		memcpy(buf, tbuf + offset, len);
 		offset += ((flags & MSG_PEEK) ? 0 : len);
 		offset = (bufsize == offset) ? 0 : offset;

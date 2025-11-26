@@ -20,14 +20,6 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 
 status_t scan_pair(PairInfo *info, size_t *len, addr_pair *local);
 
-extern RUFShareChunkSize chunk_size;
-extern RUFSharePartialChunkSize partial_chunk_size;
-extern RUFShareChunkCount chunk_count;
-extern sockfd_t cntl_sock;
-extern sockfd_t data_sock;
-extern sockfd_t conn_sock;
-extern sockfd_t cast_sock;
-extern FileContext filec;
-extern CntlAddrs addrs;
+extern InitConfig *conf;
 
 #endif

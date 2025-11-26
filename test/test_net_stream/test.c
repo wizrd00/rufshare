@@ -70,7 +70,7 @@ void test_accept_new_connection(void) {
 void test_pull_tcp_data0(void) {
 	sockfd_t fsock = 8; // this fake socket fd makes the fake recv to copy bytes completely
 	size_t bufsize = 64;
-	Buffer buf = malloc(bufsize);
+	buffer_t buf = malloc(bufsize);
 	status_t _stat = pull_tcp_data(fsock, buf, bufsize, false);
 	TEST_ASSERT_EQUAL_MESSAGE(SUCCESS, _stat, "in first test of pull_tcp_data stat must be SUCCESS but it isn't");
 	free(buf);
@@ -80,7 +80,7 @@ void test_pull_tcp_data0(void) {
 void test_pull_tcp_data1(void) {
 	sockfd_t fsock = 64; // this fake socket fd makes the fake recv to copy bytes incompletely
 	size_t bufsize = 64;
-	Buffer buf = malloc(bufsize);
+	buffer_t buf = malloc(bufsize);
 	status_t _stat = pull_tcp_data(fsock, buf, bufsize, false);
 	TEST_ASSERT_EQUAL_MESSAGE(LOWSIZE, _stat, "in second test of pull_tcp_data stat must be LOWSIZE but it isn't");
 	free(buf);

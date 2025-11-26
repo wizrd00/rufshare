@@ -14,30 +14,10 @@
 #include <errno.h>
 #include <netinet/in.h>
 
-#define SEGMENTSIZE 512 * sizeof (char)
-#define MAXFILENAMESIZE 256 * sizeof (char)
-#define MAXFILENAMELEN 255
-#define MAXNAMESIZE 32 * sizeof (char)
-#define MAXNAMELEN 31
-#define MAXPORTLEN 5
-#define MAXIPV4SIZE 16 * sizeof (char)
-#define MAXIPV4LEN 15
 #define FOREVER_TIMEOUT -1
-#define HANDSHAKE_SEND_TIMEOUT 8 * 1000
-#define HANDSHAKE_RECV_TIMEOUT 8 * 1000
-#define VERIFICATION_SEND_TIMEOUT 8 * 1000
-#define VERIFICATION_RECV_TIMEOUT 8 * 1000
-#define TRANSFER_FLOW_TIMEOUT 8 * 1000
-#define TRANSFER_RECV_TIMEOUT 8 * 1000
-#define TRANSFER_DATA_TIMEOUT 1 * 1000
-#define TRANSFER_TRY_COUNT 3
-#define BROADCAST_CAST_TIMEOUT 1 * 1000
-#define BROADCAST_TRY_COUNT 3
-#define BROADCAST_INTERVAL 2
-#define BROADCAST_IPV4 "255.255.255.255"
-#define BROADCAST_PORT 1337
-#define SCANPAIR_INTERVAL 8 * 1000
-#define SCANPAIR_TIMEOUT 1 * 1000
+#define MAXFILENAMESIZE 256
+#define MAXNAMESIZE 32
+#define MAXIPV4SIZE 16
 
 #define CHECK_STAT(val)\
 	do {if (val != SUCCESS) {return _stat = val;}} while (0)
@@ -96,7 +76,7 @@
 	#define LOGE(mod, pos, ...)
 #endif
 
-typedef unsigned char * Buffer;
+typedef unsigned char * buffer_t;
 
 typedef int sockfd_t;
 
@@ -116,6 +96,7 @@ typedef enum {
 	ZEROCHK,
 	FAILSET,
 	FAILCRC,
+	BADCONF,
 	BADFLOW,
 	BADARGS,
 	BADINET,
@@ -204,7 +185,33 @@ typedef struct {
 } PairInfo;
 
 typedef struct {
-	int handle;
-} BroadCast;
+	RUFShareChunkSize chsize;
+	RUFSharePartialChunkSize pchsize;
+	RUFShareChunkCount chcount;
+	RUFShareSequence seq;
+	sockfd_t cntl_sock;
+	sockfd_t data_sock;
+	sockfd_t conn_sock;
+	sockfd_t cast_sock;
+	FileContext filec;
+	CntlAddrs addrs;
+	addr_pair bc_addr;
+	size_t segsize;
+	int hst_send;
+	int hst_recv;
+	int vft_send;
+	int vft_recv;
+	int tft_flow;
+	int tft_recv;
+	int tft_data;
+	int bct_cast;
+	int spt_cast;
+	short bc_interval;
+	short sp_interval;
+	short tf_trycount;
+	short bc_trycount;
+} InitConfig;
+
+extern InitConfig *conf;
 
 #endif

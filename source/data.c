@@ -25,9 +25,9 @@ status_t end_data(sockfd_t sock) {
 status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout) {
 	status_t _stat = SUCCESS;
 	MFILE *stream = &(filec->mfile);
-	unsigned char segbuf[SEGMENTSIZE];
+	buffer_t segbuf = (buffer_t) malloc(SEGMENTSIZE);
 	size_t rsize = chunk->chunk_size;
-	CHECK_MFILE(filec->mfile);
+	CHECK_PTR(segbuf, EMALLOC);
 	mfseek(stream, chunk->start_pos);
 	while (rsize != 0) {
 		size_t segsize = (SEGMENTSIZE <= rsize) ? SEGMENTSIZE : rsize;
@@ -40,13 +40,14 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 				return _stat = TIMEOUT;
 			default :
 				_stat = (pfd.revents & POLLOUT) ? SUCCESS : ERRPOLL;
-				CHECK_STAT(_stat);
+				CHECK_SSTAT(_stat, segbuf);
 				break;
 		}
-		CHECK_STAT(push_udp_data(sock, segbuf, segsize));
+		CHECK_SSTAT(push_udp_data(sock, segbuf, segsize), segbuf);
 		memset(segbuf, 0, SEGMENTSIZE);
 		rsize -= segsize;
 	}
+	free(segbuf);
 	LOGD(__FILE__, __func__, "chunk with size %lu pushed", chunk->chunk_size);
 	return _stat;
 }
@@ -54,11 +55,11 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout) {
 	status_t _stat = SUCCESS;
 	MFILE *stream = &(filec->mfile);
-	unsigned char segbuf[SEGMENTSIZE];
+	buffer_t segbuf = (buffer_t) malloc(SEGMENTSIZE);
 	size_t rsize = chunk->chunk_size;
-	CHECK_MFILE(filec->mfile);
+	CHECK_PTR(segbuf, EMALLOC);
 	mfseek(stream, chunk->start_pos);
-	CHECK_STAT(set_socket_rcvlowsize(sock, 2 * SEGMENTSIZE));
+	CHECK_SSTAT(set_socket_rcvlowsize(sock, 2 * SEGMENTSIZE), segbuf);
 	while (rsize != 0) {
 		size_t segsize = (SEGMENTSIZE <= rsize) ? SEGMENTSIZE : rsize;
 		struct pollfd pfd = {.fd = sock, .events = POLLIN};
@@ -69,14 +70,15 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 				return _stat = TIMEOUT;
 			default :
 				_stat = (pfd.revents & POLLIN) ? SUCCESS : ERRPOLL;
-				CHECK_STAT(_stat);
+				CHECK_SSTAT(_stat, segbuf);
 				break;
 		}
-		CHECK_STAT(pull_udp_data(sock, segbuf, segsize));
+		CHECK_SSTAT(pull_udp_data(sock, segbuf, segsize), segbuf);
 		mfwrite(segbuf, segsize, sizeof (char), stream);
 		memset(segbuf, 0, SEGMENTSIZE);
 		rsize -= segsize;
 	}
+	free(segbuf);
 	LOGD(__FILE__, __func__, "chunk with size %lu pulled", chunk->chunk_size);
 	return _stat;
 }

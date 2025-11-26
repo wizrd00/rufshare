@@ -12,13 +12,13 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 		case 0 :
 			return _stat = TIMEOUT;
 		default :
-			_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, (Buffer) &tmp_type, sizeof (RUFShareType)) : ERRPOLL;
+			_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType)) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(CAST, tmp_type, BADTYPE);
 			break;
 	}
-	CHECK_STAT(pull_udp_data(sock, (Buffer) &packet, sizeof (CastPacket)));
-	CHECK_STAT(pull_udp_data(sock, (Buffer) infostr, INFOSTRSIZE));
+	CHECK_STAT(pull_udp_data(sock, (buffer_t) &packet, sizeof (CastPacket)));
+	CHECK_STAT(pull_udp_data(sock, (buffer_t) infostr, INFOSTRSIZE));
 	args->cast.packet = convert_CastPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->cast.info));
 	return _stat;
