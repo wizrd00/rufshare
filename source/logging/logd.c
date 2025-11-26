@@ -2,6 +2,12 @@
 
 LogContext logc;
 
+static char *sstrncpy(char *dst, const char *src, size_t dsize) {
+	strncpy(dst, src, dsize - 1);
+	dst[dsize - 1] = '\0';
+	return dst;
+}
+
 int start_logd(void) {
 	char filename[FILENAME_MAX];
 	time_t time_tag = time(NULL);
@@ -36,14 +42,14 @@ void logging(const unsigned long *count, const char *level, const char *mod, con
 		return;
 	char msg[MSGSIZE];
 	va_list ap;
-	strncpy(logmsg.level, level, LEVELSIZE);
+	sstrncpy(logmsg.level, level, LEVELSIZE);
 	strftime(logmsg.date, DATESIZE, "%Y-%m-%d", ltime);
 	strftime(logmsg.clock, CLOCKSIZE, "%H:%M:%S.%f", ltime);
-	strncpy(logmsg.mod, mod, MODSIZE);
-	strncpy(logmsg.pos, pos, POSSIZE);
+	sstrncpy(logmsg.mod, mod, MODSIZE);
+	sstrncpy(logmsg.pos, pos, POSSIZE);
 	va_start(ap, fmt);
 	vsnprintf(msg, sizeof (msg), fmt, ap);
-	strncpy(logmsg.msg, msg, MSGSIZE);
+	sstrncpy(logmsg.msg, msg, MSGSIZE);
 	va_end(ap);
 	mq_send(logc.logqueue, (const char *) &logmsg, sizeof (logmsg), 0);
 	(*count)++;

@@ -27,6 +27,12 @@ static status_t start_logging(pthread_t *handle) {
 	return _stat;
 }
 
+static char *sstrncpy(char *dst, const char *src, size_t dsize) {
+	strncpy(dst, src, dsize - 1);
+		dst[dsize - 1] = '\0';
+	return dst;
+}
+
 static void set_global_variables(HeaderArgs *header) {
 	chunk_size = header->send.packet.chunk_size;
 	partial_chunk_size = header->send.packet.partial_chunk_size;
@@ -75,14 +81,14 @@ static status_t pull_handshake(const char *path) {
 	CHECK_STAT(pull_SEND_header(conn_sock, &header, FOREVER_TIMEOUT));
 	LOGD(__FILE__, __func__, "SEND packet pulled on socket fd %d with %d timeout", conn_sock, FOREVER_TIMEOUT);
 	set_global_variables(&header);
-	strncpy(filec.name, header.send.info.filename, MAXFILENAMESIZE);
-	strncpy(addrs.filename, header.send.info.filename, MAXFILENAMESIZE);
+	sstrncpy(filec.name, header.send.info.filename, MAXFILENAMESIZE);
+	sstrncpy(addrs.filename, header.send.info.filename, MAXFILENAMESIZE);
 	LOGD(__FILE__, __func__, "filename %s copied into filec.name and addrs.filename", addrs.filename);
 	LOGT(__FILE__, __func__, "name of file is \"%s\"", addrs.filename);
-	strncpy(addrs.name, header.send.info.name, MAXNAMESIZE);
+	sstrncpy(addrs.name, header.send.info.name, MAXNAMESIZE);
 	LOGD(__FILE__, __func__, "name %s copied into addrs.name", addrs.name);
 	LOGT(__FILE__, __func__, "remote name is \"%s\"", addrs.name);
-	strncpy(addrs.remote_ip, header.send.info.local_ip, MAXIPV4SIZE);
+	sstrncpy(addrs.remote_ip, header.send.info.local_ip, MAXIPV4SIZE);
 	LOGD(__FILE__, __func__, "remote_ip %s copied into addrs.remote_ip", addrs.remote_ip);
 	LOGT(__FILE__, __func__, "remote ip is \"%s\"", addrs.remote_ip);
 	addrs.remote_port = header.send.info.local_port;
@@ -252,11 +258,11 @@ status_t push_file(const char *name, const char *path, addr_pair *local, addr_pa
 	CHECK_STAT(start_logging(&handle));
 	extract_file_name(addrs.filename, path, MAXFILENAMESIZE);
 	LOGD(__FILE__, __func__, "push_file() : filename = %s", addrs.filename);
-	strncpy(addrs.name, name, MAXNAMESIZE);
+	sstrncpy(addrs.name, name, MAXNAMESIZE);
 	LOGD(__FILE__, __func__, "push_file() : name = %s", addrs.name);
-	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
+	sstrncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
 	LOGD(__FILE__, __func__, "push_file() : local_ip = %s", addrs.local_ip);
-	strncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
+	sstrncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
 	LOGD(__FILE__, __func__, "push_file() : remote_ip = %s", addrs.remote_ip);
 	addrs.local_port = local->port;
 	addrs.remote_port = remote->port;
@@ -287,17 +293,17 @@ status_t pull_file(const char *name, const char *path, addr_pair *local, addr_pa
 	pthread_t handle[2];
 	LOGT(__FILE__, __func__, "start pull_file with name %s", name);
 	CHECK_STAT(start_logging(&handle[0]));
-	strncpy(broadcast_addrs.filename , name, MAXFILENAMESIZE); 
-	strncpy(broadcast_addrs.name , name, MAXNAMESIZE); 
-	strncpy(broadcast_addrs.local_ip, local->ip, MAXIPV4SIZE);
-	strncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
-	strncpy(addrs.name, name, MAXNAMESIZE);
+	sstrncpy(broadcast_addrs.filename , name, MAXFILENAMESIZE); 
+	sstrncpy(broadcast_addrs.name , name, MAXNAMESIZE); 
+	sstrncpy(broadcast_addrs.local_ip, local->ip, MAXIPV4SIZE);
+	sstrncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
+	sstrncpy(addrs.name, name, MAXNAMESIZE);
 	broadcast_addrs.local_port = local->port;
 	broadcast_addrs.remote_port = BROADCAST_PORT;
 	LOGD(__FILE__, __func__, "pull_file() : name = %s", addrs.name);
-	strncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
+	sstrncpy(addrs.local_ip, local->ip, MAXIPV4SIZE);
 	LOGD(__FILE__, __func__, "pull_file() : local_ip = %s", addrs.local_ip);
-	strncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
+	sstrncpy(addrs.remote_ip, remote->ip, MAXIPV4SIZE);
 	LOGD(__FILE__, __func__, "pull_file() : remote_ip = %s", addrs.remote_ip);
 	addrs.local_port = local->port;
 	addrs.remote_port = remote->port;
@@ -333,8 +339,8 @@ status_t scan_pair(PairInfo *info, size_t *len, addr_pair *local) {
 	};
 	pthread_t handle;
 	CHECK_STAT(start_logging(&handle));
-	strncpy(broadcast_addrs.local_ip, local->ip, MAXIPV4SIZE);
-	strncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
+	sstrncpy(broadcast_addrs.local_ip, local->ip, MAXIPV4SIZE);
+	sstrncpy(broadcast_addrs.remote_ip, BROADCAST_IPV4, MAXIPV4SIZE);
 	tryexec(start_scanpair(&broadcast_addrs, &cast_sock, info, len, SCANPAIR_TIMEOUT));
 	return _stat;
 }
