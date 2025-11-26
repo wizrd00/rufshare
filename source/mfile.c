@@ -5,15 +5,19 @@ MFILE mfopen(const char *pathname, const char *mode, int prot, int flags) {
 	FILE *file = fopen(pathname, mode);
 	if (file == NULL)
 		return mfile;
-	mfile.file = file;
 	struct stat info;
-	if (fstat(fileno(file), &info) == -1)
+	if (fstat(fileno(file), &info) == -1) {
+		fclose(file);
 		return mfile;
+	}
 	mfile.size = info.st_size;
 	void *buf = mmap(NULL, mfile.size, prot, flags, fileno(file), 0);
-	if (buf == MAP_FAILED)
+	if (buf == MAP_FAILED) {
+		fclose(file);
 		return mfile;
+	}
 	mfile.buf = buf;
+	mfile.file = file;
 	mfile.open = 1;
 	return mfile;
 }
