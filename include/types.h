@@ -96,6 +96,7 @@ typedef enum {
 	ZEROCHK,
 	FAILSET,
 	FAILCRC,
+	FAILLOG,
 	BADCONF,
 	BADFLOW,
 	BADARGS,
@@ -195,7 +196,6 @@ typedef struct {
 	sockfd_t cast_sock;
 	FileContext filec;
 	CntlAddrs addrs;
-	addr_pair bc_addr;
 	size_t segsize;
 	int hst_send;
 	int hst_recv;
@@ -210,6 +210,7 @@ typedef struct {
 	short sp_interval;
 	short tf_trycount;
 	short bc_trycount;
+	short sp_trycount;
 } InitConfig;
 
 extern InitConfig *conf;

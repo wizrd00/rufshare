@@ -17,3 +17,5 @@ so before using ```mfopen()```, make sure the desired file has size greater than
 
 ### chunk_count
 	-chunk_count = count of chunks + one partial_chunk_size;
+### ip addresses
+	the push_file, pull_file, scan_pair and initiate functions test ip addresses in a weak way.

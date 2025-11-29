@@ -37,8 +37,8 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
 	pack_into_infostring(infostr, &(args->cast.info));
-	memcpy(buf, &(args->cast.packet), sizeof (CastPacket));
-	memcpy(buf + sizeof (CastPacket), infostr, sizeof (infostr));
+	memcpy((void *) buf, (void *) &(args->cast.packet), sizeof (CastPacket));
+	memcpy((void *) buf + sizeof (CastPacket), (void *) infostr, sizeof (infostr));
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
 			_stat = FAILURE;
@@ -62,7 +62,7 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
-	memcpy(buf, &(args->flow.packet), sizeof (FlowPacket));
+	memcpy((void *) buf, (void *) &(args->flow.packet), sizeof (FlowPacket));
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
 			_stat = FAILURE;
@@ -88,8 +88,8 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
 	pack_into_infostring(infostr, &(args->send.info));
-	memcpy(buf, &(args->send.packet), sizeof (SendPacket));
-	memcpy(buf + sizeof (SendPacket), infostr, sizeof (infostr));
+	memcpy((void *) buf, (void *) &(args->send.packet), sizeof (SendPacket));
+	memcpy((void *) buf + sizeof (SendPacket), (void *) infostr, sizeof (infostr));
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
 			_stat = FAILURE;
@@ -113,7 +113,7 @@ status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout) {
 	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	CHECK_PTR(buf, EMALLOC);
-	memcpy(buf, &(args->recv.packet), sizeof (RecvPacket));
+	memcpy((void *) buf, (void *) &(args->recv.packet), sizeof (RecvPacket));
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
 			_stat = FAILURE;

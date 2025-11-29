@@ -17,12 +17,15 @@ static status_t create_file(const char *path, size_t size) {
 status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode) {
 	status_t _stat = SUCCESS;
 	MFILE mfile;
+	char *filename;
 	LOGT(__FILE__, __func__, "start file stream with mode %d", mode);
 	if (mode == MWR)
 		CHECK_STAT(create_file(path, filec->size));
 	mfile = mfopen(path, "r+", PROT_READ | PROT_WRITE, MAP_SHARED);
 	CHECK_MFILE(mfile);
 	filec->mfile = mfile;
+	extract_file_name(filename, path, MAXFILENAMESIZE);
+	sstrncpy(filec->name, filename, MAXFILENAMESIZE);
 	return _stat;
 }
 

@@ -4,13 +4,12 @@
 #include "types.h"
 #include "net_stream.h"
 #include "utils/infostr.h"
+#include "utils/sstr.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/socket.h>
+#include <poll.h>
 
-status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout);
-
-status_t start_broadcast(CntlAddrs *addrs, sockfd_t *sock);
+status_t start_broadcast(void);
 
 #endif

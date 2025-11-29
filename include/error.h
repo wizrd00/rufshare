@@ -14,9 +14,9 @@
 #define EXPTRY1_ERROR_TEXT "try count reached zero"
 #define ZEROACK_ERROR_TEXT "process received RECV-NACK"
 #define ZEROSEQ_ERROR_TEXT "transfer function received sequence = 0"
-#define ZEROCHK_ERROR_TEXT "chunk_size = 0"
 #define FAILSET_ERROR_TEXT "process failed to set socket option"
 #define FAILCRC_ERROR_TEXT "file crc does not match"
+#define FAILLOG_ERROR_TEXT "start_logd() failed"
 #define BADCONF_ERROR_TEXT "bad config to initiate the process"
 #define BADFLOW_ERROR_TEXT "process received bad flow packet"
 #define BADARGS_ERROR_TEXT "process received bad argument"
@@ -85,13 +85,6 @@ static inline void raise_zeroseq_error(void *func) {
 	return;
 }
 
-static inline void raise_zerochk_error(void *func) {
-	fprintf(stderr, GLOBAL_ERROR_TEXT(ZEROCHK), ZEROCHK_ERROR_TEXT, strerror(errno), func);
-	exit(EXIT_FAILURE);
-	return;
-}
-
-
 static inline void raise_failset_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILSET), FAILSET_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
@@ -100,6 +93,12 @@ static inline void raise_failset_error(void *func) {
 
 static inline void raise_failcrc_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILCRC), FAILCRC_ERROR_TEXT, strerror(errno), func);
+	exit(EXIT_FAILURE);
+	return;
+}
+
+static inline void raise_faillog_error(void *func) {
+	fprintf(stderr, GLOBAL_ERROR_TEXT(FAILLOG), FAILLOG_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }
@@ -229,7 +228,6 @@ static inline void raise_ethread_error(void *func) {
 	exit(EXIT_FAILURE);
 	return;
 }
-
 
 static inline void raise_invsock_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(INVSOCK), INVSOCK_ERROR_TEXT, strerror(errno), func);

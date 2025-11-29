@@ -84,7 +84,7 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 
 status_t pull_tcp_data(sockfd_t sock, buffer_t buf, size_t size, bool peek_flag) {
 	status_t _stat = SUCCESS;
-	ssize_t recv_size = recv(sock, buf, size, MSG_WAITALL | ((peek_flag) ? MSG_PEEK : 0));
+	ssize_t recv_size = recv(sock, buf, size, (peek_flag) ? MSG_PEEK : 0);
 	CHECK_INT(recv_size, ERRRECV);
 	CHECK_SIZE((size_t) recv_size, size);
 	return _stat;
