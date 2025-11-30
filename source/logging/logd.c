@@ -2,13 +2,15 @@
 
 LogContext logc;
 
-static char *sstrncpy(char *dst, const char *src, size_t dsize) {
+static char *sstrncpy(char *dst, const char *src, size_t dsize)
+{
 	strncpy(dst, src, dsize - 1);
 	dst[dsize - 1] = '\0';
 	return dst;
 }
 
-int start_logd(void) {
+int start_logd(void)
+{
 	char filename[FILENAME_MAX];
 	time_t time_tag = time(NULL);
 	LogMsg logmsg;
@@ -28,13 +30,15 @@ int start_logd(void) {
 	return 0;
 }
 
-void end_logd(void) {
+void end_logd(void)
+{
 	fclose(logc.logfile);
 	mq_close(logc.logqueue);
 	return;
 }
 
-void logging(const unsigned long *count, const char *level, const char *mod, const char *pos, const char *fmt, ...) {
+void logging(const unsigned long *count, const char *level, const char *mod, const char *pos, const char *fmt, ...)
+{
 	LogMsg logmsg;
 	time_t now_time = time(NULL);
 	struct tm *ltime = localtime(&now_time);

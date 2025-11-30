@@ -3,7 +3,8 @@
 InitConfig *conf;
 
 #ifdef LOGGING
-static void *thread_start_logd(void *arg) {
+static void *thread_start_logd(void *arg)
+{
 	status_t *_stat = (status_t *) arg;
 	if (start_logd() == -1) {
 		*_stat = FAILLOG;
@@ -13,7 +14,8 @@ static void *thread_start_logd(void *arg) {
 }
 #endif
 
-static status_t start_logging(pthread_t *handle) {
+static status_t start_logging(pthread_t *handle)
+{
 	status_t _stat = SUCCESS;
 	#ifdef LOGGING
 	CHECK_THREAD(pthread_create(handle, NULL, thread_start_logd, &_stat));
@@ -23,7 +25,8 @@ static status_t start_logging(pthread_t *handle) {
 	return _stat;
 }
 
-status_t push_file(const char *path) {
+status_t push_file(const char *path)
+{
 	status_t _stat = SUCCESS;
 	pthread_t handle;
 	char *filename;
@@ -47,7 +50,8 @@ status_t push_file(const char *path) {
 	return _stat;
 }
 
-status_t pull_file(const char *path, char *remote_name) {
+status_t pull_file(const char *path, char *remote_name)
+{
 	status_t _stat = SUCCESS;
 	pthread_t handle;
 	CHECK_EQUAL(0, conf->chsize, BADCONF);
@@ -65,7 +69,8 @@ status_t pull_file(const char *path, char *remote_name) {
 	return _stat;
 }
 
-status_t broadcast(void) {
+status_t broadcast(void)
+{
 	status_t _stat = SUCCESS;
 	CntlAddrs addrs;
 	CHECK_NOTEQUAL(0, conf->addrs.name, BADCONF);
@@ -79,7 +84,8 @@ status_t broadcast(void) {
 	return _stat;
 }
 
-status_t scanpair(PairInfo *info, size_t *len) {
+status_t scanpair(PairInfo *info, size_t *len)
+{
 	status_t _stat = SUCCESS;
 	pthread_t handle;
 	CHECK_IPV4(conf->addrs.local_ip);

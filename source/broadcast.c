@@ -13,15 +13,16 @@ static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	memcpy((void *) buf + sizeof (CastPacket), (void *) infostr, sizeof (infostr));
 	switch (poll(&pfd, 1, timeout)) {
         	case -1 :
+        		free(buf);
 			_stat = FAILURE;
 			break;
 		case 0 :
+        		free(buf);
 			_stat = TIMEOUT;
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_udp_data(sock, buf, bufsize) : ERRPOLL;
 			CHECK_SSTAT(_stat, buf);
-			break;
 	}
         free(buf);
         return _stat;

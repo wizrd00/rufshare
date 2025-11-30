@@ -4,7 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 
+InitConfig config;
+
 void setUp(void) {
+	config.chsize = 1024;
+	config.pchsize = 0;
+	config.seq = 1;
+	config.segsize = 32;
+	conf = &config;
 	FILE *file = fopen("DEMOFILE0", "w");
 	if (file == NULL)
 		printf("%s\n", strerror(errno));
@@ -19,7 +26,7 @@ void setUp(void) {
 
 void tearDown(void) {
 	remove("DEMOFILE0");
-	remove("DEMOFILE1");
+	//remove("DEMOFILE1");
 	return;
 }
 

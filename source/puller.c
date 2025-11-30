@@ -1,16 +1,19 @@
 #include "puller.h"
 
-static void *thread_calc_file_crc16(void *arg) {
+static void *thread_calc_file_crc16(void *arg)
+{
 	RUFShareCRC16 *crc = (RUFShareCRC16 *) arg;
 	*crc = calc_file_crc16(&conf->filec);
 	return arg;
 }
 
-static bool match_flow(HeaderArgs *header) {
+static bool match_flow(HeaderArgs *header)
+{
 	return ((header->flow.packet.sequence != conf->seq) || (header->flow.packet.chunk_size != conf->chsize)) ? false : true;
 }
 
-static status_t pull_handshake(const char *path, char *remote_name) {
+static status_t pull_handshake(const char *path, char *remote_name)
+{
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	CHECK_STAT(pull_SEND_header(conf->conn_sock, &header, FOREVER_TIMEOUT));
@@ -34,7 +37,8 @@ static status_t pull_handshake(const char *path, char *remote_name) {
 	return _stat;
 }
 
-static status_t pull_transfer(void) {
+static status_t pull_transfer(void)
+{
 	status_t _stat = SUCCESS;
 	ChunkContext chcon;
 	HeaderArgs flow_header;
@@ -77,7 +81,8 @@ static status_t pull_transfer(void) {
 	return _stat;
 }
 
-static status_t pull_verification(void) {
+static status_t pull_verification(void)
+{
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	RUFShareCRC16 crc;
@@ -93,7 +98,8 @@ static status_t pull_verification(void) {
 	return _stat;
 }
 
-status_t start_puller(const char *path, char *remote_name) {
+status_t start_puller(const char *path, char *remote_name)
+{
 	status_t _stat = SUCCESS;
 	CHECK_STAT(start_cntl(&conf->addrs, &conf->cntl_sock, false));
 	CHECK_STAT(accept_cntl(&conf->addrs, &conf->conn_sock, conf->cntl_sock, FOREVER_TIMEOUT));

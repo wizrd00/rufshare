@@ -32,13 +32,14 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		mfread(segbuf, segsize, sizeof (char), stream);
 		switch (poll(&pfd, 1, timeout)) {
 			case -1 :
+				free(segbuf);
 				return _stat = FAILURE;
 			case 0 :
+				free(segbuf);
 				return _stat = TIMEOUT;
 			default :
 				_stat = (pfd.revents & POLLOUT) ? SUCCESS : ERRPOLL;
 				CHECK_SSTAT(_stat, segbuf);
-				break;
 		}
 		CHECK_SSTAT(push_udp_data(sock, segbuf, segsize), segbuf);
 		memset(segbuf, 0, conf->segsize);
@@ -62,13 +63,14 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		struct pollfd pfd = {.fd = sock, .events = POLLIN};
 		switch (poll(&pfd, 1, timeout)) {
 			case -1 :   
+				free(segbuf);
 				return _stat = FAILURE;
 			case 0 :
+				free(segbuf);
 				return _stat = TIMEOUT;
 			default :
 				_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, segbuf, segsize) : ERRPOLL;
 				CHECK_SSTAT(_stat, segbuf);
-				break;
 		}
 		mfwrite(segbuf, segsize, sizeof (char), stream);
 		memset(segbuf, 0, conf->segsize);

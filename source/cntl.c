@@ -38,15 +38,16 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	memcpy((void *) buf + sizeof (CastPacket), (void *) infostr, sizeof (infostr));
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
+			free(buf);
 			_stat = FAILURE;
 			break;
 		case 0 :
+			free(buf);
 			_stat = TIMEOUT;
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 			CHECK_SSTAT(_stat, buf);
-			break;
 	}
 	free(buf);
 	return _stat;
@@ -62,15 +63,16 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	memcpy((void *) buf, (void *) &(args->flow.packet), sizeof (FlowPacket));
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
+			free(buf);
 			_stat = FAILURE;
 			break;
 		case 0 :
+			free(buf);
 			_stat = TIMEOUT;
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 			CHECK_SSTAT(_stat, buf);
-			break;
 	}
 	free(buf);
 	return _stat;
@@ -89,15 +91,16 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	memcpy((void *) buf + sizeof (SendPacket), (void *) infostr, sizeof (infostr));
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
+			free(buf);
 			_stat = FAILURE;
 			break;
 		case 0 :
+			free(buf);
 			_stat = TIMEOUT;
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 			CHECK_SSTAT(_stat, buf);
-			break;
 	}
 	free(buf);
 	return _stat;
@@ -113,15 +116,16 @@ status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	memcpy((void *) buf, (void *) &(args->recv.packet), sizeof (RecvPacket));
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
+			free(buf);
 			_stat = FAILURE;
 			break;
 		case 0 :
+			free(buf);
 			_stat = TIMEOUT;
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 			CHECK_SSTAT(_stat, buf);
-			break;
 	}
 	free(buf);
 	return _stat;
@@ -143,7 +147,6 @@ status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout)
 			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(CAST, tmp_type, BADTYPE);
-			break;
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (CastPacket), false));
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) infostr, INFOSTRSIZE, false));
@@ -167,7 +170,6 @@ status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout)
 			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(FLOW, tmp_type, BADTYPE);
-			break;
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (FlowPacket), false));
 	args->flow.packet = convert_FlowPacket_byteorder(&packet);
@@ -190,7 +192,6 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout)
 			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(SEND, tmp_type, BADTYPE);
-			break;
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (SendPacket), false));
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) infostr, INFOSTRSIZE, false));
@@ -214,7 +215,6 @@ status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout)
 			_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 			CHECK_STAT(_stat);
 			CHECK_EQUAL(RECV, tmp_type, BADTYPE);
-			break;
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (RecvPacket), false));
 	args->recv.packet = convert_RecvPacket_byteorder(&packet);

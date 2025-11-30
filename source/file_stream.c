@@ -6,11 +6,11 @@ static status_t create_file(const char *path, size_t size)
 	struct statvfs info;
 	FILE *file = fopen(path, "w+");
 	CHECK_PTR(file, NOCREAT);
-	if (!size) {
+	if (size == 0) {
 		fclose(file);
 		return _stat = BADARGS;
 	}
-	if (!fstatvfs(fileno(file), &info))
+	if (fstatvfs(fileno(file), &info) == -1) {
 		fclose(file);
 		return _stat = NOFSTAT;
 	}
@@ -18,9 +18,10 @@ static status_t create_file(const char *path, size_t size)
 		fclose(file);
 		return _stat = NOAVAIL;
 	}
-	if (!ftruncate(fileno(file), size))
+	if (ftruncate(fileno(file), size) == -1) {
 		fclose(file);
 		return _stat = NOTRUNC;
+	}
 	return _stat;
 }
 
@@ -42,7 +43,6 @@ status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode)
 status_t end_file_stream(FileContext *filec)
 {
 	status_t _stat = SUCCESS;
-	LOGT(__FILE__, __func__, "end file stream");
 	CHECK_EQUAL(0, mfclose(&(filec->mfile)), FAILURE);
 	return _stat;
 }

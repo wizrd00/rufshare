@@ -77,7 +77,7 @@ int mfsync(void *addr, size_t length, int flags)
 int mfclose(MFILE *stream)
 {
 	int munmap_stat, fclose_stat;
-	munmap_stat = (stream->buf != NULL) ? munmap(stream->buf, stream->size) : 0;
-	fclose_stat = (stream->file != NULL) ? fclose(stream->file) : 0;
+	munmap_stat = (stream->buf != NULL) ? munmap(stream->buf, stream->size) : -1;
+	fclose_stat = (stream->file != NULL) ? fclose(stream->file) : -1;
 	return munmap_stat | fclose_stat;
 }

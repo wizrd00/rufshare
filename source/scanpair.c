@@ -57,13 +57,14 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
+			free(buf);
 			return _stat = FAILURE;
 		case 0 :
+			free(buf);
 			return _stat = TIMEOUT;
 		default :
 			_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, buf, bufsize) : ERRPOLL;
 			CHECK_SSTAT(_stat, buf);
-			break;
 	}
 	if (ntohs(buf[0]) != CAST)
 		CHECK_SSTAT(BADTYPE, buf);

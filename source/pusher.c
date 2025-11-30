@@ -1,6 +1,7 @@
 #include "pusher.h"
 
-static status_t push_handshake(void) {
+static status_t push_handshake(void)
+{
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	conf->chcount = calc_chunk_count(conf->filec.size, conf->chsize, &conf->pchsize);
@@ -19,7 +20,8 @@ static status_t push_handshake(void) {
 	return _stat;
 }
 
-static status_t push_transfer(void) {
+static status_t push_transfer(void)
+{
 	status_t _stat = SUCCESS;
 	ChunkContext chcon;
 	HeaderArgs flow_header;
@@ -57,7 +59,8 @@ static status_t push_transfer(void) {
 	return _stat;
 }
 
-static status_t push_verification(void) {
+static status_t push_verification(void)
+{
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	RUFShareCRC16 crc = calc_file_crc16(&conf->filec);
@@ -75,7 +78,8 @@ static status_t push_verification(void) {
 	return _stat;
 }
 
-status_t start_pusher(const char *path) {
+status_t start_pusher(const char *path)
+{
 	status_t _stat = SUCCESS;
 	CHECK_STAT(start_file_stream(&conf->filec, path, MRD));
 	CHECK_STAT(start_cntl(&conf->addrs, &conf->cntl_sock, true));

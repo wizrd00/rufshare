@@ -49,7 +49,8 @@ typedef struct {
 	RUFShareSequence sequence;
 } RecvPacket;
 
-static inline CastPacket pack_RUFShare_CastPacket(RUFShareCRC16 crc) {
+static inline CastPacket pack_RUFShare_CastPacket(RUFShareCRC16 crc)
+{
 	CastPacket packet = {
 		.type = CAST,
 		.pad0 = 0,
@@ -58,7 +59,8 @@ static inline CastPacket pack_RUFShare_CastPacket(RUFShareCRC16 crc) {
 	return packet;
 }
 
-static inline FlowPacket pack_RUFShare_FlowPacket(RUFShareChunkSize chunk_size, RUFShareSequence sequence, RUFShareCRC32 crc) {
+static inline FlowPacket pack_RUFShare_FlowPacket(RUFShareChunkSize chunk_size, RUFShareSequence sequence, RUFShareCRC32 crc)
+{
 	FlowPacket packet = {
 		.type = FLOW,
 		.pad0 = 0,
@@ -69,7 +71,8 @@ static inline FlowPacket pack_RUFShare_FlowPacket(RUFShareChunkSize chunk_size, 
 	return packet;
 }
 
-static inline SendPacket pack_RUFShare_SendPacket(RUFShareChunkSize chunk_size, RUFShareChunkCount chunk_count, RUFSharePartialChunkSize partial_chunk_size, RUFShareCRC16 crc) {
+static inline SendPacket pack_RUFShare_SendPacket(RUFShareChunkSize chunk_size, RUFShareChunkCount chunk_count, RUFSharePartialChunkSize partial_chunk_size, RUFShareCRC16 crc)
+{
 	SendPacket packet = {
 		.type = SEND,
 		.pad0 = 0,
@@ -81,7 +84,8 @@ static inline SendPacket pack_RUFShare_SendPacket(RUFShareChunkSize chunk_size, 
 	return packet;
 }
 
-static inline RecvPacket pack_RUFShare_RecvPacket(RUFShareACK ack, RUFShareCRC16 crc, RUFShareSequence sequence) {
+static inline RecvPacket pack_RUFShare_RecvPacket(RUFShareACK ack, RUFShareCRC16 crc, RUFShareSequence sequence)
+{
 	RecvPacket packet = {
 		.type = RECV,
 		.ack = ack,
@@ -91,7 +95,8 @@ static inline RecvPacket pack_RUFShare_RecvPacket(RUFShareACK ack, RUFShareCRC16
 	return packet;
 }
 
-static inline CastPacket convert_CastPacket_byteorder(CastPacket *packet) {
+static inline CastPacket convert_CastPacket_byteorder(CastPacket *packet)
+{
 	CastPacket new_packet = {
 		.type = packet->type,
 		.pad0 = 0,
@@ -100,7 +105,8 @@ static inline CastPacket convert_CastPacket_byteorder(CastPacket *packet) {
 	return new_packet;
 }
 
-static inline FlowPacket convert_FlowPacket_byteorder(FlowPacket *packet) {
+static inline FlowPacket convert_FlowPacket_byteorder(FlowPacket *packet)
+{
 	FlowPacket new_packet = {
 		.type = packet->type,
 		.pad0 = 0,
@@ -111,7 +117,8 @@ static inline FlowPacket convert_FlowPacket_byteorder(FlowPacket *packet) {
 	return new_packet;
 }
 
-static inline SendPacket convert_SendPacket_byteorder(SendPacket *packet) {
+static inline SendPacket convert_SendPacket_byteorder(SendPacket *packet)
+{
 	SendPacket new_packet = {
 		.type = packet->type,
 		.pad0 = 0,
@@ -123,7 +130,8 @@ static inline SendPacket convert_SendPacket_byteorder(SendPacket *packet) {
 	return new_packet;
 }
 
-static inline RecvPacket convert_RecvPacket_byteorder(RecvPacket *packet) {
+static inline RecvPacket convert_RecvPacket_byteorder(RecvPacket *packet)
+{
 	RecvPacket new_packet = {
 		.type = packet->type,
 		.ack = packet->ack,
