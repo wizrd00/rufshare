@@ -5,7 +5,8 @@
 #include <stdint.h>
 #include <arpa/inet.h>
 
-static inline bool check_ipv4_format(const char *ip) {
+static inline bool check_ipv4_format(const char *ip)
+{
     uint32_t ipnetorder;
     if (inet_pton(AF_INET, ip, &ipnetorder) != 1)
         return false;

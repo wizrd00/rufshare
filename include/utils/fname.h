@@ -6,7 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
-static inline char *extract_file_name(char *dst, const char *src, size_t size) {
+static inline char *extract_file_name(char *dst, const char *src, size_t size)
+{
 	if (src[size - 1] != '\0')
 		dst = NULL;
 	else
@@ -18,7 +19,8 @@ static inline char *extract_file_name(char *dst, const char *src, size_t size) {
         return dst;
 }
 
-static inline char *make_random_filename(char *filename, size_t size, const char *keyword) {
+static inline char *make_random_filename(char *filename, size_t size, const char *keyword)
+{
 	snprintf(filename, size, "%s_%d.tmp", keyword, rand());
 	return filename;
 }

@@ -1,6 +1,7 @@
 #include "scanpair.h"
 
-static status_t network_byteorder(ipv4str_t ip, uint32_t *dst) {
+static status_t network_byteorder(ipv4str_t ip, uint32_t *dst)
+{
 	status_t _stat = SUCCESS;
 	switch (inet_pton(AF_INET, ip, dst)) {
 		case -1 :
@@ -13,7 +14,8 @@ static status_t network_byteorder(ipv4str_t ip, uint32_t *dst) {
 	return _stat;
 }
 
-static status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port) {
+static status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port)
+{
 	status_t _stat = SUCCESS;
 	uint32_t src_ipnetorder;
 	int tmpsock;
@@ -35,16 +37,17 @@ static status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_por
 	return _stat;
 }
 
-static status_t pull_udp_data(sockfd_t sock, buffer_t buf, size_t size) {
+static status_t pull_udp_data(sockfd_t sock, buffer_t buf, size_t size)
+{
 	status_t _stat = SUCCESS;
-	size_t remote_addr_size;
 	ssize_t recv_size = recvfrom(sock, buf, size, 0, NULL, NULL);
 	CHECK_INT(recv_size, ERRRECV);
 	CHECK_SIZE(recv_size, size);
 	return _stat;
 }
 
-static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout) {
+static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout)
+{
 	status_t _stat = SUCCESS;
 	CastPacket packet;
 	char infostr[INFOSTRSIZE] = {0};
@@ -62,6 +65,8 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 			CHECK_SSTAT(_stat, buf);
 			break;
 	}
+	if (ntohs(buf[0]) != CAST)
+		CHECK_SSTAT(BADTYPE, buf);
 	memcpy((void *) &packet, buf, sizeof (CastPacket));
 	memcpy((void *) infostr, buf + sizeof (CastPacket), INFOSTRSIZE);
 	args->cast.packet = convert_CastPacket_byteorder(&packet);
@@ -70,15 +75,17 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	return _stat;
 }
 
-status_t start_scanpair(PairInfo *info, size_t *len) {
+status_t start_scanpair(PairInfo *info, size_t *len)
+{
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	time_t start_time = time(NULL);
 	time_t interval = conf->sp_interval;
 	int trycount = conf->sp_trycount;
 	CHECK_NOTEQUAL(-1, start_time, ERRTIME);
-	CHECK_SSTAT(init_udp_socket(&conf->cast_sock, conf->addrs.local_ip, conf->addrs.local_port), info);
+	CHECK_STAT(init_udp_socket(&conf->cast_sock, conf->addrs.local_ip, conf->addrs.local_port));
 	*len = 0;
+	info = NULL;
 	while ((time(NULL) - start_time < interval) || (trycount != 0)) {
 		if (pull_broadcast_header(conf->cast_sock, &header, conf->spt_cast) == SUCCESS) {
 			trycount = conf->sp_trycount;

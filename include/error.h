@@ -37,6 +37,7 @@
 #define ERRPOLL_ERROR_TEXT "poll() function failed"
 #define ERRTIME_ERROR_TEXT "time() function failed"
 #define EMALLOC_ERROR_TEXT "malloc() function failed"
+#define ERRLSTN_ERROR_TEXT "listen() function failed"
 #define ETHREAD_ERROR_TEXT "pthread's function failed"
 #define INVSOCK_ERROR_TEXT "invalid socket fd"
 #define INVPATH_ERROR_TEXT "invalid file path"
@@ -201,6 +202,12 @@ static inline void raise_errrecv_error(void *func) {
 
 static inline void raise_errsend_error(void *func) {
 	fprintf(stderr, GLOBAL_ERROR_TEXT(ERRSEND), ERRSEND_ERROR_TEXT, strerror(errno), func);
+	exit(EXIT_FAILURE);
+	return;
+}
+
+static inline void raise_errlstn_error(void *func) {
+	fprintf(stderr, GLOBAL_ERROR_TEXT(ERRLSTN), ERRLSTN_ERROR_TEXT, strerror(errno), func);
 	exit(EXIT_FAILURE);
 	return;
 }

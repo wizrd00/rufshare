@@ -33,6 +33,7 @@ static inline void tryexec(status_t _stat) {
 		case ERRCONN : raise_errconn_error(__func__); break;
 		case ERRRECV : raise_errrecv_error(__func__); break;
 		case ERRSEND : raise_errsend_error(__func__); break;
+		case ERRLSTN : raise_errlstn_error(__func__); break;
 		case ERRPOLL : raise_errpoll_error(__func__); break;
 		case ERRTIME : raise_errtime_error(__func__); break;
 		case EMALLOC : raise_emalloc_error(__func__); break;

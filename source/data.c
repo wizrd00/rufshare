@@ -1,31 +1,28 @@
 #include "data.h"
 
-status_t start_data(CntlAddrs *addrs, sockfd_t *sock) {
+status_t start_data(CntlAddrs *addrs, sockfd_t *sock)
+{
 	status_t _stat = SUCCESS;
-	LOGT(__FILE__, __func__, "start data");
-	LOGD(__FILE__, __func__, "local ip = %s", addrs->local_ip);
-	CHECK_BOOL(check_ipv4_format(addrs->local_ip), BADIPV4);
-	LOGD(__FILE__, __func__, "remote ip = %s", addrs->remote_ip);
-	CHECK_BOOL(check_ipv4_format(addrs->remote_ip), BADIPV4);
-	LOGD(__FILE__, __func__, "local port = %hu", addrs->local_port);
+	CHECK_IPV4(addrs->local_ip);
+	CHECK_IPV4(addrs->remote_ip);
 	CHECK_PORT(addrs->local_port);
-	LOGD(__FILE__, __func__, "remote port = %hu", addrs->remote_port);
 	CHECK_PORT(addrs->remote_port);
 	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port, false));
 	return _stat;
 }
 
-status_t end_data(sockfd_t sock) {
+status_t end_data(sockfd_t sock)
+{
 	status_t _stat = SUCCESS;
-	LOGT(__FILE__, __func__, "end data with socket fd = %d", sock);
-	CHECK_INT(close(sock), FAILURE);
+	CHECK_STAT(close_socket(sock));
 	return _stat;
 }
 
-status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout) {
+status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout)
+{
 	status_t _stat = SUCCESS;
 	MFILE *stream = &(filec->mfile);
-	buffer_t segbuf = (buffer_t) malloc(conf->segsize);
+	buffer_t segbuf = (buffer_t) calloc(conf->segsize, sizeof (char));
 	size_t rsize = chunk->chunk_size;
 	CHECK_PTR(segbuf, EMALLOC);
 	mfseek(stream, chunk->start_pos);
@@ -48,14 +45,14 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		rsize -= segsize;
 	}
 	free(segbuf);
-	LOGD(__FILE__, __func__, "chunk with size %lu pushed", chunk->chunk_size);
 	return _stat;
 }
 
-status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout) {
+status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk, int timeout)
+{
 	status_t _stat = SUCCESS;
 	MFILE *stream = &(filec->mfile);
-	buffer_t segbuf = (buffer_t) malloc(conf->segsize);
+	buffer_t segbuf = (buffer_t) calloc(conf->segsize, sizeof (char));
 	size_t rsize = chunk->chunk_size;
 	CHECK_PTR(segbuf, EMALLOC);
 	mfseek(stream, chunk->start_pos);
@@ -69,16 +66,14 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 			case 0 :
 				return _stat = TIMEOUT;
 			default :
-				_stat = (pfd.revents & POLLIN) ? SUCCESS : ERRPOLL;
+				_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, segbuf, segsize) : ERRPOLL;
 				CHECK_SSTAT(_stat, segbuf);
 				break;
 		}
-		CHECK_SSTAT(pull_udp_data(sock, segbuf, segsize), segbuf);
 		mfwrite(segbuf, segsize, sizeof (char), stream);
 		memset(segbuf, 0, conf->segsize);
 		rsize -= segsize;
 	}
 	free(segbuf);
-	LOGD(__FILE__, __func__, "chunk with size %lu pulled", chunk->chunk_size);
 	return _stat;
 }

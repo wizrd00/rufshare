@@ -1,6 +1,7 @@
 #include "broadcast.h"
 
-static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout) {
+static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeout)
+{
 	status_t _stat = SUCCESS;
 	char infostr[INFOSTRSIZE] = {0};
 	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
@@ -26,7 +27,8 @@ static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
         return _stat;
 }
 
-status_t start_broadcast(void) {
+status_t start_broadcast(void)
+{
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	int trycount = conf->bc_trycount;

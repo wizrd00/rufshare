@@ -43,6 +43,9 @@
 #define CHECK_SIZE(val, size)\
 	do {if (val < size) {return _stat = LOWSIZE;}} while (0)
 
+#define CHECK_IPV4(ip)\
+	do {if (!check_ipv4_format(ip)) {return _stat = BADIPV4;}} while (0)
+
 #define CHECK_PORT(port)\
 	do {if (port == 0) {return _stat = BADPORT;}} while (0)
 
@@ -114,6 +117,7 @@ typedef enum {
 	ERRCONN,
 	ERRRECV,
 	ERRSEND,
+	ERRLSTN,
 	ERRPOLL,
 	ERRTIME,
 	EMALLOC,

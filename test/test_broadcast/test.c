@@ -1,6 +1,7 @@
 #include "unity.h"
 #include "broadcast.h"
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 
 void setUp(void) {}
@@ -13,11 +14,11 @@ void test_start_broadcast(void) {
 		.filename = "TestMan",
 		.name = "TestMan",
 		.local_ip = "0.0.0.0",
-		.remote_ip = BROADCAST_IPV4,
+		.remote_ip = "255.255.255.255",
 		.local_port = 4096,
 		.remote_port = 4096
 	};
-	status_t _stat = start_broadcast(&addrs, &tmp_sock);
+	status_t _stat = start_broadcast();
 	printf("%d\n", errno);
 	printf(strerror(errno));
 	TEST_ASSERT_EQUAL(SUCCESS, _stat);

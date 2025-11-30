@@ -33,8 +33,8 @@ status_t push_file(const char *path) {
 	CHECK_EQUAL(0, conf->seq, BADCONF);
 	CHECK_NOTEQUAL(0, conf->addrs.filename[0], BADCONF);
 	CHECK_NOTEQUAL(0, conf->addrs.name[0], BADCONF);
-	CHECK_NOTEQUAL(0, conf->addrs.local_ip[0], BADCONF);
-	CHECK_NOTEQUAL(0, conf->addrs.remote_ip[0], BADCONF);
+	CHECK_IPV4(conf->addrs.local_ip);
+	CHECK_IPV4(conf->addrs.remote_ip);
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF);
 	CHECK_NOTEQUAL(0, conf->addrs.remote_port, BADCONF);
 	if (conf->segsize > conf->chsize)
@@ -55,7 +55,7 @@ status_t pull_file(const char *path, char *remote_name) {
 	CHECK_EQUAL(0, conf->chcount, BADCONF);
 	CHECK_EQUAL(0, conf->seq, BADCONF);
 	CHECK_NOTEQUAL(0, conf->addrs.name[0], BADCONF);
-	CHECK_NOTEQUAL(0, conf->addrs.local_ip[0], BADCONF);
+	CHECK_IPV4(conf->addrs.local_ip);
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF);
 	if (conf->tf_trycount <= 0)
 		return _stat = BADCONF;
@@ -69,8 +69,8 @@ status_t broadcast(void) {
 	status_t _stat = SUCCESS;
 	CntlAddrs addrs;
 	CHECK_NOTEQUAL(0, conf->addrs.name, BADCONF);
-	CHECK_NOTEQUAL(0, conf->addrs.local_ip[0], BADCONF);
-	CHECK_NOTEQUAL(0, conf->addrs.remote_ip[0], BADCONF);
+	CHECK_IPV4(conf->addrs.local_ip);
+	CHECK_IPV4(conf->addrs.remote_ip);
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF);
 	CHECK_NOTEQUAL(0, conf->addrs.remote_port, BADCONF);
 	if ((conf->bct_cast <= 0) || (conf->bc_interval <= 0) || (conf->bc_trycount <= 0))
@@ -82,7 +82,7 @@ status_t broadcast(void) {
 status_t scanpair(PairInfo *info, size_t *len) {
 	status_t _stat = SUCCESS;
 	pthread_t handle;
-	CHECK_NOTEQUAL(0, conf->addrs.local_ip, BADCONF);
+	CHECK_IPV4(conf->addrs.local_ip);
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF);
 	if ((conf->spt_cast <= 0) || (conf->sp_interval <= 0) || (conf->sp_trycount))
 		return _stat = BADCONF;

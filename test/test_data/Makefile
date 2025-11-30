@@ -1,6 +1,6 @@
 CC := pcc
 CFLAGS := -std=c99 -O3 -g -Wc,-Werror=implicit-function-declaration,-Werror=implicit-int,-Werror=missing-prototypes,-Werror=pointer-sign,-Werror=sign-compare,-Werror=strict-prototypes,-Werror=shadow,-Werror=truncate
-UNITY_LIB_FLAGS := -Wl,--library-path=../../library,--library=unity,-rpath=../../library
+UNITY_LIB_FLAGS := -Wl,--library-path=../../library,--library=unity,--library=rufshare,--library=crc,-rpath=../../library
 
 BUILD_DIR := build
 FAKE_DIR := fake
