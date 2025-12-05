@@ -48,7 +48,7 @@ void logging(const unsigned long *count, const char *level, const char *mod, con
 	va_list ap;
 	sstrncpy(logmsg.level, level, LEVELSIZE);
 	strftime(logmsg.date, DATESIZE, "%Y-%m-%d", ltime);
-	strftime(logmsg.clock, CLOCKSIZE, "%H:%M:%S.%f", ltime);
+	strftime(logmsg.clock, CLOCKSIZE, "%H:%M:%S", ltime);
 	sstrncpy(logmsg.mod, mod, MODSIZE);
 	sstrncpy(logmsg.pos, pos, POSSIZE);
 	va_start(ap, fmt);

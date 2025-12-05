@@ -21,13 +21,13 @@
 
 #define LEVELSIZE 6
 #define DATESIZE 11
-#define CLOCKSIZE 16
+#define CLOCKSIZE 9
 #define MODSIZE 32
 #define POSSIZE 32
 #define MSGSIZE 128
 
 #define append_log(count, level, date, clock, mod, pos, fmt)\
-	do {fprintf(logc.logfile, "[0x%lx][%-5.5s][%-10.10s][%-15.15s][MOD:%-.31s][POS:%-.31s][%-.127s]\n", count, level, date, clock, mod, pos, fmt);} while (0)
+	do {fprintf(logc.logfile, "[0x%lx][%-5.5s][%-10.10s][%-8.8s][MOD:%-.31s][POS:%-.31s][%-.127s]\n", count, level, date, clock, mod, pos, fmt);} while (0)
 
 int start_logd(void);
 
