@@ -16,6 +16,8 @@ static inline char *extract_file_name(char *dst, const char *src, size_t size)
 				return dst = src + i + 1;
 			else if (i == 0)
 				return dst = src;
+	if (strnlen(dst, size) == 0)
+		dst = NULL;
         return dst;
 }
 
