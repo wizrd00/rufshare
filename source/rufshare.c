@@ -25,9 +25,10 @@ static status_t start_logging(pthread_t *handle)
 	return _stat;
 }
 
-status_t push_file(const char *path)
+status_t push_file(InitConfig *config, const char *path)
 {
 	status_t _stat = SUCCESS;
+	conf = config;
 	pthread_t handle;
 	char *filename;
 	CHECK_NOTEQUAL(0, conf->chsize, BADCONF);
@@ -50,9 +51,10 @@ status_t push_file(const char *path)
 	return _stat;
 }
 
-status_t pull_file(const char *path, char *remote_name)
+status_t pull_file(InitConfig *config, const char *path, char *remote_name)
 {
 	status_t _stat = SUCCESS;
+	conf = config;
 	pthread_t handle;
 	CHECK_EQUAL(0, conf->chsize, BADCONF);
 	CHECK_EQUAL(0, conf->pchsize, BADCONF);
@@ -69,9 +71,10 @@ status_t pull_file(const char *path, char *remote_name)
 	return _stat;
 }
 
-status_t broadcast(void)
+status_t broadcast(InitConfig *config)
 {
 	status_t _stat = SUCCESS;
+	conf = config;
 	CntlAddrs addrs;
 	CHECK_NOTEQUAL(0, conf->addrs.name, BADCONF);
 	CHECK_IPV4(conf->addrs.local_ip);
@@ -84,9 +87,10 @@ status_t broadcast(void)
 	return _stat;
 }
 
-status_t scanpair(PairInfo *info, size_t *len)
+status_t scanpair(InitConfig *config, PairInfo *info, size_t *len)
 {
 	status_t _stat = SUCCESS;
+	conf = config;
 	pthread_t handle;
 	CHECK_IPV4(conf->addrs.local_ip);
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF);

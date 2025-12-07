@@ -36,6 +36,7 @@ status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode)
 	CHECK_MFILE(mfile);
 	filec->mfile = mfile;
 	extract_file_name(filename, path, MAXFILENAMESIZE);
+	CHECK_PTR(filename, INVPATH);
 	sstrncpy(filec->name, filename, MAXFILENAMESIZE);
 	return _stat;
 }
