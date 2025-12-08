@@ -56,27 +56,27 @@
 	do {if (val != 0) {return _stat = ETHREAD;}} while (0)
 
 #ifdef LOG_TRACE
-	#define LOGT(mod, pos, ...) logging(&logcount, TRACE, mod, pos, __VA_ARGS__)
+	#define LOGT(...) logging(&logcount, TRACE, __FILE__, __func__, __VA_ARGS__)
 #else
-	#define LOGT(mod, pos, ...)
+	#define LOGT(...)
 #endif
 
 #ifdef LOG_DEBUG
-	#define LOGD(mod, pos, ...) logging(&logcount, DEBUG, mod, pos, __VA_ARGS__)
+	#define LOGD(...) logging(&logcount, DEBUG, __FILE__, __func__, __VA_ARGS__)
 #else
-	#define LOGD(mod, pos, ...)
+	#define LOGD(...)
 #endif
 
 #ifdef LOG_WARNN
-	#define LOGW(mod, pos, ...) logging(&logcount, WARNN, mod, pos, __VA_ARGS__)
+	#define LOGW(...) logging(&logcount, WARNN, __FILE__, __func__, __VA_ARGS__)
 #else
-	#define LOGW(mod, pos, ...)
+	#define LOGW(...)
 #endif
 
 #ifdef LOG_ERROR
-	#define LOGE(mod, pos, ...) logging(&logcount, ERROR, mod, pos, __VA_ARGS__)
+	#define LOGE(...) logging(&logcount, ERROR, __FILE__, __func__, __VA_ARGS__)
 #else
-	#define LOGE(mod, pos, ...)
+	#define LOGE(...)
 #endif
 
 typedef unsigned char * buffer_t;
