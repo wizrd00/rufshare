@@ -2,20 +2,27 @@
 
 static void *thread_calc_file_crc16(void *arg)
 {
+	LOGT("in function thread_calc_file_crc16()");
 	RUFShareCRC16 *crc = (RUFShareCRC16 *) arg;
 	*crc = calc_file_crc16(&conf->filec);
+	LOGT("return from thread_calc_file_crc16()");
 	return arg;
 }
 
 static bool match_flow(HeaderArgs *header)
 {
-	return ((header->flow.packet.sequence != conf->seq) || (header->flow.packet.chunk_size != conf->chsize)) ? false : true;
+	bool val;
+	LOGT("in function match_flow()");
+	val = ((header->flow.packet.sequence != conf->seq) || (header->flow.packet.chunk_size != conf->chsize)) ? false : true;
+	LOGT("return from match_flow()");
+	return val;
 }
 
 static status_t pull_handshake(const char *path, char *remote_name)
 {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
+	LOGT("in function pull_handshake()");
 	CHECK_STAT(pull_SEND_header(conf->conn_sock, &header, FOREVER_TIMEOUT));
 	if (ISVALID_SEND_HEADER(header)) {
 		header.recv.packet = pack_RUFShare_RecvPacket(0, 0, 0);	
@@ -34,6 +41,7 @@ static status_t pull_handshake(const char *path, char *remote_name)
 	header.recv.packet = pack_RUFShare_RecvPacket((start_file_stream(&conf->filec, path, MWR) == SUCCESS) ? 1 : 0, 0, 0);
 	CHECK_STAT(push_RECV_header(conf->conn_sock, &header, conf->hst_recv));
 	conf->seq = 1;
+	LOGT("return from pull_handshake()");
 	return _stat;
 }
 
@@ -45,6 +53,7 @@ static status_t pull_transfer(void)
 	HeaderArgs recv_header;
 	RUFShareCRC32 crc;
 	int trycount = conf->tf_trycount;
+	LOGT("in function pull_transfer()");
 	while (conf->seq <= conf->chcount) {
 		chcon.start_pos = (conf->seq - 1) * conf->chsize;
 		chcon.chunk_size = (conf->seq == conf->chcount) ? conf->pchsize : conf->chsize;
@@ -78,6 +87,7 @@ static status_t pull_transfer(void)
 		}
 	}
 	conf->seq = 0;
+	LOGT("return from pull_transfer()");
 	return _stat;
 }
 
@@ -87,20 +97,22 @@ static status_t pull_verification(void)
 	HeaderArgs header;
 	RUFShareCRC16 crc;
 	pthread_t handle;
+	LOGT("in function pull_verification()");
 	CHECK_THREAD(pthread_create(&handle, NULL, thread_calc_file_crc16, (void *) &crc));
 	CHECK_STAT(pull_SEND_header(conf->conn_sock, &header, conf->vft_send));
 	CHECK_THREAD(pthread_join(handle, NULL));
 	header.recv.packet = pack_RUFShare_RecvPacket((header.send.packet.crc == crc) ? 1 : 0, 0, conf->seq); 
 	CHECK_STAT(push_RECV_header(conf->conn_sock, &header, conf->vft_recv));
-	if (header.send.packet.crc != crc) {
+	if (header.send.packet.crc != crc)
 		_stat = FAILCRC;
-	}
+	LOGT("return from pull_verification()");
 	return _stat;
 }
 
 status_t start_puller(const char *path, char *remote_name)
 {
 	status_t _stat = SUCCESS;
+	LOGT("in function start_puller()");
 	CHECK_STAT(start_cntl(&conf->addrs, &conf->cntl_sock, false));
 	CHECK_STAT(accept_cntl(&conf->addrs, &conf->conn_sock, conf->cntl_sock, FOREVER_TIMEOUT));
 	CHECK_STAT(pull_handshake(path, remote_name));
@@ -112,5 +124,6 @@ status_t start_puller(const char *path, char *remote_name)
 	CHECK_STAT(end_cntl(conf->cntl_sock));
 	CHECK_STAT(end_data(conf->data_sock));
 	CHECK_STAT(end_cntl(conf->conn_sock));
+	LOGT("return from start_puller()");
 	return _stat;
 }

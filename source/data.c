@@ -3,18 +3,22 @@
 status_t start_data(CntlAddrs *addrs, sockfd_t *sock)
 {
 	status_t _stat = SUCCESS;
+	LOGT("in function start_data()");
 	CHECK_IPV4(addrs->local_ip);
 	CHECK_IPV4(addrs->remote_ip);
 	CHECK_PORT(addrs->local_port);
 	CHECK_PORT(addrs->remote_port);
 	CHECK_STAT(init_udp_socket(sock, addrs->local_ip, addrs->local_port, addrs->remote_ip, addrs->remote_port, false));
+	LOGT("return from start_data()");
 	return _stat;
 }
 
 status_t end_data(sockfd_t sock)
 {
 	status_t _stat = SUCCESS;
+	LOGT("in function end_data()");
 	CHECK_STAT(close_socket(sock));
+	LOGT("return from end_data()");
 	return _stat;
 }
 
@@ -24,6 +28,7 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 	MFILE *stream = &(filec->mfile);
 	buffer_t segbuf = (buffer_t) calloc(conf->segsize, sizeof (char));
 	size_t rsize = chunk->chunk_size;
+	LOGT("in function push_chunk_data()");
 	CHECK_PTR(segbuf, EMALLOC);
 	mfseek(stream, chunk->start_pos);
 	while (rsize != 0) {
@@ -46,6 +51,7 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		rsize -= segsize;
 	}
 	free(segbuf);
+	LOGT("return from push_chunk_data()");
 	return _stat;
 }
 
@@ -55,6 +61,7 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 	MFILE *stream = &(filec->mfile);
 	buffer_t segbuf = (buffer_t) calloc(conf->segsize, sizeof (char));
 	size_t rsize = chunk->chunk_size;
+	LOGT("in function pull_chunk_data()");
 	CHECK_PTR(segbuf, EMALLOC);
 	mfseek(stream, chunk->start_pos);
 	CHECK_SSTAT(set_socket_rcvlowsize(sock, 2 * conf->segsize), segbuf);
@@ -77,5 +84,6 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		rsize -= segsize;
 	}
 	free(segbuf);
+	LOGT("return from pull_chunk_data()");
 	return _stat;
 }

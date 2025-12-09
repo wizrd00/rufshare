@@ -3,6 +3,7 @@
 static status_t network_byteorder(ipv4str_t ip, uint32_t *dst)
 {
 	status_t _stat = SUCCESS;
+	LOGT("in function network_byteorder()");
 	switch (inet_pton(AF_INET, ip, dst)) {
 		case -1 :
 			_stat = BADARGS;
@@ -11,6 +12,7 @@ static status_t network_byteorder(ipv4str_t ip, uint32_t *dst)
 			_stat = BADIPV4;
 			break;
 	}
+	LOGT("return from network_byteorder()");
 	return _stat;
 }
 
@@ -20,6 +22,7 @@ static status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_por
 	uint32_t src_ipnetorder;
 	int tmpsock;
 	int optval = 1;
+	LOGT("in function init_udp_socket()");
 	CHECK_STAT(network_byteorder(src_ip, &src_ipnetorder));
 	struct sockaddr_in local_addr = {
 		.sin_family = AF_INET,
@@ -34,15 +37,18 @@ static status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_por
 	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET);
 	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (optval)), FAILSET);
 	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND);
+	LOGT("return from init_udp_socket()");
 	return _stat;
 }
 
 static status_t pull_udp_data(sockfd_t sock, buffer_t buf, size_t size)
 {
 	status_t _stat = SUCCESS;
+	LOGT("in function pull_udp_data()");
 	ssize_t recv_size = recvfrom(sock, buf, size, 0, NULL, NULL);
 	CHECK_INT(recv_size, ERRRECV);
 	CHECK_SIZE(recv_size, size);
+	LOGT("return from pull_udp_data()");
 	return _stat;
 }
 
@@ -53,6 +59,7 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	char infostr[INFOSTRSIZE] = {0};
 	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
 	buffer_t buf = (buffer_t) malloc(bufsize);
+	LOGT("in function pull_broadcast_header()");
 	CHECK_PTR(buf, EMALLOC);
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
 	switch (poll(&pfd, 1, timeout)) {
@@ -73,6 +80,7 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	args->cast.packet = convert_CastPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->cast.info));
 	free(buf);
+	LOGT("return from pull_broadcast_header()");
 	return _stat;
 }
 
@@ -83,6 +91,7 @@ status_t start_scanpair(PairInfo *info, size_t *len)
 	time_t start_time = time(NULL);
 	time_t interval = conf->sp_interval;
 	int trycount = conf->sp_trycount;
+	LOGT("in function start_scanpair()");
 	CHECK_NOTEQUAL(-1, start_time, ERRTIME);
 	CHECK_STAT(init_udp_socket(&conf->cast_sock, conf->addrs.local_ip, conf->addrs.local_port));
 	*len = 0;
@@ -100,5 +109,6 @@ status_t start_scanpair(PairInfo *info, size_t *len)
 		}
 		trycount--;
 	}
+	LOGT("return from start_scanpair()");
 	return _stat;
 }
