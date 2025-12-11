@@ -17,14 +17,17 @@ int start_logd(void)
 	logc.logcount = 0;
 	snprintf(filename, FILENAME_MAX, "logfile_%ld.log", (time_tag != -1) ? (long) time_tag : (long) (rand() % 0xffff));
 	logc.logfile = fopen(filename, "w");
-	logc.logqueue = mq_open(LOGQUEUE_NAME, O_RDWR);	
+	logc.logqueue = mq_open(LOGQUEUE_NAME, O_RDWR | O_NONBLOCK);	
 	if ((logc.logfile == NULL) || (logc.logqueue == -1)) {
 		fprintf(stderr, LOGERROR_TEXT, strerror(errno), "failed to create logger context");
 		return -1;
 	}
 	while (1) {
 		if (mq_receive(logc.logqueue, (char *) &logmsg, sizeof (LogMsg), NULL) != sizeof (LogMsg))
-			return -1;
+			if (errno != EAGAIN)
+				return -1;
+			sleep(SLEEPTIME);
+			continue;
 		append_log(logc.logcount, logmsg.level, logmsg.date, logmsg.clock, logmsg.mod, logmsg.pos, logmsg.msg);
 	}
 	return 0;
@@ -55,7 +58,8 @@ void logging(const unsigned long *count, const char *level, const char *mod, con
 	vsnprintf(msg, sizeof (msg), fmt, ap);
 	sstrncpy(logmsg.msg, msg, MSGSIZE);
 	va_end(ap);
-	mq_send(logc.logqueue, (const char *) &logmsg, sizeof (logmsg), 0);
+	if (mq_send(logc.logqueue, (const char *) &logmsg, sizeof (logmsg), 0) == -1)
+		fprintf(stderr, LOGERROR_TEXT, strerror(errno), (errno == EAGAIN) ? "log queue is full and new log dropped" : "mq_send() failed");
 	(*count)++;
 	return;
 }
