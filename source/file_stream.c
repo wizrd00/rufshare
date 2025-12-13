@@ -51,7 +51,7 @@ status_t end_file_stream(FileContext *filec)
 {
 	status_t _stat = SUCCESS;
 	LOGT("in function end_file_stream()");
-	CHECK_LEQUAL(0, mfclose(&(filec->mfile)), FAILURE, "mfclose() failed");
+	CHECK_LEQUAL(0, mfclose(&filec->mfile), FAILURE, "mfclose() failed");
 	LOGT("return from end_file_stream()");
 	return _stat;
 }

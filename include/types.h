@@ -53,7 +53,7 @@
 	do {if (val != SUCCESS) {free(ptr); return _stat = val;}} while (0)
 
 #define CHECK_LSSTAT(val, ptr, ...)\
-	do {if (val != SUCCESS) {LOGE(__VA_ARGS__); free(ptr); return _stat = val;}} while (0)
+	do {if (val != SUCCESS) {LOGE("(" #val ")" " " __VA_ARGS__); free(ptr); return _stat = val;}} while (0)
 
 #define CHECK_EQUAL(val0, val1, err)\
 	do {if (val0 != val1) {return _stat = err;}} while (0)
@@ -113,7 +113,7 @@
 	do {if (val != 0) {return _stat = ETHREAD;}} while (0)
 
 #define CHECK_LTHREAD(val, ...)\
-	do {if (val != 0) LOGE("(" "ETHREAD" ")" " " __VA_ARGS__); {return _stat = ETHREAD;}} while (0)
+	do {if (val != 0) {LOGE("(" "ETHREAD" ")" " " __VA_ARGS__); return _stat = ETHREAD;}} while (0)
 
 typedef unsigned char * buffer_t;
 
