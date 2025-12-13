@@ -8,7 +8,7 @@ static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	LOGT("in function push_broadcast_header()");
-	CHECK_PTR(buf, EMALLOC);
+	CHECK_PTR(buf, EMALLOC, "");
 	LOGD("pack args->cast.info into infostr");
 	pack_into_infostring(infostr, &(args->cast.info));
 	memcpy((void *) buf, (void *) &(args->cast.packet), sizeof (CastPacket));
@@ -25,7 +25,7 @@ static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 			break;
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_udp_data(sock, buf, bufsize) : ERRPOLL;
-			CHECK_SSTAT(_stat, buf);
+			CHECK_SSTAT(_stat, buf, "");
 			LOGD("CAST packet pushed");
 	}
         free(buf);
@@ -42,7 +42,7 @@ status_t start_broadcast(void)
 	LOGD("trycount = %hd", conf->bc_trycount);
 	LOGD("local address is %s:%hu", conf->addrs.local_ip, conf->addrs.local_port);
 	LOGD("remote address is %s:%hu", conf->addrs.remote_ip, conf->addrs.remote_port);
-	CHECK_STAT(init_udp_socket(&conf->cast_sock, conf->addrs.local_ip, conf->addrs.local_port, conf->addrs.remote_ip, conf->addrs.remote_port, true));
+	CHECK_STAT(init_udp_socket(&conf->cast_sock, conf->addrs.local_ip, conf->addrs.local_port, conf->addrs.remote_ip, conf->addrs.remote_port, true), "");
 	LOGD("UDP broadcast socket created with fd = %d", conf->cast_sock);
 	header.cast.packet = pack_RUFShare_CastPacket(0);
 	sstrncpy(header.cast.info.name, conf->addrs.name, MAXNAMESIZE);

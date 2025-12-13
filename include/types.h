@@ -43,76 +43,40 @@
 	#define LOGE(...)
 #endif
 
-#define CHECK_STAT(val)\
-	do {if (val != SUCCESS) {return _stat = val;}} while (0)
-
-#define CHECK_LSTAT(val, ...)\
+#define CHECK_STAT(val, ...)\
 	do {if (val != SUCCESS) {LOGE("(" #val ")" " " __VA_ARGS__); return _stat = val;}} while (0)
 
-#define CHECK_SSTAT(val, ptr)\
-	do {if (val != SUCCESS) {free(ptr); return _stat = val;}} while (0)
-
-#define CHECK_LSSTAT(val, ptr, ...)\
+#define CHECK_SSTAT(val, ptr, ...)\
 	do {if (val != SUCCESS) {LOGE("(" #val ")" " " __VA_ARGS__); free(ptr); return _stat = val;}} while (0)
 
-#define CHECK_EQUAL(val0, val1, err)\
-	do {if (val0 != val1) {return _stat = err;}} while (0)
-
-#define CHECK_LEQUAL(val0, val1, err, ...)\
+#define CHECK_EQUAL(val0, val1, err, ...)\
 	do {if (val0 != val1) {LOGE("(" #err ")" " " __VA_ARGS__); return _stat = err;}} while (0)
 
-#define CHECK_NOTEQUAL(val0, val1, err)\
-	do {if (val0 == val1) {return _stat = err;}} while (0)
-
-#define CHECK_LNOTEQUAL(val0, val1, err, ...)\
+#define CHECK_NOTEQUAL(val0, val1, err, ...)\
 	do {if (val0 == val1) {LOGE("(" #err ")" " " __VA_ARGS__); return _stat = err;}} while (0)
 
-#define CHECK_INT(val, err)\
-	do {if (val == -1) {return _stat = err;}} while (0)
-
-#define CHECK_LINT(val, err, ...)\
+#define CHECK_INT(val, err, ...)\
 	do {if (val == -1) {LOGE("(" #err ")" " " __VA_ARGS__); return _stat = err;}} while (0)
 
-#define CHECK_PTR(val, err)\
-	do {if (val == NULL) {return _stat = err;}} while (0)
-
-#define CHECK_LPTR(val, err, ...)\
+#define CHECK_PTR(val, err, ...)\
 	do {if (val == NULL) {LOGE("(" #err ")" " " __VA_ARGS__); return _stat = err;}} while (0)
 
-#define CHECK_BOOL(val, err)\
-	do {if (val == false) {return _stat = err;}} while (0)
-
-#define CHECK_LBOOL(val, err, ...)\
+#define CHECK_BOOL(val, err, ...)\
 	do {if (val == false) {LOGE("(" #err ")" " " __VA_ARGS__); return _stat = err;}} while (0)
 
-#define CHECK_SIZE(val, size)\
-	do {if (val < size) {return _stat = LOWSIZE;}} while (0)
-
-#define CHECK_LSIZE(val, size, ...)\
+#define CHECK_SIZE(val, size, ...)\
 	do {if (val < size) {LOGE("(" "LOWSIZE" ")" " " __VA_ARGS__); return _stat = LOWSIZE;}} while (0)
 
-#define CHECK_IPV4(ip)\
-	do {if (!check_ipv4_format(ip)) {return _stat = BADIPV4;}} while (0)
-
-#define CHECK_LIPV4(ip, ...)\
+#define CHECK_IPV4(ip, ...)\
 	do {if (!check_ipv4_format(ip)) {LOGE("(" "BADIPV4" ")" " " __VA_ARGS__); return _stat = BADIPV4;}} while (0)
 
-#define CHECK_PORT(port)\
-	do {if (port == 0) {return _stat = BADPORT;}} while (0)
-
-#define CHECK_LPORT(port, ...)\
+#define CHECK_PORT(port, ...)\
 	do {if (port == 0) {LOGE("(" "BADPORT" ")" " " __VA_ARGS__); return _stat = BADPORT;}} while (0)
 
-#define CHECK_MFILE(mfile)\
-	do {if (mfile.open == 0) {return _stat = NOMFILE;}} while (0)
-
-#define CHECK_LMFILE(mfile, ...)\
+#define CHECK_MFILE(mfile, ...)\
 	do {if (mfile.open == 0) {LOGE("(" "NOMFILE" ")" " " __VA_ARGS__); return _stat = NOMFILE;}} while (0)
 
-#define CHECK_THREAD(val)\
-	do {if (val != 0) {return _stat = ETHREAD;}} while (0)
-
-#define CHECK_LTHREAD(val, ...)\
+#define CHECK_THREAD(val, ...)\
 	do {if (val != 0) {LOGE("(" "ETHREAD" ")" " " __VA_ARGS__); return _stat = ETHREAD;}} while (0)
 
 typedef unsigned char * buffer_t;
