@@ -13,8 +13,8 @@ static status_t push_handshake(void)
 	sstrncpy(header.send.info.remote_ip, conf->addrs.remote_ip, MAXIPV4SIZE);
 	header.send.info.local_port = conf->addrs.local_port;
 	header.send.info.remote_port = conf->addrs.remote_port;
-	CHECK_STAT(push_SEND_header(conf->cntl_sock, &header, conf->hst_send));
-	CHECK_STAT(pull_RECV_header(conf->cntl_sock, &header, conf->hst_recv));
+	CHECK_STAT(push_SEND_header(conf->cntl_sock, &header, conf->hst_send), "push_SEND_header() failed");
+	CHECK_STAT(pull_RECV_header(conf->cntl_sock, &header, conf->hst_recv), "pull_RECV_header() failed");
 	if (header.recv.packet.ack == 0)
 		_stat = ZEROACK;
 	conf->seq = 1;
@@ -37,24 +37,24 @@ static status_t push_transfer(void)
 		crc = calc_chunk_crc32(&conf->filec, &chcon);
 		flow_header.flow.packet = pack_RUFShare_FlowPacket(chcon.chunk_size, conf->seq, crc);
 		while (trycount != 0) {
-			CHECK_STAT(push_FLOW_header(conf->cntl_sock, &flow_header, conf->tft_flow));
-			CHECK_STAT(pull_RECV_header(conf->cntl_sock, &recv_header, conf->tft_recv));
+			CHECK_STAT(push_FLOW_header(conf->cntl_sock, &flow_header, conf->tft_flow), "push_FLOW_header() failed");
+			CHECK_STAT(pull_RECV_header(conf->cntl_sock, &recv_header, conf->tft_recv), "pull_RECV_header() failed");
 			if (recv_header.recv.packet.ack == 1)
 				break;
 			else
 				trycount--;
 		}
-		CHECK_NOTEQUAL(0, trycount, EXPTRY0);
+		CHECK_NOTEQUAL(0, trycount, EXPTRY0, "first trycount = 0");
 		trycount = conf->tf_trycount;
 		while (trycount != 0) {
-			CHECK_STAT(push_chunk_data(conf->data_sock, &conf->filec, &chcon, conf->tft_data));
-			CHECK_STAT(pull_RECV_header(conf->cntl_sock, &recv_header, conf->tft_recv));
+			CHECK_STAT(push_chunk_data(conf->data_sock, &conf->filec, &chcon, conf->tft_data), "push_chunk_data() failed");
+			CHECK_STAT(pull_RECV_header(conf->cntl_sock, &recv_header, conf->tft_recv), "pull_RECV_header() failed");
 			if (recv_header.recv.packet.ack == 1)
 				break;
 			else
 				trycount--;
 		}
-		CHECK_NOTEQUAL(0, trycount, EXPTRY1);
+		CHECK_NOTEQUAL(0, trycount, EXPTRY1, "second trycount = 0");
 		trycount = conf->tf_trycount;
 		conf->seq++;
 	}
@@ -76,8 +76,8 @@ static status_t push_verification(void)
 	sstrncpy(header.send.info.remote_ip, conf->addrs.remote_ip, MAXIPV4SIZE);
 	header.send.info.local_port = conf->addrs.local_port;
 	header.send.info.remote_port = conf->addrs.remote_port;
-	CHECK_STAT(push_SEND_header(conf->cntl_sock, &header, conf->vft_send));
-	CHECK_STAT(pull_RECV_header(conf->cntl_sock, &header, conf->vft_recv));
+	CHECK_STAT(push_SEND_header(conf->cntl_sock, &header, conf->vft_send), "push_SEND_header() failed");
+	CHECK_STAT(pull_RECV_header(conf->cntl_sock, &header, conf->vft_recv), "pull_RECV_header() failed");
 	if (header.recv.packet.ack == 0)
 		_stat = ZEROACK;
 	LOGT("return from push_verification()");
@@ -88,15 +88,15 @@ status_t start_pusher(const char *path)
 {
 	status_t _stat = SUCCESS;
 	LOGT("in function start_pusher()");
-	CHECK_STAT(start_file_stream(&conf->filec, path, MRD));
-	CHECK_STAT(start_cntl(&conf->addrs, &conf->cntl_sock, true));
-	CHECK_STAT(push_handshake());
-	CHECK_STAT(start_data(&conf->addrs, &conf->data_sock));
-	CHECK_STAT(push_transfer());
-	CHECK_STAT(push_verification());
-	CHECK_STAT(end_file_stream(&conf->filec));
-	CHECK_STAT(end_cntl(conf->cntl_sock));
-	CHECK_STAT(end_data(conf->data_sock));
+	CHECK_STAT(start_file_stream(&conf->filec, path, MRD), "start_file_stream() with mode MRD failed");
+	CHECK_STAT(start_cntl(&conf->addrs, &conf->cntl_sock, true), "start_cntl() failed");
+	CHECK_STAT(push_handshake(), "push_handshake() failed");
+	CHECK_STAT(start_data(&conf->addrs, &conf->data_sock), "start_data() failed");
+	CHECK_STAT(push_transfer(), "push_transfer() failed");
+	CHECK_STAT(push_verification(), "push_verification() failed");
+	CHECK_STAT(end_file_stream(&conf->filec), "end_file_stream() failed");
+	CHECK_STAT(end_cntl(conf->cntl_sock), "end_cntl() failed");
+	CHECK_STAT(end_data(conf->data_sock), "end_data() failed");
 	LOGT("return from start_pusher()");
 	return _stat;
 }
