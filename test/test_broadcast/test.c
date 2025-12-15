@@ -10,14 +10,20 @@ void tearDown(void) {}
 
 void test_start_broadcast(void) {
 	sockfd_t tmp_sock;
-	CntlAddrs addrs = {
-		.filename = "TestMan",
-		.name = "TestMan",
-		.local_ip = "0.0.0.0",
-		.remote_ip = "255.255.255.255",
-		.local_port = 4096,
-		.remote_port = 4096
+	InitConfig config = {
+		.addrs = {
+			.filename = "TestMan",
+			.name = "TestMan",
+			.local_ip = "0.0.0.0",
+			.remote_ip = "255.255.255.255",
+			.local_port = 4096,
+			.remote_port = 4096
+		},
+		.bct_cast = 8,
+		.bc_interval = 3,
+		.bc_trycount = 3
 	};
+	conf = &config;
 	status_t _stat = start_broadcast();
 	printf("%d\n", errno);
 	printf(strerror(errno));

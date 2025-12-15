@@ -21,31 +21,10 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
 }
 
 ssize_t recv(int sockfd, void *buf, size_t len, int flags) {
-	if (sockfd == 8) {
-		CastPacket pack = pack_RUFShare_CastPacket(0x1337);
-		char infostr[320] = "DEMOFILE0:TestMan@192.168.43.81:4096";
-		size_t bufsize = sizeof (CastPacket) + 320;
-		char *tbuf = malloc(bufsize);
-		memcpy(tbuf, (buffer_t) &pack, sizeof (CastPacket));
-		strcpy(tbuf + sizeof (CastPacket), infostr);
-		memcpy(buf, tbuf + offset, len);
-		offset += ((flags & MSG_PEEK) ? 0 : len);
-		offset = (bufsize == offset) ? 0 : offset;
-		free(tbuf);
+	if (sockfd == 8)
 		return len;
-	}
-	else if (sockfd == 64) {
-		FlowPacket pack = pack_RUFShare_FlowPacket(1337, 1337, 0x1337);
-		size_t bufsize = sizeof (FlowPacket);
-		unsigned char *tbuf = malloc(bufsize);
-		memcpy(tbuf, (buffer_t) &pack, sizeof (FlowPacket));
-		memcpy(buf, tbuf + offset, len);
-		offset += ((flags & MSG_PEEK) ? 0 : len);
-		offset = (bufsize == offset) ? 0 : offset;
-		free(tbuf);
+	else if (sockfd == 64)
 		return len - 1;
-	}
-	return -1;
 }
 
 ssize_t send(int sockfd, const void *buf, size_t len, int flags) {

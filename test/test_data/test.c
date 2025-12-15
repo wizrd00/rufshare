@@ -26,7 +26,7 @@ void setUp(void) {
 
 void tearDown(void) {
 	remove("DEMOFILE0");
-	//remove("DEMOFILE1");
+	remove("DEMOFILE1");
 	return;
 }
 
