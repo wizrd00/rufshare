@@ -17,7 +17,7 @@ static status_t create_file(const char *path, size_t size)
 	}
 	if (info.f_bavail * info.f_bsize <= size) {
 		fclose(file);
-		CHECK_STAT(NOAVAIL, "there is no available space to create file with size %zd", size);
+		CHECK_STAT(NOAVAIL, "there is no available space to create file with size %zu", size);
 	}
 	if (ftruncate(fileno(file), size) == -1) {
 		fclose(file);
@@ -34,7 +34,7 @@ status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode)
 	char *filename;
 	LOGT("in function start_file_stream()");
 	if (mode == MWR)
-		CHECK_STAT(create_file(path, filec->size), "create_file() failed to create a file with size %zd", filec->size);
+		CHECK_STAT(create_file(path, filec->size), "create_file() failed to create a file with size %zu", filec->size);
 	LOGD("map the specified file to the memory");
 	mfile = mfopen(path, "r+", PROT_READ | PROT_WRITE, MAP_SHARED);
 	CHECK_MFILE(mfile, "mfopen() failed");

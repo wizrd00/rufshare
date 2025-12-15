@@ -21,6 +21,7 @@ static status_t push_handshake(void)
 	LOGD("RECV packet pulled");
 	if (header.recv.packet.ack == 0)
 		_stat = ZEROACK;
+	LOGD("set conf->seq = 1");
 	conf->seq = 1;
 	LOGT("return from push_handshake()");
 	return _stat;
@@ -36,11 +37,11 @@ static status_t push_transfer(void)
 	int trycount = conf->tf_trycount;
 	LOGT("in function push_transfer()");
 	while (conf->seq <= conf->chcount) {
-		LOGD("preparing chunk with seq = %lu", conf->seq);
+		LOGD("prepare chunk with seq = %lu", conf->seq);
 		chcon.start_pos = (conf->seq - 1) * conf->chsize;
 		chcon.chunk_size = (conf->seq == conf->chcount) ? conf->pchsize : conf->chsize;
 		crc = calc_chunk_crc32(&conf->filec, &chcon);
-		LOGD("CRC32 of chunk calculated with value = %zd", crc);
+		LOGD("CRC32 of chunk calculated with value = %zu", crc);
 		flow_header.flow.packet = pack_RUFShare_FlowPacket(chcon.chunk_size, conf->seq, crc);
 		LOGD("FLOW packet prepared and it is ready to push");
 		while (trycount != 0) {
@@ -67,8 +68,10 @@ static status_t push_transfer(void)
 		}
 		CHECK_NOTEQUAL(0, trycount, EXPTRY1, "second trycount = 0");
 		trycount = conf->tf_trycount;
+		LOGD("increase conf->seq");
 		conf->seq++;
 	}
+	LOGD("set conf->seq = 0");
 	conf->seq = 0;
 	LOGT("return from push_transfer()");
 	return _stat;

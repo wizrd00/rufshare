@@ -33,3 +33,5 @@ $(BIN_DIR)/%.o : $(SRC_DIR)/%.c $(INC_DIR)/%.h
 
 clean :
 	rm $(wildcard $(BIN_DIR)/*.o) $(wildcard $(BIN_DIR)/logging/*.o) $(wildcard $(LIBRUFSHARE))
+
+clear : clean
