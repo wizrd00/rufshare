@@ -6,6 +6,8 @@
 #include "libcrc/checksum.h"
 #include <stddef.h>
 
+#define DEFAULE_SEGMENT_SIZE 1024
+
 static inline RUFShareChunkCount calc_chunk_count(size_t file_size, size_t chunk_size, RUFSharePartialChunkSize *partial_chunk_size)
 {
 	RUFShareChunkCount val = (RUFShareChunkCount) (file_size / chunk_size);
@@ -20,8 +22,10 @@ static inline size_t calc_file_size(RUFShareChunkCount chunk_count, RUFShareChun
 
 static inline size_t calc_segment_size(size_t size)
 {
-	size_t val;
-	return val;
+	if (size > DEFAULT_SEGMENT_SIZE)
+		return DEFAULT_SEGMENT_SIZE;
+	else
+		size
 }
 
 static inline RUFShareCRC16 calc_file_crc16(FileContext *filec)
