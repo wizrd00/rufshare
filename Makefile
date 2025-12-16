@@ -12,19 +12,20 @@ HDR_FILES := $(wildcard $(INC_DIR)/*.h) $(wildcard $(INC_DIR)/logging/*.h)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.c, $(BIN_DIR)/%.o, $(SRC_FILES))
 
 LIB_FLAGS := -Wl,--library-path=$(LIB_DIR),-rpath=$(LIB_DIR)
-CRC_LIB_FLAGS := -Wl,--library=crc
 
 INCLUDE_FLAGS := -I$(INC_DIR)
 
 LIBRUFSHARE := $(LIB_DIR)/librufshare.so
+LIBCRC := $(LIB_DIR)/libcrc.a
 
 POINTER_SYM := "\e[91m->\e[0m"
 
-$(LIBRUFSHARE) : $(OBJ_FILES) $(HDR_FILES)
+$(LIBRUFSHARE) : $(OBJ_FILES) $(LIBCRC) $(HDR_FILES)
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[96mlinking modules into" $@ "\e[0m"
-	$(CC) $(CFLAGS) $(CFLAGS_PIC) -o $@ $(OBJ_FILES)
+	$(CC) $(CFLAGS) $(CFLAGS_PIC) -o $@ $(OBJ_FILES) $(LIBCRC)
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[93mstrip" $@ "\e[0m"
 	@strip $@
+	cp ./library/* ../Cyphare/library/
 	
 
 $(BIN_DIR)/%.o : $(SRC_DIR)/%.c $(INC_DIR)/%.h
