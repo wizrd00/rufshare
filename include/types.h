@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef RUFSHARE_TYPES_H
+#define RUFSHARE_TYPES_H
 
 #if defined(LOG_TRACE) || defined(LOG_DEBUG) || defined(LOG_WARNN) || defined(LOG_ERROR)
 #define LOGGING

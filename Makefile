@@ -25,8 +25,7 @@ $(LIBRUFSHARE) : $(OBJ_FILES) $(LIBCRC) $(HDR_FILES)
 	$(CC) $(CFLAGS) $(CFLAGS_PIC) -o $@ $(OBJ_FILES) $(LIBCRC)
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[93mstrip" $@ "\e[0m"
 	@strip $@
-	cp ./library/* ../Cyphare/library/
-	
+	@./cpy.sh
 
 $(BIN_DIR)/%.o : $(SRC_DIR)/%.c $(INC_DIR)/%.h
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[93mcompiling module" $< "\e[0m"
