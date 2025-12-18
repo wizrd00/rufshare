@@ -1,5 +1,5 @@
-#ifndef PUSHER_H
-#define PUSHER_H
+#ifndef RUFSHARE_PUSHER_H
+#define RUFSHARE_PUSHER_H
 
 #include "types.h"
 #include "cntl.h"

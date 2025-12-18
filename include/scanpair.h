@@ -1,5 +1,5 @@
-#ifndef SCANPAIR_H
-#define SCANPAIR_H
+#ifndef RUFSHARE_SCANPAIR_H
+#define RUFSHARE_SCANPAIR_H
 
 #include "types.h"
 #include "utils/infostr.h"

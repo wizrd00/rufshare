@@ -103,7 +103,7 @@ status_t scanpair(InitConfig *config, PairInfo *info, size_t *len)
 	LOGT("in function scanpair()");
 	CHECK_IPV4(conf->addrs.local_ip, "invalid local ip address");
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF, "conf->addrs.local_port = 0");
-	if ((conf->spt_cast <= 0) || (conf->sp_interval <= 0) || (conf->sp_trycount))
+	if ((conf->spt_cast <= 0) || (conf->sp_interval <= 0) || (conf->sp_trycount <= 0))
 		CHECK_STAT(BADCONF, "invalid conf->spt_cast or conf->sp_interval or conf->sp_trycount");
 	CHECK_STAT(start_logging(&handle), "start_logging() failed to start logging thread");
 	tryexec(start_scanpair(info, len));

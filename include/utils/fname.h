@@ -1,5 +1,5 @@
-#ifndef FNAME_H
-#define FNAME_H
+#ifndef RUFSHARE_FNAME_H
+#define RUFSHARE_FNAME_H
 
 #include <stddef.h>
 #include <stdlib.h>

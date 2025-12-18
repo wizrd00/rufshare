@@ -1,5 +1,5 @@
-#ifndef MFILE_H
-#define MFILE_H
+#ifndef RUFSHARE_MFILE_H
+#define RUFSHARE_MFILE_H
 
 #include "types.h"
 #include <stdio.h>

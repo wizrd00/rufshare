@@ -1,5 +1,5 @@
-#ifndef TRYEXEC_H
-#define TRYEXEC_H
+#ifndef RUFSHARE_TRYEXEC_H
+#define RUFSHARE_TRYEXEC_H
 
 #include "types.h"
 #include "error.h"

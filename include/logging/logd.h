@@ -1,5 +1,5 @@
-#ifndef LOGD_H
-#define LOGD_H
+#ifndef RUFSHARE_LOGD_H
+#define RUFSHARE_LOGD_H
 
 #include <stdlib.h>
 #include <stdio.h>

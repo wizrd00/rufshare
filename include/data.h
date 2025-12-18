@@ -1,5 +1,5 @@
-#ifndef DATA_H
-#define DATA_H
+#ifndef RUFSHARE_DATA_H
+#define RUFSHARE_DATA_H
 
 #include "types.h"
 #include "net_stream.h"

@@ -1,5 +1,5 @@
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef RUFSHARE_PROTOCOL_H
+#define RUFSHARE_PROTOCOL_H
 
 #include <stdint.h>
 #include <arpa/inet.h>

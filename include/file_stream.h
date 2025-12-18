@@ -1,5 +1,5 @@
-#ifndef FILE_STREAM_H
-#define FILE_STREAM_H
+#ifndef RUFSHARE_FILE_STREAM_H
+#define RUFSHARE_FILE_STREAM_H
 
 #include "types.h"
 #include "mfile.h"

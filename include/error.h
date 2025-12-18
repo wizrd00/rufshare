@@ -1,5 +1,5 @@
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef RUFSHARE_ERROR_H
+#define RUFSHARE_ERROR_H
 
 #include "types.h"
 #include <stdio.h>

@@ -1,5 +1,5 @@
-#ifndef INFOSTR_H
-#define INFOSTR_H
+#ifndef RUFSHARE_INFOSTR_H
+#define RUFSHARE_INFOSTR_H
 
 #include "types.h"
 #include <stdio.h>

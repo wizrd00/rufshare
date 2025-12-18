@@ -1,5 +1,5 @@
-#ifndef BROADCAST_H
-#define BROADCAST_H
+#ifndef RUFSHARE_BROADCAST_H
+#define RUFSHARE_BROADCAST_H
 
 #include "types.h"
 #include "net_stream.h"

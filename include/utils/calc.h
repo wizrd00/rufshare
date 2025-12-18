@@ -1,5 +1,5 @@
-#ifndef CALC_H
-#define CALC_H
+#ifndef RUFSHARE_CALC_H
+#define RUFSHARE_CALC_H
 
 #include "types.h"
 #include "mfile.h"

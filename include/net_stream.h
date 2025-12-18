@@ -1,5 +1,5 @@
-#ifndef NET_STREAM_H
-#define NET_STREAM_H
+#ifndef RUFSHARE_NET_STREAM_H
+#define RUFSHARE_NET_STREAM_H
 
 #include "types.h"
 #include <string.h>

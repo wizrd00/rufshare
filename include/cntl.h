@@ -1,5 +1,5 @@
-#ifndef CNTL_H
-#define CNTL_H
+#ifndef RUFSHARE_CNTL_H
+#define RUFSHARE_CNTL_H
 
 #include "types.h"
 #include "net_stream.h"

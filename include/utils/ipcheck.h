@@ -1,5 +1,5 @@
-#ifndef IPCHECK_H
-#define IPCHECK_H
+#ifndef RUFSHARE_IPCHECK_H
+#define RUFSHARE_IPCHECK_H
 
 #include <stdbool.h>
 #include <stdint.h>
