@@ -110,7 +110,7 @@ status_t start_scanpair(PairInfo *info, size_t *len)
 			LOGD("CAST packet pulled");
 			trycount = conf->sp_trycount;
 			(*len)++;
-			info = realloc(info, sizeof (PairInfo) * (*len));
+			info = (PairInfo *) realloc(info, sizeof (PairInfo) * (*len));
 			CHECK_PTR(info, EMALLOC, "realloc() failed to reallocate buffer with size = %zu", sizeof (PairInfo) * (*len));
 			sstrncpy(info[*len - 1].name, header.cast.info.name, MAXNAMESIZE);
 			memcpy((void *) info[*len - 1].addr.ip, (void *) header.cast.info.remote_ip, MAXIPV4SIZE);
