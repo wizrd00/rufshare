@@ -46,7 +46,7 @@ status_t push_file(InitConfig *config, const char *path)
 	CHECK_IPV4(conf->addrs.remote_ip, "invalid remote ip address");
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF, "conf->addrs.local_port = 0");
 	CHECK_NOTEQUAL(0, conf->addrs.remote_port, BADCONF, "conf->addrs.remote_port = 0");
-	if (conf->tf_trycount <= 0)
+	if ((conf->tf_trycount <= 0) || (conf->hst_send <= 0) || (conf->hst_recv <= 0) || (conf->tft_flow <= 0) || (conf->tft_recv <= 0) || (conf->tft_data <= 0) || (conf->vft_send <= 0) || (conf->vft_recv <= 0))
 		CHECK_STAT(BADCONF, "invalid conf->tf_trycount");
 	CHECK_STAT(start_logging(&handle), "start_logging() failed to start logging thread");
 	tryexec(start_pusher(path));
