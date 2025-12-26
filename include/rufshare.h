@@ -17,7 +17,7 @@
 
 status_t push_file(InitConfig *config, const char *path);
 
-status_t pull_file(InitConfig *config, const char *path, char *remote_name);
+status_t pull_file(InitConfig *config, char *remote_name);
 
 status_t broadcast(InitConfig *config);
 

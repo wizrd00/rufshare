@@ -119,6 +119,7 @@ status_t start_scanpair(PairInfo *info, size_t *len)
 		}
 		trycount--;
 	}
+	CHECK_STAT(close_socket(conf->cast_sock));
 	LOGT("return from start_scanpair()");
 	return _stat;
 }

@@ -63,6 +63,7 @@ status_t start_broadcast(void)
 		LOGD("sleep for %hds", conf->bc_interval);
 		sleep(conf->bc_interval);
 	}
+	CHECK_STAT(close_socket(conf->cast_sock));
 	LOGT("return from start_broadcast()");
 	return _stat;
 }

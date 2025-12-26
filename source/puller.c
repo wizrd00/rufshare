@@ -20,7 +20,7 @@ static bool match_flow(HeaderArgs *header)
 	return val;
 }
 
-static status_t pull_handshake(const char *path, char *remote_name)
+static status_t pull_handshake(char *remote_name)
 {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
@@ -44,7 +44,7 @@ static status_t pull_handshake(const char *path, char *remote_name)
 	LOGD("required configs have configured");
 	conf->filec.size = calc_file_size(conf->chcount, conf->chsize, conf->pchsize);
 	LOGD("file size calculated with value = %zu", conf->filec.size);
-	header.recv.packet = pack_RUFShare_RecvPacket((start_file_stream(&conf->filec, path, MWR) == SUCCESS) ? 1 : 0, 0, 0);
+	header.recv.packet = pack_RUFShare_RecvPacket((start_file_stream(&conf->filec, conf->addr.filename, MWR) == SUCCESS) ? 1 : 0, 0, 0);
 	LOGD("RECV packet prepared and it is ready to push");
 	CHECK_STAT(push_RECV_header(conf->conn_sock, &header, conf->hst_recv), "push_RECV_header() failed");
 	LOGD("RECV packet pushed");
@@ -145,13 +145,14 @@ static status_t pull_verification(void)
 	return _stat;
 }
 
-status_t start_puller(const char *path, char *remote_name)
+status_t start_puller(char *remote_name)
 {
 	status_t _stat = SUCCESS;
 	LOGT("in function start_puller()");
 	CHECK_STAT(start_cntl(&conf->addrs, &conf->cntl_sock, false), "start_cntl() failed");
 	CHECK_STAT(accept_cntl(&conf->addrs, &conf->conn_sock, conf->cntl_sock, FOREVER_TIMEOUT), "accept_cntl() failed");
-	CHECK_STAT(pull_handshake(path, remote_name), "pull_handshake() failed");
+	CHECK_STAT(close_socket(conf->cast_sock));
+	CHECK_STAT(pull_handshake(remote_name), "pull_handshake() failed");
 	CHECK_STAT(start_data(&conf->addrs, &conf->data_sock), "start_data() failed");
 	conf->segsize = calc_segment_size((conf->chsize != 0) ? (size_t) conf->chsize : (size_t) conf->pchsize);
 	LOGD("segment size calculated with value = %zu", conf->segsize);

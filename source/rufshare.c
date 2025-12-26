@@ -55,7 +55,7 @@ status_t push_file(InitConfig *config, const char *path)
 	return _stat;
 }
 
-status_t pull_file(InitConfig *config, const char *path, char *remote_name)
+status_t pull_file(InitConfig *config, char *remote_name)
 {
 	status_t _stat = SUCCESS;
 	conf = config;
@@ -71,7 +71,7 @@ status_t pull_file(InitConfig *config, const char *path, char *remote_name)
 	if (conf->tf_trycount <= 0)
 		CHECK_STAT(BADCONF, "invalid conf->tf_trycount");
 	CHECK_STAT(start_logging(&handle), "start_logging() failed to start logging thread");
-	tryexec(start_puller(path, remote_name));
+	tryexec(start_puller(remote_name));
 	CHECK_THREAD(pthread_cancel(handle), "pthread_cancel() failed to cancel logging thread");
 	LOGT("return from pull_file()");
 	return _stat;
