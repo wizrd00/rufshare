@@ -44,6 +44,15 @@ static status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_por
 	return _stat;
 }
 
+static status_t close_socket(sockfd_t sock)
+{
+	status_t _stat = SUCCESS;
+	LOGT("in function close_socket()");
+	CHECK_INT(close(sock), FAILURE, "close() failed to close socket with fd = %d", sock);
+	LOGT("return from close_socket()");
+	return _stat;
+}
+
 static status_t pull_udp_data(sockfd_t sock, buffer_t buf, size_t size)
 {
 	status_t _stat = SUCCESS;
@@ -119,7 +128,7 @@ status_t start_scanpair(PairInfo *info, size_t *len)
 		}
 		trycount--;
 	}
-	CHECK_STAT(close_socket(conf->cast_sock));
+	CHECK_STAT(close_socket(conf->cast_sock), "close_socket() failed on socket with fd = %d", conf->cast_sock);
 	LOGT("return from start_scanpair()");
 	return _stat;
 }

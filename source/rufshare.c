@@ -16,16 +16,25 @@ static void *thread_start_logd(void *arg)
 }
 #endif
 
+static void *thread_broadcast(void *arg)
+{
+	status_t _stat = SUCCESS;
+	InitConfig *config = (InitConfig *) arg;
+	LOGT("in function thread_broadcast()");
+	if (broadcast(config) != SUCCESS)
+		return NULL;
+	LOGT("return from thread_broadcast()");
+	return config;
+}
+
 static status_t start_logging(pthread_t *handle)
 {
 	status_t _stat = SUCCESS;
-	LOGT("in function start_logging()");
 	#ifdef LOGGING
 	CHECK_THREAD(pthread_create(handle, NULL, thread_start_logd, &_stat), "pthread_create() failed to create thread_start_logd thread");
 	#else
 	handle = NULL;
 	#endif
-	LOGT("return from start_logging()");
 	return _stat;
 }
 
@@ -59,7 +68,8 @@ status_t pull_file(InitConfig *config, char *remote_name)
 {
 	status_t _stat = SUCCESS;
 	conf = config;
-	pthread_t handle;
+	pthread_t lg_handle;
+	pthread_t bc_handle;
 	LOGT("in function pull_file()");
 	CHECK_EQUAL(0, conf->chsize, BADCONF, "conf->chsize = 0");
 	CHECK_EQUAL(0, conf->pchsize, BADCONF, "conf->pchsize = 0");
@@ -70,9 +80,11 @@ status_t pull_file(InitConfig *config, char *remote_name)
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF, "conf->addrs.local_port = 0");
 	if (conf->tf_trycount <= 0)
 		CHECK_STAT(BADCONF, "invalid conf->tf_trycount");
-	CHECK_STAT(start_logging(&handle), "start_logging() failed to start logging thread");
+	CHECK_STAT(start_logging(&lg_handle), "start_logging() failed to start logging thread");
+	CHECK_THREAD(pthread_create(&bc_handle, NULL, thread_broadcast, (void *) config), "pthread_create() failed to create thread_broadcast thread");
 	tryexec(start_puller(remote_name));
-	CHECK_THREAD(pthread_cancel(handle), "pthread_cancel() failed to cancel logging thread");
+	CHECK_THREAD(pthread_cancel(lg_handle), "pthread_cancel() failed to cancel logging thread");
+	CHECK_THREAD(pthread_cancel(bc_handle), "pthread_cancel() failed to cancel broadcast thread");
 	LOGT("return from pull_file()");
 	return _stat;
 }

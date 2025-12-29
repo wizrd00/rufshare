@@ -10,6 +10,6 @@
 
 #define ISVALID_SEND_HEADER(header) ((header.send.packet.chunk_size >= 0) || (header.send.packet.partial_chunk_size >= 0) || (header.send.packet.chunk_count > 0))
 
-status_t start_puller(const char *path, char *remote_name);
+status_t start_puller(char *remote_name);
 
 #endif
