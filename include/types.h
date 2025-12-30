@@ -3,7 +3,7 @@
 
 #if defined(LOG_TRACE) || defined(LOG_DEBUG) || defined(LOG_WARNN) || defined(LOG_ERROR)
 #define LOGGING
-#include "logging/logger.h"
+#include "logging/logd.h"
 #endif
 #include "protocol/protocol.h"
 #include <stddef.h>
@@ -20,25 +20,25 @@
 #define MAXIPV4SIZE 16
 
 #ifdef LOG_TRACE
-	#define LOGT(...) logging(&logcount, TRACE, __FILE__, __func__, __VA_ARGS__)
+	#define LOGT(...) logging(TRACE, __FILE__, __func__, __VA_ARGS__)
 #else
 	#define LOGT(...)
 #endif
 
 #ifdef LOG_DEBUG
-	#define LOGD(...) logging(&logcount, DEBUG, __FILE__, __func__, __VA_ARGS__)
+	#define LOGD(...) logging(DEBUG, __FILE__, __func__, __VA_ARGS__)
 #else
 	#define LOGD(...)
 #endif
 
 #ifdef LOG_WARNN
-	#define LOGW(...) logging(&logcount, WARNN, __FILE__, __func__, __VA_ARGS__)
+	#define LOGW(...) logging(WARNN, __FILE__, __func__, __VA_ARGS__)
 #else
 	#define LOGW(...)
 #endif
 
 #ifdef LOG_ERROR
-	#define LOGE(...) logging(&logcount, ERROR, __FILE__, __func__, __VA_ARGS__)
+	#define LOGE(...) logging(ERROR, __FILE__, __func__, __VA_ARGS__)
 #else
 	#define LOGE(...)
 #endif

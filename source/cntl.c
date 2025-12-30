@@ -3,7 +3,7 @@
 status_t start_cntl(CntlAddrs *addrs, sockfd_t *sock, bool conn)
 {
 	status_t _stat = SUCCESS;
-	LOGT("in function start_cntl()")
+	LOGT("in function start_cntl()");
 	CHECK_IPV4(addrs->local_ip, "invalid local ip address");
 	CHECK_IPV4(addrs->remote_ip, "invalid remote ip address");
 	CHECK_PORT(addrs->local_port, "invalid local port");
@@ -23,7 +23,7 @@ status_t accept_cntl(CntlAddrs *addrs, sockfd_t *new_sock, sockfd_t sock, int ti
 	LOGD("accept new connect on socket with fd = %d", sock);
 	CHECK_STAT(accept_new_connection(new_sock, sock, addrs->remote_ip, &(addrs->remote_port), timeout), "accept_new_connection() failed on socket with fd = %d", sock);
 	LOGD("new connection on TCP socket with fd = %d", *new_sock);
-	LOGT("return from accept_ctnl()")
+	LOGT("return from accept_ctnl()");
 	return _stat;
 }
 

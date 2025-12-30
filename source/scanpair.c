@@ -107,6 +107,7 @@ status_t start_scanpair(PairInfo *info, size_t *len)
 	time_t start_time = time(NULL);
 	time_t interval = conf->sp_interval;
 	int trycount = conf->sp_trycount;
+	printf("sp trycount %d\n", trycount);
 	LOGT("in function start_scanpair()");
 	CHECK_NOTEQUAL(-1, start_time, ERRTIME, "time() failed");
 	CHECK_STAT(init_udp_socket(&conf->cast_sock, conf->addrs.local_ip, conf->addrs.local_port), "init_udp_socket() failed");
@@ -114,7 +115,8 @@ status_t start_scanpair(PairInfo *info, size_t *len)
 	LOGD("set *len = 0, info = NULL");
 	*len = 0;
 	info = NULL;
-	while ((time(NULL) - start_time < interval) || (trycount != 0)) {
+	perror("here");
+	while ((time(NULL) - start_time < interval) && (trycount != 0)) {
 		if (pull_broadcast_header(conf->cast_sock, &header, conf->spt_cast) == SUCCESS) {
 			LOGD("CAST packet pulled");
 			trycount = conf->sp_trycount;
@@ -126,9 +128,11 @@ status_t start_scanpair(PairInfo *info, size_t *len)
 			info[*len - 1].addr.port = header.cast.info.local_port;
 			continue;
 		}
+		fputs("out\n", stdout);
 		trycount--;
 	}
 	CHECK_STAT(close_socket(conf->cast_sock), "close_socket() failed on socket with fd = %d", conf->cast_sock);
+	CHECK_NOTEQUAL(0, trycount, EXPTRY0);
 	LOGT("return from start_scanpair()");
 	return _stat;
 }

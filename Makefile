@@ -1,6 +1,7 @@
 CC := pcc
 CFLAGS := -std=c99 -O3 -g -Wc,-Werror=implicit-function-declaration,-Werror=missing-prototypes,-Werror=pointer-sign,-Werror=sign-compare,-Werror=strict-prototypes,-Werror=shadow
 CFLAGS_PIC := -shared -fPIC 
+CFLAGS_LOG := #-D LOG_TRACE -D LOG_DEBUG -D LOG_ERROR
 
 SRC_DIR := source
 INC_DIR := include
@@ -22,14 +23,14 @@ POINTER_SYM := "\e[91m->\e[0m"
 
 $(LIBRUFSHARE) : $(OBJ_FILES) $(LIBCRC) $(HDR_FILES)
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[96mlinking modules into" $@ "\e[0m"
-	$(CC) $(CFLAGS) $(CFLAGS_PIC) -o $@ $(OBJ_FILES) $(LIBCRC)
+	$(CC) $(CFLAGS) $(CFLAGS_PIC) $(CFLAGS_LOG) -o $@ $(OBJ_FILES) $(LIBCRC)
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[93mstrip" $@ "\e[0m"
-	@strip $@
+	#@strip $@
 	@./cpy.sh
 
 $(BIN_DIR)/%.o : $(SRC_DIR)/%.c $(INC_DIR)/%.h
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[93mcompiling module" $< "\e[0m"
-	$(CC) -c $(CFLAGS) $(CFLAGS_PIC) $(INCLUDE_FLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) $(CFLAGS_PIC) $(CFLAGS_LOG) $(INCLUDE_FLAGS) -o $@ $<
 
 clean :
 	rm $(wildcard $(BIN_DIR)/*.o) $(wildcard $(BIN_DIR)/logging/*.o) $(wildcard $(LIBRUFSHARE))

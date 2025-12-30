@@ -9,38 +9,41 @@ static char *sstrncpy(char *dst, const char *src, size_t dsize)
 	return dst;
 }
 
-int start_logd(void)
+int init_logd(void)
 {
 	char filename[FILENAME_MAX];
 	time_t time_tag = time(NULL);
-	LogMsg logmsg;
+	struct mq_attr attr = {.mq_maxmsg = LOGMAXMSG, .mq_msgsize = LOGMSGSIZE};
 	logc.logcount = 0;
 	snprintf(filename, FILENAME_MAX, "logfile_%ld.log", (time_tag != -1) ? (long) time_tag : (long) (rand() % 0xffff));
 	logc.logfile = fopen(filename, "w");
-	logc.logqueue = mq_open(LOGQUEUE_NAME, O_RDWR | O_NONBLOCK);	
+	logc.logqueue = mq_open(LOGQUEUE_NAME, O_CREAT | O_RDWR | O_NONBLOCK, S_IRWXU, &attr);
 	if ((logc.logfile == NULL) || (logc.logqueue == -1)) {
 		fprintf(stderr, LOGERROR_TEXT, strerror(errno), "failed to create logger context");
 		return -1;
 	}
+	return 0;
+}
+
+int start_logd(void)
+{
+	LogMsg logmsg;
 	while (1) {
-		if (mq_receive(logc.logqueue, (char *) &logmsg, sizeof (LogMsg), NULL) != sizeof (LogMsg))
-			if (errno != EAGAIN)
-				return -1;
+		if (mq_receive(logc.logqueue, (char *) &logmsg, LOGMSGSIZE, NULL) == -1) {
 			sleep(SLEEPTIME);
 			continue;
+		}
 		append_log(logc.logcount, logmsg.level, logmsg.date, logmsg.clock, logmsg.mod, logmsg.pos, logmsg.msg);
 	}
 	return 0;
 }
 
-void end_logd(void)
+int end_logd(void)
 {
-	fclose(logc.logfile);
-	mq_close(logc.logqueue);
-	return;
+	return (fclose(logc.logfile) + mq_close(logc.logqueue) == 0) ? 0 : -1;
 }
 
-void logging(const unsigned long *count, const char *level, const char *mod, const char *pos, const char *fmt, ...)
+void logging(const char *level, const char *mod, const char *pos, const char *fmt, ...)
 {
 	LogMsg logmsg;
 	time_t now_time = time(NULL);
@@ -60,6 +63,6 @@ void logging(const unsigned long *count, const char *level, const char *mod, con
 	va_end(ap);
 	if (mq_send(logc.logqueue, (const char *) &logmsg, sizeof (logmsg), 0) == -1)
 		fprintf(stderr, LOGERROR_TEXT, strerror(errno), (errno == EAGAIN) ? "log queue is full and new log dropped" : "mq_send() failed");
-	(*count)++;
+	logc.logcount++;
 	return;
 }
