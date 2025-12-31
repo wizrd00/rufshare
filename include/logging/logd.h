@@ -5,16 +5,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <errno.h>
 #include <time.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <mqueue.h>
-#include <errno.h>
+#include <sys/mman.h>
 
-#define LOGQUEUE_NAME "logqueue"
-#define LOGMAXMSG 8
-#define LOGMSGSIZE 1024
 #define LOGERROR_TEXT "\nError(logger) : %s, %s\n\n"
+#define LOGFILE_NAMESIZE 32
+#define LOGFILE_FILESIZE sizeof (LogMsg) * 1024
 
 #define TRACE "TRACE"
 #define DEBUG "DEBUG"
@@ -27,16 +25,13 @@
 #define MODSIZE 32
 #define POSSIZE 32
 #define MSGSIZE 512
-#define SLEEPTIME 1
 
-#define append_log(count, level, date, clock, mod, pos, fmt)\
-	do {fprintf(logc.logfile, "[0x%lx][%-5.5s][%-10.10s][%-8.8s][MOD:%-.31s][POS:%-.31s][%-.511s]\n", count, level, date, clock, mod, pos, fmt);} while (0)
+#define append_log(log)\
+	do {logc.pos -= (logc.pos == logc.size) ? logc.size : 0; memcpy(logc.buffer + logc.pos, (void *) &log, sizeof (LogMsg));} while (0)
 
-int init_logd(void);
+int init_logd(const char *path);
 
-int start_logd(void);
-
-int end_logd(void);
+int deinit_logd(void);
 
 void logging(const char *level, const char *mod, const char *pos, const char *fmt, ...);
 
@@ -51,7 +46,9 @@ typedef struct {
 
 typedef struct {
 	FILE *logfile;
-	mqd_t logqueue;
+	void *buffer;
+	size_t pos;
+	size_t size;
 	unsigned long logcount;
 } LogContext;
 

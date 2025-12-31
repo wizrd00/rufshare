@@ -15,6 +15,8 @@
 #include "utils/sstr.h"
 #include <pthread.h>
 
+status_t initiate(const char *logpath);
+
 status_t push_file(InitConfig *config, const char *path);
 
 status_t pull_file(InitConfig *config, char *remote_name);

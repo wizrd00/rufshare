@@ -13,13 +13,11 @@ static void *thread_broadcast(void *arg)
 	return config;
 }
 
-static status_t start_logging(pthread_t *handle)
+status_t initiate(const char *logpath)
 {
 	status_t _stat = SUCCESS;
 	#ifdef LOGGING
-	CHECK_THREAD(pthread_create(handle, NULL, thread_start_logd, &_stat), "pthread_create() failed to create thread_start_logd thread");
-	#else
-	handle = NULL;
+	CHECK_INT(init_logd(logpath), FAILLOG, "init_logd() failed");
 	#endif
 	return _stat;
 }
@@ -30,7 +28,7 @@ status_t push_file(InitConfig *config, const char *path)
 	conf = config;
 	pthread_t handle;
 	char *filename;
-	CHECK_STAT(start_logging(&handle), "start_logging() failed to start logging thread");
+	LOGT("in function push_file()");
 	CHECK_NOTEQUAL(0, conf->chsize, BADCONF, "conf->chsize = 0");
 	CHECK_EQUAL(0, conf->pchsize, BADCONF, "conf->pchsize = 0");
 	CHECK_EQUAL(0, conf->chcount, BADCONF, "conf->chcount = 0");
@@ -54,6 +52,7 @@ status_t pull_file(InitConfig *config, char *remote_name)
 	status_t _stat = SUCCESS;
 	conf = config;
 	pthread_t bc_handle;
+	LOGT("in function pull_file()");
 	CHECK_EQUAL(0, conf->chsize, BADCONF, "conf->chsize = 0");
 	CHECK_EQUAL(0, conf->pchsize, BADCONF, "conf->pchsize = 0");
 	CHECK_EQUAL(0, conf->chcount, BADCONF, "conf->chcount = 0");
@@ -75,6 +74,7 @@ status_t broadcast(InitConfig *config)
 	status_t _stat = SUCCESS;
 	conf = config;
 	CntlAddrs addrs;
+	LOGT("in function broadcast()");
 	CHECK_NOTEQUAL(0, conf->addrs.name[0], BADCONF, "no string in conf->addrs.name");
 	CHECK_IPV4(conf->addrs.local_ip, "invalid local ip address");
 	CHECK_IPV4(conf->addrs.remote_ip, "invalid remote ip address");
@@ -91,6 +91,7 @@ status_t scanpair(InitConfig *config, PairInfo *info, size_t *len)
 {
 	status_t _stat = SUCCESS;
 	conf = config;
+	LOGT("in function scanpair()");
 	CHECK_IPV4(conf->addrs.local_ip, "invalid local ip address");
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF, "conf->addrs.local_port = 0");
 	if ((conf->spt_cast <= 0) || (conf->sp_interval <= 0) || (conf->sp_trycount <= 0))
