@@ -17,7 +17,7 @@ status_t initiate(const char *logpath)
 {
 	status_t _stat = SUCCESS;
 	#ifdef LOGGING
-	CHECK_INT(init_logd(logpath), FAILLOG, "init_logd() failed");
+	tryexec(init_logd(logpath), FAILLOG, "init_logd() failed");
 	#endif
 	return _stat;
 }
