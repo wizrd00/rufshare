@@ -47,7 +47,7 @@
 	do {if (val != SUCCESS) {LOGE("(" #val ")" " " __VA_ARGS__); return _stat = val;}} while (0)
 
 #define CHECK_SSTAT(val, ptr, ...)\
-	do {if (val != SUCCESS) {LOGE("(" #val ")" " " __VA_ARGS__); free(ptr); return _stat = val;}} while (0)
+	do {if (val != SUCCESS) {LOGE("(" #val ")" " " __VA_ARGS__); free((void *) ptr); return _stat = val;}} while (0)
 
 #define CHECK_EQUAL(val0, val1, err, ...)\
 	do {if (val0 != val1) {LOGE("(" #err ")" " " __VA_ARGS__); return _stat = err;}} while (0)
