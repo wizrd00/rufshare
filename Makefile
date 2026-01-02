@@ -1,7 +1,7 @@
 CC := pcc
 CFLAGS := -std=c99 -O3 -g -Wc,-Werror=implicit-function-declaration,-Werror=missing-prototypes,-Werror=pointer-sign,-Werror=sign-compare,-Werror=strict-prototypes,-Werror=shadow -pthread
 CFLAGS_PIC := -shared -fPIC 
-CFLAGS_LOG := #-D LOG_TRACE -D LOG_DEBUG -D LOG_ERROR
+CFLAGS_LOG := -D LOG_TRACE -D LOG_DEBUG -D LOG_ERROR
 
 SRC_DIR := source
 INC_DIR := include

@@ -17,7 +17,8 @@ status_t initiate(const char *logpath)
 {
 	status_t _stat = SUCCESS;
 	#ifdef LOGGING
-	tryexec(init_logd(logpath), FAILLOG, "init_logd() failed");
+	if (init_logd(logpath) != 0)
+		tryexec(FAILLOG);
 	#endif
 	return _stat;
 }
@@ -57,6 +58,7 @@ status_t pull_file(InitConfig *config, char *remote_name)
 	CHECK_EQUAL(0, conf->pchsize, BADCONF, "conf->pchsize = 0");
 	CHECK_EQUAL(0, conf->chcount, BADCONF, "conf->chcount = 0");
 	CHECK_EQUAL(0, conf->seq, BADCONF, "conf->seq = 0");
+	CHECK_NOTEQUAL(0, conf->addrs.filename[0], BADCONF, "no string in conf->addrs.filename");
 	CHECK_NOTEQUAL(0, conf->addrs.name[0], BADCONF, "no string in conf->addrs.name");
 	CHECK_IPV4(conf->addrs.local_ip, "invalid local ip address");
 	CHECK_NOTEQUAL(0, conf->addrs.local_port, BADCONF, "conf->addrs.local_port = 0");
@@ -75,6 +77,7 @@ status_t broadcast(InitConfig *config)
 	conf = config;
 	CntlAddrs addrs;
 	LOGT("in function broadcast()");
+	CHECK_NOTEQUAL(0, conf->addrs.filename[0], BADCONF, "no string in conf->addrs.filename");
 	CHECK_NOTEQUAL(0, conf->addrs.name[0], BADCONF, "no string in conf->addrs.name");
 	CHECK_IPV4(conf->addrs.local_ip, "invalid local ip address");
 	CHECK_IPV4(conf->addrs.remote_ip, "invalid remote ip address");
@@ -87,7 +90,7 @@ status_t broadcast(InitConfig *config)
 	return _stat;
 }
 
-status_t scanpair(InitConfig *config, PairInfo *info, size_t *len)
+status_t scanpair(InitConfig *config, PairInfo **info, size_t *len)
 {
 	status_t _stat = SUCCESS;
 	conf = config;

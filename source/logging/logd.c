@@ -11,13 +11,13 @@ static char *sstrncpy(char *dst, const char *src, size_t dsize)
 
 static int create_logfile(const char *path)
 {
-	size_t pathsize = strlen(path);
-	char *logfile_path = (char *) calloc(pathsize + LOGFILE_NAMESIZE, sizeof (char));
+	size_t pathlen = strlen(path);
+	char *logfile_path = (char *) calloc(pathlen + LOGFILE_NAMESIZE + 1, sizeof (char));
 	time_t logtime = time(NULL);
 	if ((logtime == -1) || (logfile_path == NULL))
 		return -1;
-	sstrncpy(logfile_path, path, pathsize);
-	snprintf(logfile_path + pathsize, LOGFILE_NAMESIZE, "logfile_%lu.log", (unsigned long) logtime);
+	sstrncpy(logfile_path, path, pathlen + 1);
+	snprintf(logfile_path + pathlen, LOGFILE_NAMESIZE, "logfile_%lu.log", (unsigned long) logtime);
 	logc.logfile = fopen(logfile_path, "w+");
 	if (logc.logfile == NULL)
 		return -1;

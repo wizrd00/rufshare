@@ -152,7 +152,7 @@ status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 		CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET, "setsockopt() failed to set SO_BROADCAST on socket with fd = %d", *sock);
 	}
 	LOGD("set SO_REUSEADDR option on socket with fd = %d", *sock);
-	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (optval)), FAILSET, "setsockopt() failed to set SO_REUSEADDR on socket with fd = %d", *sock);
+	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (int)), FAILSET, "setsockopt() failed to set SO_REUSEADDR on socket with fd = %d", *sock);
 	LOGD("bind to local address %s:%hu on socket with fd = %d", src_ip, src_port, *sock);
 	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND, "bind() failed on socket with fd = %d", *sock);
 	LOGD("connect to remote address %s:%hu on socket with fd = %d", dst_ip, dst_port, *sock);

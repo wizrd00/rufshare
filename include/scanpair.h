@@ -10,6 +10,6 @@
 #include <time.h>
 #include <poll.h>
 
-status_t start_scanpair(PairInfo *info, size_t *len);
+status_t start_scanpair(PairInfo **info, size_t *len);
 
 #endif

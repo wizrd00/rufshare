@@ -32,12 +32,12 @@ static status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_por
 	};
 	LOGD("create UDP datagram socket with address family AF_INET");
 	tmpsock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	CHECK_INT(tmpsock, INVSOCK);
+	CHECK_INT(tmpsock, INVSOCK, "socket() failed");
 	*sock = tmpsock;
 	LOGD("set SO_BROADCAST option on socket with fd = %d", *sock);
 	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET, "setsockopt() failed to set SO_BROADCAST option on socket with fd = %d", *sock);
 	LOGD("set SO_REUSEADDR option on socket with fd = %d", *sock);
-	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (optval)), FAILSET, "setsockopt() failed to set SO_RUSEADDR option on socket with fd = %d", *sock);
+	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (int)), FAILSET, "setsockopt() failed to set SO_RUSEADDR option on socket with fd = %d", *sock);
 	LOGD("bind to local address %s:%hu on socket with fd = %d", src_ip, src_port, *sock);
 	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND, "bind() failed on socket with fd = %d", *sock);
 	LOGT("return from init_udp_socket()");
@@ -77,9 +77,11 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
 	switch (poll(&pfd, 1, timeout)) {
 		case -1 :
+			LOGE("poll() failed on socket with fd = %d", sock);
 			free(buf);
 			return _stat = FAILURE;
 		case 0 :
+			LOGE("poll() timeout on socket with fd = %d", sock);
 			free(buf);
 			return _stat = TIMEOUT;
 		default :
@@ -88,7 +90,7 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 			LOGD("CAST packet pulled");
 	}
 	LOGD("check packet type == CAST");
-	if (ntohs(buf[0]) != CAST)
+	if (buf[0] != CAST)
 		CHECK_SSTAT(BADTYPE, buf, "invalid type != CAST");
 	memcpy((void *) &packet, buf, sizeof (CastPacket));
 	memcpy((void *) infostr, buf + sizeof (CastPacket), INFOSTRSIZE);
@@ -100,36 +102,38 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	return _stat;
 }
 
-status_t start_scanpair(PairInfo *info, size_t *len)
+status_t start_scanpair(PairInfo **info, size_t *len)
 {
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	time_t start_time = time(NULL);
 	time_t interval = conf->sp_interval;
 	int trycount = conf->sp_trycount;
-	printf("sp trycount %d\n", trycount);
 	LOGT("in function start_scanpair()");
 	CHECK_NOTEQUAL(-1, start_time, ERRTIME, "time() failed");
 	CHECK_STAT(init_udp_socket(&conf->cast_sock, conf->addrs.local_ip, conf->addrs.local_port), "init_udp_socket() failed");
 	LOGD("UDP socket created with fd = %d", conf->cast_sock);
 	LOGD("set *len = 0, info = NULL");
 	*len = 0;
-	info = NULL;
-	perror("here");
-	while ((time(NULL) - start_time < interval) && (trycount != 0)) {
-		if (pull_broadcast_header(conf->cast_sock, &header, conf->spt_cast) == SUCCESS) {
-			LOGD("CAST packet pulled");
+	*info = NULL;
+	while ((time(NULL) - start_time < interval)) {
+		_stat = pull_broadcast_header(conf->cast_sock, &header, conf->spt_cast);
+		if (_stat == SUCCESS) {
 			trycount = conf->sp_trycount;
 			(*len)++;
-			info = (PairInfo *) realloc(info, sizeof (PairInfo) * (*len));
+			*info = (PairInfo *) realloc(*info, sizeof (PairInfo) * (*len));
 			CHECK_PTR(info, EMALLOC, "realloc() failed to reallocate buffer with size = %zu", sizeof (PairInfo) * (*len));
-			sstrncpy(info[*len - 1].name, header.cast.info.name, MAXNAMESIZE);
-			memcpy((void *) info[*len - 1].addr.ip, (void *) header.cast.info.remote_ip, MAXIPV4SIZE);
-			info[*len - 1].addr.port = header.cast.info.local_port;
-			continue;
+			sstrncpy((*info)[*len - 1].name, header.cast.info.name, MAXNAMESIZE);
+			memcpy((void *) (*info)[*len - 1].ip, (void *) header.cast.info.remote_ip, MAXIPV4SIZE);
+			(*info)[*len - 1].port = header.cast.info.remote_port;
 		}
-		fputs("out\n", stdout);
-		trycount--;
+		else if ((_stat != BADTYPE) && (_stat != TIMEOUT)) {
+			LOGD("pull_broadcast_header() didn't return SUCCESS");
+			trycount--;
+		}
+		if (trycount == 0)
+			break;
+		_stat = SUCCESS;
 	}
 	CHECK_STAT(close_socket(conf->cast_sock), "close_socket() failed on socket with fd = %d", conf->cast_sock);
 	CHECK_NOTEQUAL(0, trycount, EXPTRY0);

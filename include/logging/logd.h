@@ -27,7 +27,7 @@
 #define MSGSIZE 512
 
 #define append_log(log)\
-	do {logc.pos -= (logc.pos == logc.size) ? logc.size : 0; memcpy(logc.buffer + logc.pos, (void *) &log, sizeof (LogMsg));} while (0)
+	do {logc.pos -= (logc.pos == logc.size) ? logc.size : 0; memcpy(logc.buffer + logc.pos, (void *) &log, sizeof (LogMsg)); logc.pos += sizeof (LogMsg);} while (0)
 
 int init_logd(const char *path);
 

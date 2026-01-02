@@ -23,7 +23,7 @@ status_t pull_file(InitConfig *config, char *remote_name);
 
 status_t broadcast(InitConfig *config);
 
-status_t scanpair(InitConfig *config, PairInfo *info, size_t *len);
+status_t scanpair(InitConfig *config, PairInfo **info, size_t *len);
 
 extern InitConfig *conf;
 

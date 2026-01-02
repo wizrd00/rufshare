@@ -16,7 +16,7 @@
 #define ZEROSEQ_ERROR_TEXT "transfer function received sequence = 0"
 #define FAILSET_ERROR_TEXT "process failed to set socket option"
 #define FAILCRC_ERROR_TEXT "file crc does not match"
-#define FAILLOG_ERROR_TEXT "start_logd() failed"
+#define FAILLOG_ERROR_TEXT "init_logd() failed"
 #define BADCONF_ERROR_TEXT "bad config to initiate the process"
 #define BADFLOW_ERROR_TEXT "process received bad flow packet"
 #define BADARGS_ERROR_TEXT "process received bad argument"
