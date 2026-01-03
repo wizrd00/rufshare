@@ -5,7 +5,10 @@ static status_t push_handshake(void)
 	status_t _stat = SUCCESS;
 	HeaderArgs header;
 	LOGT("in function push_handshake()");
+	LOGD("conf->filec.size = %zu", conf->filec.size);
 	conf->chcount = calc_chunk_count(conf->filec.size, conf->chsize, &conf->pchsize);
+	LOGD("conf->chsize = %hu", conf->chsize);
+	LOGD("conf->pchsize = %hu", conf->pchsize);
 	LOGD("chunk count = %lu", conf->chcount);
 	header.send.packet = pack_RUFShare_SendPacket(conf->chsize, conf->chcount, conf->pchsize, 0);
 	sstrncpy(header.send.info.filename, conf->addrs.filename, MAXFILENAMESIZE);

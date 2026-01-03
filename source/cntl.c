@@ -90,7 +90,7 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout)
 		default :
 			_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 			CHECK_SSTAT(_stat, buf, "push_tcp_data() failed on socket with fd = %d", sock);
-			LOGD("CAST packet pushed");
+			LOGD("FLOW packet pushed");
 	}
 	free(buf);
 	LOGT("return from push_FLOW_header()");
@@ -232,6 +232,7 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (SendPacket), false), "pull_tcp_data() failed to pull SEND packet on socket with fd = %d", sock);
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) infostr, INFOSTRSIZE, false), "pull_tcp_data() failed to pull infostr on socket with fd = %d", sock);
+	LOGD("infostr = %s", infostr);
 	args->send.packet = convert_SendPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->send.info));
 	LOGD("SEND packet unpacked");

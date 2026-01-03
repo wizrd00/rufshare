@@ -27,20 +27,27 @@ static status_t pull_handshake(char *remote_name)
 	LOGT("in function pull_handshake()");
 	CHECK_STAT(pull_SEND_header(conf->conn_sock, &header, FOREVER_TIMEOUT), "pull_SEND_header() failed");
 	LOGD("SEND packet pulled");
-	if (ISVALID_SEND_HEADER(header)) {
+	if (!ISVALID_SEND_HEADER(header)) {
 		header.recv.packet = pack_RUFShare_RecvPacket(0, 0, 0);	
 		LOGD("RECV packet prepared and it is ready to push");
 		CHECK_STAT(push_RECV_header(conf->conn_sock, &header, conf->hst_recv), "push_RECV_header() failed");
 		return _stat;
 	}
 	conf->chsize = header.send.packet.chunk_size;
+	LOGD("conf->chsize = %hu", conf->chsize);
 	conf->pchsize = header.send.packet.partial_chunk_size;
+	LOGD("conf->pchsize = %hu", conf->pchsize);
 	conf->chcount = header.send.packet.chunk_count;
+	LOGD("conf->chcount = %u", conf->chcount);
 	sstrncpy(conf->filec.name, header.send.info.filename, MAXFILENAMESIZE);
 	sstrncpy(conf->addrs.filename, header.send.info.filename, MAXFILENAMESIZE);
+	LOGD("conf->addrs.filename = %s", conf->addrs.filename);
 	sstrncpy(remote_name, header.send.info.name, MAXNAMESIZE);
+	LOGD("remote_name = %s", remote_name);
 	sstrncpy(conf->addrs.remote_ip, header.send.info.local_ip, MAXIPV4SIZE);
+	LOGD("conf->addrs.remote_ip = %s", conf->addrs.remote_ip);
 	conf->addrs.remote_port = header.send.info.local_port;
+	LOGD("conf->addrs.remote_port = %hu", conf->addrs.remote_port);
 	LOGD("required configs have configured");
 	conf->filec.size = calc_file_size(conf->chcount, conf->chsize, conf->pchsize);
 	LOGD("file size calculated with value = %zu", conf->filec.size);

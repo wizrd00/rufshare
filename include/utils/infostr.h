@@ -8,7 +8,7 @@
 
 static inline void pack_into_infostring(char *infostr, CntlAddrs *info)
 {
-    snprintf(infostr, INFOSTRSIZE, "%.255s:%.31s@%.15s:%-5hu", info->filename, info->name, info->local_ip, info->local_port);
+    snprintf(infostr, INFOSTRSIZE, "%.255s:%.31s@%.15s:%hu", info->filename, info->name, info->local_ip, info->local_port);
     return;
 }
 

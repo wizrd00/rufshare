@@ -31,15 +31,23 @@ status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode)
 {
 	status_t _stat = SUCCESS;
 	MFILE mfile;
+	struct stat statbuf;
 	char *filename;
 	LOGT("in function start_file_stream()");
-	if (mode == MWR)
+	if (mode == MWR) {
+		LOGD("file mode MWR");
 		CHECK_STAT(create_file(path, filec->size), "create_file() failed to create a file with size %zu", filec->size);
+	}
+	else {
+		LOGD("file mode MRD");
+		CHECK_INT(stat(path, &statbuf), NOFSTAT, "stat() failed");
+		filec->size = statbuf.st_size;
+	}
 	LOGD("map the specified file to the memory");
 	mfile = mfopen(path, "r+", PROT_READ | PROT_WRITE, MAP_SHARED);
 	CHECK_MFILE(mfile, "mfopen() failed");
 	filec->mfile = mfile;
-	extract_file_name(filename, path, MAXFILENAMESIZE);
+	filename = extract_file_name(path, strlen(path) + 1);
 	CHECK_PTR(filename, INVPATH, "the specified path is invalid");
 	LOGD("file name %s extracted from the specified path", filename);
 	sstrncpy(filec->name, filename, MAXFILENAMESIZE);
