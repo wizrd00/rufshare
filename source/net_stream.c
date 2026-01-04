@@ -5,10 +5,10 @@ static status_t network_byteorder(ipv4str_t ip, uint32_t *dst)
 	status_t _stat = SUCCESS;
 	LOGT("in function network_byteorder()");
 	switch (inet_pton(AF_INET, ip, dst)) {
-		case -1 :
-			CHECK_STAT(BADARGS, "invalid address family");
-		case 0 :
-			CHECK_STAT(BADIPV4, "invalid ip address");
+	case -1 :
+		CHECK_STAT(BADARGS, "invalid address family");
+	case 0 :
+		CHECK_STAT(BADIPV4, "invalid ip address");
 	}
 	LOGT("return from network_byteorder()");
 	return _stat;
@@ -76,10 +76,10 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 	LOGD("listen with backlog %d on socket with fd = %d", BACKLOG, sock);
 	CHECK_INT(listen(sock, BACKLOG), ERRLSTN, "listen() failed on socket with fd = %d", sock);
 	switch (poll(&pfd, 1, timeout)) {
-		case -1 :
-			CHECK_STAT(FAILURE, "poll() failed on socket with fd = %d", sock);
-		case 0 :
-			CHECK_STAT(TIMEOUT, "poll() timeout on socket with fd = %d", sock);
+	case -1 :
+		CHECK_STAT(FAILURE, "poll() failed on socket with fd = %d", sock);
+	case 0 :
+		CHECK_STAT(TIMEOUT, "poll() timeout on socket with fd = %d", sock);
 	}
 	LOGD("accept new connection on socket with fd = %d", sock);
 	tmpsock = accept(sock, (struct sockaddr *) &conn_addr, &addr_len);

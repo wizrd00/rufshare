@@ -15,20 +15,20 @@ static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	memcpy((void *) buf + sizeof (CastPacket), (void *) infostr, sizeof (infostr));
 	LOGD("CAST packet prepared and it is ready to push");
 	switch (poll(&pfd, 1, timeout)) {
-        	case -1 :
-			LOGE("poll() failed on socket with fd = %d", sock);
-        		free(buf);
-			_stat = FAILURE;
-			break;
-		case 0 :
-			LOGE("poll() timeout on socket with fd = %d", sock);
-        		free(buf);
-			_stat = TIMEOUT;
-			break;
-		default :
-			_stat = (pfd.revents & POLLOUT) ? push_udp_data(sock, buf, bufsize) : ERRPOLL;
-			CHECK_SSTAT(_stat, buf, "push_udp_data() failed on socket with fd = %d", sock);
-			LOGD("CAST packet pushed");
+	case -1 :
+		LOGE("poll() failed on socket with fd = %d", sock);
+		free(buf);
+		_stat = FAILURE;
+		break;
+	case 0 :
+		LOGE("poll() timeout on socket with fd = %d", sock);
+		free(buf);
+		_stat = TIMEOUT;
+		break;
+	default :
+		_stat = (pfd.revents & POLLOUT) ? push_udp_data(sock, buf, bufsize) : ERRPOLL;
+		CHECK_SSTAT(_stat, buf, "push_udp_data() failed on socket with fd = %d", sock);
+		LOGD("CAST packet pushed");
 	}
         free(buf);
 	LOGT("return from push_broadcast_header()");

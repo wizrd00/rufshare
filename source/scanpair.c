@@ -5,10 +5,10 @@ static status_t network_byteorder(ipv4str_t ip, uint32_t *dst)
 	status_t _stat = SUCCESS;
 	LOGT("in function network_byteorder()");
 	switch (inet_pton(AF_INET, ip, dst)) {
-		case -1 :
-			CHECK_STAT(BADARGS, "invalid address family");
-		case 0 :
-			CHECK_STAT(BADIPV4, "invalid ip address");
+	case -1 :
+		CHECK_STAT(BADARGS, "invalid address family");
+	case 0 :
+		CHECK_STAT(BADIPV4, "invalid ip address");
 	}
 	LOGT("return from network_byteorder()");
 	return _stat;
@@ -76,18 +76,18 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	CHECK_PTR(buf, EMALLOC, "malloc() failed to allocate buffer with size = %zu", bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
 	switch (poll(&pfd, 1, timeout)) {
-		case -1 :
-			LOGE("poll() failed on socket with fd = %d", sock);
-			free(buf);
-			return _stat = FAILURE;
-		case 0 :
-			LOGE("poll() timeout on socket with fd = %d", sock);
-			free(buf);
-			return _stat = TIMEOUT;
-		default :
-			_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, buf, bufsize) : ERRPOLL;
-			CHECK_SSTAT(_stat, buf, "pull_udp_data() failed to pull CAST packet on socket with fd = %d", sock);
-			LOGD("CAST packet pulled");
+	case -1 :
+		LOGE("poll() failed on socket with fd = %d", sock);
+		free(buf);
+		return _stat = FAILURE;
+	case 0 :
+		LOGE("poll() timeout on socket with fd = %d", sock);
+		free(buf);
+		return _stat = TIMEOUT;
+	default :
+		_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, buf, bufsize) : ERRPOLL;
+		CHECK_SSTAT(_stat, buf, "pull_udp_data() failed to pull CAST packet on socket with fd = %d", sock);
+		LOGD("CAST packet pulled");
 	}
 	LOGD("check packet type == CAST");
 	if (buf[0] != CAST)

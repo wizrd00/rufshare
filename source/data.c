@@ -42,15 +42,15 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		mfread(segbuf, segsize, sizeof (char), stream);
 		LOGD("read %zu bytes of the chunk", segsize);
 		switch (poll(&pfd, 1, timeout)) {
-			case -1 :
-				free(segbuf);
-				return _stat = FAILURE;
-			case 0 :
-				free(segbuf);
-				return _stat = TIMEOUT;
-			default :
-				_stat = (pfd.revents & POLLOUT) ? SUCCESS : ERRPOLL;
-				CHECK_SSTAT(_stat, segbuf, "poll() failed on socket with fd = %d", sock);
+		case -1 :
+			free(segbuf);
+			return _stat = FAILURE;
+		case 0 :
+			free(segbuf);
+			return _stat = TIMEOUT;
+		default :
+			_stat = (pfd.revents & POLLOUT) ? SUCCESS : ERRPOLL;
+			CHECK_SSTAT(_stat, segbuf, "poll() failed on socket with fd = %d", sock);
 		}
 		CHECK_SSTAT(push_udp_data(sock, segbuf, segsize), segbuf, "push_udp_data() failed to push segment on socket with fd = %d", sock);
 		LOGD("segment with size %zu pushed", segsize);
@@ -80,16 +80,16 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		size_t segsize = (conf->segsize <= rsize) ? conf->segsize : rsize;
 		struct pollfd pfd = {.fd = sock, .events = POLLIN};
 		switch (poll(&pfd, 1, timeout)) {
-			case -1 :   
-				free(segbuf);
-				return _stat = FAILURE;
-			case 0 :
-				free(segbuf);
-				return _stat = TIMEOUT;
-			default :
-				_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, segbuf, segsize) : ERRPOLL;
-				CHECK_SSTAT(_stat, segbuf, "pull_udp_data() failed to pull segment on socket with fd = %d", sock);
-				LOGD("segment with size %zu pulled", segsize);
+		case -1 :   
+			free(segbuf);
+			return _stat = FAILURE;
+		case 0 :
+			free(segbuf);
+			return _stat = TIMEOUT;
+		default :
+			_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, segbuf, segsize) : ERRPOLL;
+			CHECK_SSTAT(_stat, segbuf, "pull_udp_data() failed to pull segment on socket with fd = %d", sock);
+			LOGD("segment with size %zu pulled", segsize);
 		}
 		mfwrite(segbuf, segsize, sizeof (char), stream);
 		LOGD("write %zu bytes of the chunk");
