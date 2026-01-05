@@ -74,8 +74,6 @@ static status_t push_transfer(void)
 		LOGD("increase conf->seq");
 		conf->seq++;
 	}
-	LOGD("set conf->seq = 0");
-	conf->seq = 0;
 	LOGT("return from push_transfer()");
 	return _stat;
 }
@@ -113,6 +111,7 @@ status_t start_pusher(const char *path)
 	CHECK_STAT(start_cntl(&conf->addrs, &conf->cntl_sock, true), "start_cntl() failed");
 	CHECK_STAT(push_handshake(), "push_handshake() failed");
 	CHECK_STAT(start_data(&conf->addrs, &conf->data_sock), "start_data() failed");
+	conf->segsize = calc_segment_size((conf->chsize != 0) ? (size_t) conf->chsize : (size_t) conf->pchsize);
 	CHECK_STAT(push_transfer(), "push_transfer() failed");
 	CHECK_STAT(push_verification(), "push_verification() failed");
 	CHECK_STAT(end_file_stream(&conf->filec), "end_file_stream() failed");

@@ -175,9 +175,10 @@ status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout)
 		_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 		CHECK_STAT(_stat, "pull_tcp_data() failed to pull type on socket with fd = %d", sock);
 		CHECK_EQUAL(CAST, tmp_type, BADTYPE, "invalid type != CAST");
-		LOGD("CAST packet pulled");
+		LOGD("CAST type pulled");
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (CastPacket), false), "pull_tcp_data() failed to pull CAST packet on socket with fd = %d", sock);
+	LOGD("CAST packet pulled");
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) infostr, INFOSTRSIZE, false), "pull_tcp_data() failed to pull infostr on socket with fd = %d", sock);
 	args->cast.packet = convert_CastPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->cast.info));
@@ -202,9 +203,10 @@ status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout)
 		_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 		CHECK_STAT(_stat, "pull_tcp_data() failed to pull type on socket with fd = %d", sock);
 		CHECK_EQUAL(FLOW, tmp_type, BADTYPE, "invalid type != FLOW");
-		LOGD("FLOW packet pulled");
+		LOGD("FLOW type pulled");
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (FlowPacket), false), "pull_tcp_data() failed to pull FLOW packet on socket with fd = %d", sock);
+	LOGD("FLOW packet pulled");
 	args->flow.packet = convert_FlowPacket_byteorder(&packet);
 	LOGD("FLOW packet unpacked");
 	LOGT("return from pull_FLOW_header()");
@@ -228,11 +230,11 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout)
 		_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 		CHECK_STAT(_stat, "pull_tcp_data() failed to pull type on socket with fd = %d", sock);
 		CHECK_EQUAL(SEND, tmp_type, BADTYPE, "invalid type != SEND");
-		LOGD("SEND packet pulled");
+		LOGD("SEND type pulled");
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (SendPacket), false), "pull_tcp_data() failed to pull SEND packet on socket with fd = %d", sock);
+	LOGD("SEND packet pulled");
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) infostr, INFOSTRSIZE, false), "pull_tcp_data() failed to pull infostr on socket with fd = %d", sock);
-	LOGD("infostr = %s", infostr);
 	args->send.packet = convert_SendPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->send.info));
 	LOGD("SEND packet unpacked");
@@ -256,9 +258,10 @@ status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout)
 		_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 		CHECK_STAT(_stat, "pull_tcp_data() failed to pull type on socket with fd = %d", sock);
 		CHECK_EQUAL(RECV, tmp_type, BADTYPE, "invalid type != RECV");
-		LOGD("RECV packet pulled");
+		LOGD("RECV type pulled");
 	}
 	CHECK_STAT(pull_tcp_data(sock, (buffer_t) &packet, sizeof (RecvPacket), false), "pull_tcp_data() failed to pull RECV packet on socket with fd = %d", sock);
+	LOGD("RECV packet pulled");
 	args->recv.packet = convert_RecvPacket_byteorder(&packet);
 	LOGD("RECV packet unpacked");
 	LOGT("return from pull_RECV_header()");

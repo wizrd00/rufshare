@@ -40,7 +40,10 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		size_t segsize = (conf->segsize <= rsize) ? conf->segsize : rsize;
 		struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 		mfread(segbuf, segsize, sizeof (char), stream);
-		LOGD("read %zu bytes of the chunk", segsize);
+		if (segsize > 8)
+			LOGD("read %zu bytes of the chunk", segsize);
+		else
+			LOGD("read %zu bytes of the chunk with value %s", segsize, segbuf);
 		switch (poll(&pfd, 1, timeout)) {
 		case -1 :
 			free(segbuf);
@@ -92,7 +95,7 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 			LOGD("segment with size %zu pulled", segsize);
 		}
 		mfwrite(segbuf, segsize, sizeof (char), stream);
-		LOGD("write %zu bytes of the chunk");
+		LOGD("write %zu bytes of the chunk", segsize);
 		memset(segbuf, 0, conf->segsize);
 		rsize -= segsize;
 		LOGD("%zu bytes of the chunk remain", rsize);

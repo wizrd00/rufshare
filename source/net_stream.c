@@ -168,7 +168,7 @@ status_t push_udp_data(sockfd_t sock, buffer_t buf, size_t size)
 	LOGD("send buffer with size %zu on socket with fd = %d", size, sock);
 	ssize_t send_size = send(sock, buf, size, 0);
 	CHECK_INT(send_size, ERRSEND, "send() failed on socket with fd = %d", sock);
-	CHECK_SIZE((size_t) send_size, size, "send() pushed less than expected size %zu bytes", size);
+	CHECK_SIZE((size_t) send_size, size, "send() pushed %zu bytes that is less than expected size %zu bytes", send_size, size);
 	LOGT("return from push_udp_data()");
 	return _stat;
 }
@@ -180,7 +180,7 @@ status_t pull_udp_data(sockfd_t sock, buffer_t buf, size_t size)
 	LOGD("recv buffer with size %zu on socket with fd = %d", size, sock);
 	ssize_t recv_size = recv(sock, buf, size, 0);
 	CHECK_INT(recv_size, ERRRECV, "recv() failed on socket with fd = %d", sock);
-	CHECK_SIZE((size_t) recv_size, size, "recv() pulled less than expected size %zu bytes", size);
+	CHECK_SIZE((size_t) recv_size, size, "recv() pulled %zu bytes that is less than expected size %zu bytes", recv_size, size);
 	LOGT("return from pull_udp_data()");
 	return _stat;
 }

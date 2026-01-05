@@ -15,7 +15,10 @@ static bool match_flow(HeaderArgs *header)
 	bool val;
 	LOGT("in function match_flow()");
 	LOGD("check match of conf->seq & conf->chsize");
-	val = ((header->flow.packet.sequence != conf->seq) || (header->flow.packet.chunk_size != conf->chsize)) ? false : true;
+	if (conf->seq != conf->chcount)
+		val = ((header->flow.packet.sequence == conf->seq) && (header->flow.packet.chunk_size == conf->chsize)) ? true : false;
+	else
+		val = ((header->flow.packet.sequence == conf->seq) && (header->flow.packet.chunk_size == conf->pchsize)) ? true : false;
 	LOGT("return from match_flow()");
 	return val;
 }
@@ -29,7 +32,7 @@ static status_t pull_handshake(char *remote_name)
 	LOGD("SEND packet pulled");
 	if (!ISVALID_SEND_HEADER(header)) {
 		header.recv.packet = pack_RUFShare_RecvPacket(0, 0, 0);	
-		LOGD("RECV packet prepared and it is ready to push");
+		LOGD("RECV packet with ack = %d prepared and it is ready to push", header.recv.packet.ack);
 		CHECK_STAT(push_RECV_header(conf->conn_sock, &header, conf->hst_recv), "push_RECV_header() failed");
 		return _stat;
 	}
@@ -44,15 +47,15 @@ static status_t pull_handshake(char *remote_name)
 	LOGD("conf->addrs.filename = %s", conf->addrs.filename);
 	sstrncpy(remote_name, header.send.info.name, MAXNAMESIZE);
 	LOGD("remote_name = %s", remote_name);
-	sstrncpy(conf->addrs.remote_ip, header.send.info.local_ip, MAXIPV4SIZE);
+	sstrncpy(conf->addrs.remote_ip, header.send.info.remote_ip, MAXIPV4SIZE);
 	LOGD("conf->addrs.remote_ip = %s", conf->addrs.remote_ip);
-	conf->addrs.remote_port = header.send.info.local_port;
+	conf->addrs.remote_port = header.send.info.remote_port;
 	LOGD("conf->addrs.remote_port = %hu", conf->addrs.remote_port);
 	LOGD("required configs have configured");
 	conf->filec.size = calc_file_size(conf->chcount, conf->chsize, conf->pchsize);
 	LOGD("file size calculated with value = %zu", conf->filec.size);
 	header.recv.packet = pack_RUFShare_RecvPacket((start_file_stream(&conf->filec, conf->addrs.filename, MWR) == SUCCESS) ? 1 : 0, 0, 0);
-	LOGD("RECV packet prepared and it is ready to push");
+	LOGD("RECV packet with ack = %d prepared and it is ready to push", header.recv.packet.ack);
 	CHECK_STAT(push_RECV_header(conf->conn_sock, &header, conf->hst_recv), "push_RECV_header() failed");
 	LOGD("RECV packet pushed");
 	LOGD("set conf->seq = 1");
@@ -80,7 +83,7 @@ static status_t pull_transfer(void)
 		if (match_flow(&flow_header)) {
 			LOGD("FLOW packet matched");
 			recv_header.recv.packet = pack_RUFShare_RecvPacket(1, 0, conf->seq);
-			LOGD("RECV packet prepared and it is ready to push");
+			LOGD("RECV packet with ack = %d prepared and it is ready to push", recv_header.recv.packet.ack);
 			CHECK_STAT(push_RECV_header(conf->conn_sock, &recv_header, conf->tft_recv));
 			LOGD("RECV packet pushed");
 			while (trycount != 0) {
@@ -91,7 +94,7 @@ static status_t pull_transfer(void)
 				if (flow_header.flow.packet.crc == crc) {
 					LOGD("crc32 matched");
 					recv_header.recv.packet = pack_RUFShare_RecvPacket(1, 0, conf->seq);
-					LOGD("RECV packet prepared and it is ready to push");
+					LOGD("RECV packet with ack = %d prepared and it is ready to push", recv_header.recv.packet.ack);
 					CHECK_STAT(push_RECV_header(conf->conn_sock, &recv_header, conf->tft_recv), "push_RECV_header() failed");
 					LOGD("RECV packet pushed");
 					break;
@@ -99,7 +102,7 @@ static status_t pull_transfer(void)
 				else {
 					LOGD("crc32 did not match");
 					recv_header.recv.packet = pack_RUFShare_RecvPacket(0, 0, conf->seq);
-					LOGD("RECV packet prepared and it is ready to push");
+					LOGD("RECV packet with ack = %d prepared and it is ready to push", recv_header.recv.packet.ack);
 					CHECK_STAT(push_RECV_header(conf->conn_sock, &recv_header, conf->tft_recv), "push_RECV_header() failed");
 					LOGD("RECV packet pushed");
 					LOGD("decrease trycount by one");
@@ -114,15 +117,13 @@ static status_t pull_transfer(void)
 		else {
 			LOGD("FLOW packet did not match");
 			recv_header.recv.packet = pack_RUFShare_RecvPacket(0, 0, conf->seq);
-			LOGD("RECV packet prepared and it is ready to push");
+			LOGD("RECV packet with ack = %d prepared and it is ready to push", recv_header.recv.packet.ack);
 			push_RECV_header(conf->conn_sock, &recv_header, conf->tft_recv);
 			LOGD("RECV packet pushed");
 			_stat = BADFLOW;
 			break;
 		}
 	}
-	LOGD("set conf->seq = 0");
-	conf->seq = 0;
 	LOGT("return from pull_transfer()");
 	return _stat;
 }
@@ -140,14 +141,18 @@ static status_t pull_verification(void)
 	LOGD("SEND packet pulled");
 	LOGD("wait for thread_calc_file_crc16() to complete");
 	CHECK_THREAD(pthread_join(handle, NULL), "pthread_join() failed");
-	header.recv.packet = pack_RUFShare_RecvPacket((header.send.packet.crc == crc) ? 1 : 0, 0, conf->seq); 
+	if (header.send.packet.crc == crc) {
+		header.recv.packet = pack_RUFShare_RecvPacket(1, 0, conf->seq); 
+		LOGD("CRC16 matched");
+	}
+	else {
+		header.recv.packet = pack_RUFShare_RecvPacket(0, 0, conf->seq);
+		LOGD("CRC16 didn't match");
+		_stat = FAILCRC;
+	}
 	LOGD("RECV prepared and it is ready to push");
 	CHECK_STAT(push_RECV_header(conf->conn_sock, &header, conf->vft_recv), "push_RECV_header() failed");
 	LOGD("RECV packet pushed");
-	LOGD("check CRC16");
-	if (header.send.packet.crc != crc)
-		_stat = FAILCRC;
-	LOGD("CRC16 matched");
 	LOGT("return from pull_verification()");
 	return _stat;
 }

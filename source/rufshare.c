@@ -23,6 +23,16 @@ status_t initiate(const char *logpath)
 	return _stat;
 }
 
+status_t deinitiate(void)
+{
+	status_t _stat = SUCCESS;
+	#ifdef LOGGING
+	if (deinit_logd() != 0)
+		tryexec(FAILLOG);
+	#endif
+	return _stat;
+}
+
 status_t push_file(InitConfig *config, const char *path)
 {
 	status_t _stat = SUCCESS;
@@ -43,7 +53,6 @@ status_t push_file(InitConfig *config, const char *path)
 	if ((conf->tf_trycount <= 0) || (conf->hst_send <= 0) || (conf->hst_recv <= 0) || (conf->tft_flow <= 0) || (conf->tft_recv <= 0) || (conf->tft_data <= 0) || (conf->vft_send <= 0) || (conf->vft_recv <= 0))
 		CHECK_STAT(BADCONF, "invalid conf->tf_trycount");
 	tryexec(start_pusher(path));
-	CHECK_THREAD(pthread_cancel(handle), "pthread_cancel() failed to cancel logging thread");
 	LOGT("return from push_file()");
 	return _stat;
 }
@@ -66,7 +75,6 @@ status_t pull_file(InitConfig *config, char *remote_name)
 		CHECK_STAT(BADCONF, "invalid conf->tf_trycount");
 	CHECK_THREAD(pthread_create(&bc_handle, NULL, thread_broadcast, (void *) config), "pthread_create() failed to create thread_broadcast thread");
 	tryexec(start_puller(remote_name));
-	CHECK_THREAD(pthread_cancel(bc_handle), "pthread_cancel() failed to cancel broadcast thread");
 	LOGT("return from pull_file()");
 	return _stat;
 }
