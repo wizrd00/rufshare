@@ -77,8 +77,10 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 	CHECK_PTR(segbuf, EMALLOC, "calloc() failed to allocate buffer with size = %zu", conf->segsize);
 	mfseek(stream, chunk->start_pos);
 	LOGD("MFILE position set to %lu", chunk->start_pos);
-	CHECK_SSTAT(set_socket_rcvlowsize(sock, 2 * conf->segsize), segbuf, "set_socket_rcvlowsize() failed");
-	LOGD("socket SO_RCVLOWAT set to %zu", conf->segsize);
+	if (chunk->start_pos == 0) {
+		CHECK_SSTAT(set_socket_rcvlowsize(sock, 2 * conf->segsize), segbuf, "set_socket_rcvlowsize() failed");
+		LOGD("socket SO_RCVLOWAT set to %zu", conf->segsize);
+	}
 	while (rsize != 0) {
 		size_t segsize = (conf->segsize <= rsize) ? conf->segsize : rsize;
 		struct pollfd pfd = {.fd = sock, .events = POLLIN};
