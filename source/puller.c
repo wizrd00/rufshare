@@ -84,7 +84,7 @@ static status_t pull_transfer(void)
 			LOGD("FLOW packet matched");
 			recv_header.recv.packet = pack_RUFShare_RecvPacket(1, 0, conf->seq);
 			LOGD("RECV packet with ack = %d prepared and it is ready to push", recv_header.recv.packet.ack);
-			CHECK_STAT(push_RECV_header(conf->conn_sock, &recv_header, conf->tft_recv));
+			CHECK_STAT(push_RECV_header(conf->conn_sock, &recv_header, conf->tft_recv), "push_RECV_header() failed");
 			LOGD("RECV packet pushed");
 			while (trycount != 0) {
 				CHECK_STAT(pull_chunk_data(conf->data_sock, &conf->filec, &chcon, conf->tft_data), "pull_chunk_data() failed");

@@ -7,9 +7,9 @@
 
 static inline char *extract_file_name(const char *src, size_t size)
 {
-	char *dst;
+	char *dst = NULL;
 	for (int i = (int) size - 1; i >= 0; i--) {
-		dst = src + i;
+		dst = (char *) src + i;
 		if ((i != 0) && (src[i - 1] == '/'))
 			break;
 	}

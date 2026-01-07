@@ -70,7 +70,7 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 	struct sockaddr_storage conn_addr;
 	struct sockaddr_in *tmp_addr;
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
-	socklen_t addr_len;
+	socklen_t addr_len = sizeof (struct sockaddr_storage);
 	int tmpsock;
 	LOGT("in function accept_new_connection()");
 	LOGD("listen with backlog %d on socket with fd = %d", BACKLOG, sock);
@@ -84,8 +84,8 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 	LOGD("accept new connection on socket with fd = %d", sock);
 	tmpsock = accept(sock, (struct sockaddr *) &conn_addr, &addr_len);
 	CHECK_INT(tmpsock, INVSOCK, "accept() failed on socket with fd = %d", sock);
+	CHECK_EQUAL(AF_INET, conn_addr.ss_family, BADINET, "conn_addr.ss_family != AF_INET");
 	*new_sock = tmpsock;
-	CHECK_EQUAL(AF_INET, conn_addr.ss_family, BADINET, "conn_addr.ss != AF_INET");
 	tmp_addr = (struct sockaddr_in *) &conn_addr;
 	CHECK_STAT(host_ipstring(conn_ip, &(tmp_addr->sin_addr)), "host_ipstring() failed");
 	*conn_port = ntohs(tmp_addr->sin_port);

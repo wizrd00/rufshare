@@ -12,19 +12,13 @@ static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	LOGD("pack args->cast.info into infostr");
 	pack_into_infostring(infostr, &(args->cast.info));
 	memcpy((void *) buf, (void *) &(args->cast.packet), sizeof (CastPacket));
-	memcpy((void *) buf + sizeof (CastPacket), (void *) infostr, sizeof (infostr));
+	memcpy((void *) (buf + sizeof (CastPacket)), (void *) infostr, sizeof (infostr));
 	LOGD("CAST packet prepared and it is ready to push");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		LOGE("poll() failed on socket with fd = %d", sock);
-		free(buf);
-		_stat = FAILURE;
-		break;
+		CHECK_SSTAT(FAILURE, buf, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		LOGE("poll() timeout on socket with fd = %d", sock);
-		free(buf);
-		_stat = TIMEOUT;
-		break;
+		CHECK_SSTAT(TIMEOUT, buf, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLOUT) ? push_udp_data(sock, buf, bufsize) : ERRPOLL;
 		CHECK_SSTAT(_stat, buf, "push_udp_data() failed on socket with fd = %d", sock);
@@ -64,7 +58,7 @@ status_t start_broadcast(void)
 			LOGD("push_broadcast_header() failed and trycount = %hd", trycount);
 		}
 		LOGD("sleep for %hds", conf->bc_interval);
-		sleep(conf->bc_interval);
+		sleep((unsigned int) conf->bc_interval);
 	}
 	CHECK_STAT(close_socket(conf->cast_sock), "close_socket() failed on socket with fd = %d", conf->cast_sock);
 	LOGT("return from start_broadcast()");

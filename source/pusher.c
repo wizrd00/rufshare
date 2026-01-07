@@ -45,7 +45,7 @@ static status_t push_transfer(void)
 		chcon.chunk_size = (conf->seq == conf->chcount) ? conf->pchsize : conf->chsize;
 		crc = calc_chunk_crc32(&conf->filec, &chcon);
 		LOGD("CRC32 of chunk calculated with value = %zu", crc);
-		flow_header.flow.packet = pack_RUFShare_FlowPacket(chcon.chunk_size, conf->seq, crc);
+		flow_header.flow.packet = pack_RUFShare_FlowPacket((RUFShareChunkSize) chcon.chunk_size, conf->seq, crc);
 		LOGD("FLOW packet prepared and it is ready to push");
 		while (trycount != 0) {
 			CHECK_STAT(push_FLOW_header(conf->cntl_sock, &flow_header, conf->tft_flow), "push_FLOW_header() failed");

@@ -12,7 +12,7 @@
 
 #define LOGERROR_TEXT "\nError(logger) : %s, %s\n\n"
 #define LOGFILE_NAMESIZE 32
-#define LOGFILE_FILESIZE sizeof (LogMsg) * 1024
+#define LOGFILE_FILESIZE sizeof (LogMsg) * 8192
 
 #define TRACE "TRACE"
 #define DEBUG "DEBUG"
@@ -27,7 +27,7 @@
 #define MSGSIZE 512
 
 #define append_log(log)\
-	do {logc.pos -= (logc.pos == logc.size) ? logc.size : 0; memcpy(logc.buffer + logc.pos, (void *) &log, sizeof (LogMsg)); logc.pos += sizeof (LogMsg);} while (0)
+	do {logc.pos -= (logc.pos == logc.size) ? logc.size : 0; memcpy((void *) ((char *) logc.buffer + logc.pos), (void *) &log, sizeof (LogMsg)); logc.pos += sizeof (LogMsg);} while (0)
 
 int init_logd(const char *path);
 

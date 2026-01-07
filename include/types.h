@@ -44,10 +44,10 @@
 #endif
 
 #define CHECK_STAT(val, ...)\
-	do {if (val != SUCCESS) {LOGE("(" #val ")" " " __VA_ARGS__); return _stat = val;}} while (0)
+	do {if (val != SUCCESS) {LOGE("(FAILURE)" " " __VA_ARGS__); return _stat = val;}} while (0)
 
 #define CHECK_SSTAT(val, ptr, ...)\
-	do {if (val != SUCCESS) {LOGE("(" #val ")" " " __VA_ARGS__); free((void *) ptr); return _stat = val;}} while (0)
+	do {if (val != SUCCESS) {LOGE("(FAILURE)" " " __VA_ARGS__); free((void *) ptr); ptr = NULL; return _stat = val;}} while (0)
 
 #define CHECK_EQUAL(val0, val1, err, ...)\
 	do {if (val0 != val1) {LOGE("(" #err ")" " " __VA_ARGS__); return _stat = err;}} while (0)
@@ -96,7 +96,6 @@ typedef enum {
 	EXPTRY1,
 	ZEROACK,
 	ZEROSEQ,
-	ZEROCHK,
 	FAILSET,
 	FAILCRC,
 	FAILLOG,
@@ -123,8 +122,7 @@ typedef enum {
 	EMALLOC,
 	ETHREAD,
 	INVSOCK,
-	INVPATH,
-	TESTVAL
+	INVPATH
 } status_t;
 
 typedef enum {

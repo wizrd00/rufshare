@@ -19,7 +19,7 @@ static status_t create_file(const char *path, size_t size)
 		fclose(file);
 		CHECK_STAT(NOAVAIL, "there is no available space to create file with size %zu", size);
 	}
-	if (ftruncate(fileno(file), size) == -1) {
+	if (ftruncate(fileno(file), (off_t) size) == -1) {
 		fclose(file);
 		CHECK_STAT(NOTRUNC, "ftruncate() failed");
 	}
@@ -41,7 +41,7 @@ status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode)
 	else {
 		LOGD("file mode MRD");
 		CHECK_INT(stat(path, &statbuf), NOFSTAT, "stat() failed");
-		filec->size = statbuf.st_size;
+		filec->size = (size_t) statbuf.st_size;
 	}
 	LOGD("map the specified file to the memory");
 	mfile = mfopen(path, "r+", PROT_READ | PROT_WRITE, MAP_SHARED);

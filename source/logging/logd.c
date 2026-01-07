@@ -4,8 +4,10 @@ LogContext logc;
 
 static char *sstrncpy(char *dst, const char *src, size_t dsize)
 {
-	strncpy(dst, src, dsize - 1);
-	dst[dsize - 1] = '\0';
+	size_t dlen;
+	for (dlen = 0; (dlen < dsize) && (src[dlen] != '\0'); dlen++);
+	memcpy(dst, src, dlen);
+	dst[(dsize == dlen) ? dsize - 1 : dlen] = '\0';
 	return dst;
 }
 
@@ -17,7 +19,7 @@ static int create_logfile(const char *path)
 	if ((logtime == -1) || (logfile_path == NULL))
 		return -1;
 	sstrncpy(logfile_path, path, pathlen + 1);
-	snprintf(logfile_path + pathlen, LOGFILE_NAMESIZE, "logfile_%lu.log", (unsigned long) logtime);
+	snprintf(logfile_path + pathlen, LOGFILE_NAMESIZE, "logfile_%u.log", (unsigned int) logtime);
 	logc.logfile = fopen(logfile_path, "w+");
 	if (logc.logfile == NULL)
 		return -1;

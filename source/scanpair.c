@@ -60,7 +60,7 @@ static status_t pull_udp_data(sockfd_t sock, buffer_t buf, size_t size)
 	LOGD("recv buffer with size %zu on socket with fd = %d", size, sock);
 	ssize_t recv_size = recvfrom(sock, buf, size, 0, NULL, NULL);
 	CHECK_INT(recv_size, ERRRECV, "recvfrom() failed on socket with fd = %d", sock);
-	CHECK_SIZE(recv_size, size, "recvfrom() pulled less than expected size %zu bytes", size);
+	CHECK_SIZE((size_t) recv_size, size, "recvfrom() pulled less than expected size %zu bytes", size);
 	LOGT("return from pull_udp_data()");
 	return _stat;
 }
@@ -77,13 +77,9 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		LOGE("poll() failed on socket with fd = %d", sock);
-		free(buf);
-		return _stat = FAILURE;
+		CHECK_SSTAT(FAILURE, buf, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		LOGE("poll() timeout on socket with fd = %d", sock);
-		free(buf);
-		return _stat = TIMEOUT;
+		CHECK_SSTAT(TIMEOUT, buf, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, buf, bufsize) : ERRPOLL;
 		CHECK_SSTAT(_stat, buf, "pull_udp_data() failed to pull CAST packet on socket with fd = %d", sock);
@@ -136,7 +132,7 @@ status_t start_scanpair(PairInfo **info, size_t *len)
 		_stat = SUCCESS;
 	}
 	CHECK_STAT(close_socket(conf->cast_sock), "close_socket() failed on socket with fd = %d", conf->cast_sock);
-	CHECK_NOTEQUAL(0, trycount, EXPTRY0);
+	CHECK_NOTEQUAL(0, trycount, EXPTRY0, "trycount = 0");
 	LOGT("return from start_scanpair()");
 	return _stat;
 }

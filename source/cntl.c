@@ -47,17 +47,13 @@ status_t push_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	CHECK_PTR(buf, EMALLOC, "malloc() failed to allocate buffer with size = %zu", bufsize);
 	pack_into_infostring(infostr, &(args->cast.info));
 	memcpy((void *) buf, (void *) &(args->cast.packet), sizeof (CastPacket));
-	memcpy((void *) buf + sizeof (CastPacket), (void *) infostr, sizeof (infostr));
+	memcpy((void *) (buf + sizeof (CastPacket)), (void *) infostr, sizeof (infostr));
 	LOGD("CAST packet prepared and it is ready to push");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		free(buf);
-		_stat = FAILURE;
-		break;
+		CHECK_SSTAT(FAILURE, buf, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		free(buf);
-		_stat = TIMEOUT;
-		break;
+		CHECK_SSTAT(TIMEOUT, buf, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 		CHECK_SSTAT(_stat, buf, "push_tcp_data() failed on socket with fd = %d", sock);
@@ -80,13 +76,9 @@ status_t push_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	LOGD("FLOW packet prepared and it is ready to push");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		free(buf);
-		_stat = FAILURE;
-		break;
+		CHECK_SSTAT(FAILURE, buf, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		free(buf);
-		_stat = TIMEOUT;
-		break;
+		CHECK_SSTAT(TIMEOUT, buf, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 		CHECK_SSTAT(_stat, buf, "push_tcp_data() failed on socket with fd = %d", sock);
@@ -108,17 +100,13 @@ status_t push_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	CHECK_PTR(buf, EMALLOC, "malloc() failed to allocate buffer with size = %zu", bufsize);
 	pack_into_infostring(infostr, &(args->send.info));
 	memcpy((void *) buf, (void *) &(args->send.packet), sizeof (SendPacket));
-	memcpy((void *) buf + sizeof (SendPacket), (void *) infostr, sizeof (infostr));
+	memcpy((void *) (buf + sizeof (SendPacket)), (void *) infostr, sizeof (infostr));
 	LOGD("SEND packet prepared and it is ready to push");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		free(buf);
-		_stat = FAILURE;
-		break;
+		CHECK_SSTAT(FAILURE, buf, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		free(buf);
-		_stat = TIMEOUT;
-		break;
+		CHECK_SSTAT(TIMEOUT, buf, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 		CHECK_SSTAT(_stat, buf, "push_tcp_data() failed on socket with fd = %d", sock);
@@ -141,13 +129,9 @@ status_t push_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	LOGD("RECV packet prepared and it is ready to push");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		free(buf);
-		_stat = FAILURE;
-		break;
+		CHECK_SSTAT(FAILURE, buf, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		free(buf);
-		_stat = TIMEOUT;
-		break;
+		CHECK_SSTAT(TIMEOUT, buf, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLOUT) ? push_tcp_data(sock, buf, bufsize) : ERRPOLL;
 		CHECK_SSTAT(_stat, buf, "push_tcp_data() failed on socket with fd = %d", sock);
@@ -168,9 +152,9 @@ status_t pull_CAST_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	LOGT("in function pull_CAST_header()");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		return _stat = FAILURE;
+		CHECK_STAT(FAILURE, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		return _stat = TIMEOUT;
+		CHECK_STAT(TIMEOUT, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 		CHECK_STAT(_stat, "pull_tcp_data() failed to pull type on socket with fd = %d", sock);
@@ -196,9 +180,9 @@ status_t pull_FLOW_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	LOGT("in function pull_FLOW_header()");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		return _stat = FAILURE;
+		CHECK_STAT(FAILURE, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		return _stat = TIMEOUT;
+		CHECK_STAT(TIMEOUT, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 		CHECK_STAT(_stat, "pull_tcp_data() failed to pull type on socket with fd = %d", sock);
@@ -223,9 +207,9 @@ status_t pull_SEND_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	LOGT("in function pull_SEND_header()");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		return _stat = FAILURE;
+		CHECK_STAT(FAILURE, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		return _stat = TIMEOUT;
+		CHECK_STAT(TIMEOUT, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 		CHECK_STAT(_stat, "pull_tcp_data() failed to pull type on socket with fd = %d", sock);
@@ -251,9 +235,9 @@ status_t pull_RECV_header(sockfd_t sock, HeaderArgs *args, int timeout)
 	LOGT("in function pull_RECV_header()");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :
-		return _stat = FAILURE;
+		CHECK_STAT(FAILURE, "poll() failed on socket with fd = %d", sock);
 	case 0 :
-		return _stat = TIMEOUT;
+		CHECK_STAT(TIMEOUT, "poll() timeout on socket with fd = %d", sock);
 	default :
 		_stat = (pfd.revents & POLLIN) ? pull_tcp_data(sock, (buffer_t) &tmp_type, sizeof (RUFShareType), true) : ERRPOLL;
 		CHECK_STAT(_stat, "pull_tcp_data() failed to pull type on socket with fd = %d", sock);

@@ -4,7 +4,6 @@ InitConfig *conf;
 
 static void *thread_broadcast(void *arg)
 {
-	status_t _stat = SUCCESS;
 	InitConfig *config = (InitConfig *) arg;
 	LOGT("in function thread_broadcast()");
 	if (broadcast(config) != SUCCESS)
@@ -37,8 +36,6 @@ status_t push_file(InitConfig *config, const char *path)
 {
 	status_t _stat = SUCCESS;
 	conf = config;
-	pthread_t handle;
-	char *filename;
 	LOGT("in function push_file()");
 	CHECK_NOTEQUAL(0, conf->chsize, BADCONF, "conf->chsize = 0");
 	CHECK_EQUAL(0, conf->pchsize, BADCONF, "conf->pchsize = 0");
@@ -83,7 +80,6 @@ status_t broadcast(InitConfig *config)
 {
 	status_t _stat = SUCCESS;
 	conf = config;
-	CntlAddrs addrs;
 	LOGT("in function broadcast()");
 	CHECK_NOTEQUAL(0, conf->addrs.filename[0], BADCONF, "no string in conf->addrs.filename");
 	CHECK_NOTEQUAL(0, conf->addrs.name[0], BADCONF, "no string in conf->addrs.name");

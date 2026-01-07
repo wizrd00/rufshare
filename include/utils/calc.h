@@ -38,7 +38,7 @@ static inline RUFShareCRC16 calc_file_crc16(FileContext *filec)
 
 static inline RUFShareCRC32 calc_chunk_crc32(FileContext *filec, ChunkContext *chunk)
 {
-	return (RUFShareCRC32) crc_32((const unsigned char *) (filec->mfile.buf + chunk->start_pos), chunk->chunk_size);
+	return (RUFShareCRC32) crc_32((const unsigned char *) ((char *) filec->mfile.buf + chunk->start_pos), chunk->chunk_size);
 }
 
 #endif

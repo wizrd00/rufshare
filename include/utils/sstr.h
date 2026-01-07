@@ -6,9 +6,10 @@
 
 static inline char *sstrncpy(char *dst, const char *src, size_t dsize)
 {
-	strncpy(dst, src, dsize - 1);
-		dst[dsize - 1] = '\0';
+	size_t dlen;
+	for (dlen = 0; (dlen < dsize) && (src[dlen] != '\0'); dlen++);
+	memcpy(dst, src, dlen);
+	dst[(dsize == dlen) ? dsize - 1 : dlen] = '\0';
 	return dst;
 }
-
 #endif

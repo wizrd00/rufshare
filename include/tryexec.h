@@ -6,6 +6,7 @@
 
 static inline void tryexec(status_t _stat) {
 	switch (_stat) {
+	case SUCCESS : break;
 	case FAILURE : raise_failure_error(__func__); break;
 	case TIMEOUT : raise_timeout_error(__func__); break;
 	case LOWSIZE : raise_lowsize_error(__func__); break;

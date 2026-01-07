@@ -46,11 +46,9 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 			LOGD("read %zu bytes of the chunk with value %s", segsize, segbuf);
 		switch (poll(&pfd, 1, timeout)) {
 		case -1 :
-			free(segbuf);
-			return _stat = FAILURE;
+			CHECK_SSTAT(FAILURE, segbuf, "poll() failed on socket with fd = %d", sock);
 		case 0 :
-			free(segbuf);
-			return _stat = TIMEOUT;
+			CHECK_SSTAT(TIMEOUT, segbuf, "poll() timeout on socket with fd = %d", sock);
 		default :
 			_stat = (pfd.revents & POLLOUT) ? SUCCESS : ERRPOLL;
 			CHECK_SSTAT(_stat, segbuf, "poll() failed on socket with fd = %d", sock);
@@ -86,11 +84,9 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		struct pollfd pfd = {.fd = sock, .events = POLLIN};
 		switch (poll(&pfd, 1, timeout)) {
 		case -1 :   
-			free(segbuf);
-			return _stat = FAILURE;
+			CHECK_SSTAT(FAILURE, segbuf, "poll() failed on socket with fd = %d", sock);
 		case 0 :
-			free(segbuf);
-			return _stat = TIMEOUT;
+			CHECK_SSTAT(TIMEOUT, segbuf, "poll() timeout on socket with fd = %d", sock);
 		default :
 			_stat = (pfd.revents & POLLIN) ? pull_udp_data(sock, segbuf, segsize) : ERRPOLL;
 			CHECK_SSTAT(_stat, segbuf, "pull_udp_data() failed to pull segment on socket with fd = %d", sock);
