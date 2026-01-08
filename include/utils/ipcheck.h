@@ -7,10 +7,8 @@
 
 static inline bool check_ipv4_format(const char *ip)
 {
-    uint32_t ipnetorder;
-    if (inet_pton(AF_INET, ip, &ipnetorder) != 1)
-        return false;
-    return true;
+	uint32_t ipnetorder;
+	return (inet_pton(AF_INET, ip, &ipnetorder) == 1) ? true : false;
 }
 
 #endif

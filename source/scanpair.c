@@ -122,8 +122,7 @@ status_t start_scanpair(PairInfo **info, size_t *len)
 			sstrncpy((*info)[*len - 1].name, header.cast.info.name, MAXNAMESIZE);
 			memcpy((void *) (*info)[*len - 1].ip, (void *) header.cast.info.remote_ip, MAXIPV4SIZE);
 			(*info)[*len - 1].port = header.cast.info.remote_port;
-		}
-		else if ((_stat != BADTYPE) && (_stat != TIMEOUT)) {
+		} else if ((_stat != BADTYPE) && (_stat != TIMEOUT)) {
 			LOGD("pull_broadcast_header() didn't return SUCCESS");
 			trycount--;
 		}

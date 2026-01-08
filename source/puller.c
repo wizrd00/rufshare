@@ -98,8 +98,7 @@ static status_t pull_transfer(void)
 					CHECK_STAT(push_RECV_header(conf->conn_sock, &recv_header, conf->tft_recv), "push_RECV_header() failed");
 					LOGD("RECV packet pushed");
 					break;
-				}
-				else {
+				} else {
 					LOGD("crc32 did not match");
 					recv_header.recv.packet = pack_RUFShare_RecvPacket(0, 0, conf->seq);
 					LOGD("RECV packet with ack = %d prepared and it is ready to push", recv_header.recv.packet.ack);
@@ -113,8 +112,7 @@ static status_t pull_transfer(void)
 			trycount = conf->tf_trycount;
 			LOGD("increase conf->seq by one");
 			conf->seq++;
-		}
-		else {
+		} else {
 			LOGD("FLOW packet did not match");
 			recv_header.recv.packet = pack_RUFShare_RecvPacket(0, 0, conf->seq);
 			LOGD("RECV packet with ack = %d prepared and it is ready to push", recv_header.recv.packet.ack);
@@ -144,8 +142,7 @@ static status_t pull_verification(void)
 	if (header.send.packet.crc == crc) {
 		header.recv.packet = pack_RUFShare_RecvPacket(1, 0, conf->seq); 
 		LOGD("CRC16 matched");
-	}
-	else {
+	} else {
 		header.recv.packet = pack_RUFShare_RecvPacket(0, 0, conf->seq);
 		LOGD("CRC16 didn't match");
 		_stat = FAILCRC;

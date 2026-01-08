@@ -37,8 +37,7 @@ status_t start_file_stream(FileContext* filec, const char *path, fmode_t mode)
 	if (mode == MWR) {
 		LOGD("file mode MWR");
 		CHECK_STAT(create_file(path, filec->size), "create_file() failed to create a file with size %zu", filec->size);
-	}
-	else {
+	} else {
 		LOGD("file mode MRD");
 		CHECK_INT(stat(path, &statbuf), NOFSTAT, "stat() failed");
 		filec->size = (size_t) statbuf.st_size;
