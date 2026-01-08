@@ -6,6 +6,7 @@
 #include "mfile.h"
 #include "utils/ipcheck.h"
 #include <stdlib.h>
+#include <errno.h>
 #include <poll.h>
 
 status_t start_data(CntlAddrs *addrs, sockfd_t *sock);

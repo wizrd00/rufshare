@@ -4,6 +4,7 @@
 #include "types.h"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
@@ -13,11 +14,11 @@ size_t mfread(void *ptr, size_t size, size_t nmemb, MFILE *stream);
 
 size_t mfwrite(const void *ptr, size_t size, size_t nmemb, MFILE *stream);
 
-int mfseek(MFILE *stream, unsigned long pos);
+size_t mfseek(MFILE *stream, size_t pos);
 
-unsigned long mftell(MFILE *stream);
+size_t mftell(MFILE *stream);
 
-int mfsync(void *addr, size_t length, int flags);
+int mfsync(MFILE *stream, size_t length, int flags);
 
 int mfclose(MFILE *stream);
 

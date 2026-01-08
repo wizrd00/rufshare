@@ -51,22 +51,26 @@ size_t mfwrite(const void *ptr, size_t size, size_t nmemb, MFILE *stream)
 	return value;
 }
 
-int mfseek(MFILE *stream, unsigned long pos)
+size_t mfseek(MFILE *stream, size_t pos)
 {
-	if (!stream->open)
-		return -1;
-	stream->pos = (pos <= stream->size) ? pos : stream->size;
+	if ((stream->open) && (pos < stream->size))
+		return stream->pos = pos;
 	return 0;
 }
 
-unsigned long mftell(MFILE *stream)
+size_t mftell(MFILE *stream)
 {
 	return (stream->open) ? stream->pos : 0;
 }
 
-int mfsync(void *addr, size_t length, int flags)
+int mfsync(MFILE *stream, size_t length, int flags)
 {
-	return msync(addr, length, flags);
+	ssize_t pagesize = (ssize_t) sysconf(_SC_PAGE_SIZE);
+	if (pagesize == -1)
+		return -1;
+	size_t tailpos = stream->pos % (size_t) pagesize;
+	size_t offset = stream->pos - tailpos;
+	return msync((void *) ((char *) stream->buf + offset), length + tailpos, flags);
 }
 
 int mfclose(MFILE *stream)

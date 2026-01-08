@@ -112,6 +112,8 @@ typedef enum {
 	NOCREAT,
 	NOTRUNC,
 	NOCLOSE,
+	EMFSEEK,
+	EMFSYNC,
 	ERRBIND,
 	ERRCONN,
 	ERRRECV,
@@ -173,7 +175,7 @@ typedef struct {
 } FileContext;
 
 typedef struct {
-	unsigned long start_pos;
+	size_t start_pos;
 	size_t chunk_size;
 } ChunkContext;
 

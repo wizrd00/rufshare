@@ -18,7 +18,7 @@ static inline RUFShareChunkCount calc_chunk_count(size_t file_size, size_t chunk
 
 static inline size_t calc_file_size(RUFShareChunkCount chunk_count, RUFShareChunkSize chunk_size, RUFSharePartialChunkSize partial_chunk_size)
 {
-	return (size_t) ((chunk_count - 1) * chunk_size + partial_chunk_size);
+	return (size_t) (((size_t) chunk_count - 1) * (size_t) chunk_size + (size_t) partial_chunk_size);
 }
 
 static inline size_t calc_segment_size(size_t size)

@@ -33,17 +33,14 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 	size_t rsize = chunk->chunk_size;
 	LOGT("in function push_chunk_data()");
 	CHECK_PTR(segbuf, EMALLOC, "calloc() failed to allocate buffer with size = %zu", conf->segsize);
-	mfseek(stream, chunk->start_pos);
-	LOGD("MFILE position set to %lu", chunk->start_pos);
+	CHECK_EQUAL(chunk->start_pos, mfseek(stream, chunk->start_pos), EMFSEEK, "try to set pos %zu out of file range", chunk->start_pos);
+	LOGD("MFILE position set to %zu", chunk->start_pos);
 	LOGD("the chunk prepared and it is ready to push");
 	while (rsize != 0) {
 		size_t segsize = (conf->segsize <= rsize) ? conf->segsize : rsize;
 		struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 		mfread(segbuf, segsize, sizeof (char), stream);
-		if (segsize > 8)
-			LOGD("read %zu bytes of the chunk", segsize);
-		else
-			LOGD("read %zu bytes of the chunk with value %s", segsize, segbuf);
+		LOGD("read %zu bytes of the chunk", segsize);
 		switch (poll(&pfd, 1, timeout)) {
 		case -1 :
 			CHECK_SSTAT(FAILURE, segbuf, "poll() failed on socket with fd = %d", sock);
@@ -73,7 +70,7 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 	size_t rsize = chunk->chunk_size;
 	LOGT("in function pull_chunk_data()");
 	CHECK_PTR(segbuf, EMALLOC, "calloc() failed to allocate buffer with size = %zu", conf->segsize);
-	mfseek(stream, chunk->start_pos);
+	CHECK_EQUAL(chunk->start_pos, mfseek(stream, chunk->start_pos), EMFSEEK, "try to set pos %zu out of file range", chunk->start_pos);
 	LOGD("MFILE position set to %lu", chunk->start_pos);
 	if (chunk->start_pos == 0) {
 		CHECK_SSTAT(set_socket_rcvlowsize(sock, 2 * conf->segsize), segbuf, "set_socket_rcvlowsize() failed");
@@ -98,6 +95,7 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		rsize -= segsize;
 		LOGD("%zu bytes of the chunk remain", rsize);
 	}
+	CHECK_INT(mfsync(stream, chunk->chunk_size, MS_SYNC), EMFSYNC, "mfsync() failed with errno %d to sync MFILE with pos %zu", errno, chunk->start_pos);
 	free(segbuf);
 	LOGD("the chunk with size %zu pulled", chunk->chunk_size);
 	LOGT("return from pull_chunk_data()");

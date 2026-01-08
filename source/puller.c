@@ -88,7 +88,7 @@ static status_t pull_transfer(void)
 			LOGD("RECV packet pushed");
 			while (trycount != 0) {
 				CHECK_STAT(pull_chunk_data(conf->data_sock, &conf->filec, &chcon, conf->tft_data), "pull_chunk_data() failed");
-				LOGD("chunk of date pulled");
+				LOGD("chunk of data pulled");
 				crc = calc_chunk_crc32(&conf->filec, &chcon);
 				LOGD("crc32 of the chunk calculated with value = %zu", crc);
 				if (flow_header.flow.packet.crc == crc) {
