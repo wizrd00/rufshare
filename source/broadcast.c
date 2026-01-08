@@ -52,8 +52,7 @@ status_t start_broadcast(void)
 		if (push_broadcast_header(conf->cast_sock, &header, conf->bct_cast) == SUCCESS) {
 			trycount = conf->bc_trycount;
 			LOGD("CAST header pushed");
-		}
-		else {
+		} else {
 			trycount--;
 			LOGD("push_broadcast_header() failed and trycount = %hd", trycount);
 		}
