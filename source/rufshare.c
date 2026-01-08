@@ -12,11 +12,11 @@ static void *thread_broadcast(void *arg)
 	return config;
 }
 
-status_t initiate(const char *logpath)
+status_t initiate(const char *logpath, size_t logcount)
 {
 	status_t _stat = SUCCESS;
 	#ifdef LOGGING
-	if (init_logd(logpath) != 0)
+	if (init_logd(logpath, logcount) != 0)
 		tryexec(FAILLOG);
 	#endif
 	return _stat;

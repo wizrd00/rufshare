@@ -28,12 +28,16 @@ LIBCRC := $(LIB_DIR)/libcrc.a
 
 POINTER_SYM := "\e[91m->\e[0m"
 
-$(LIBRUFSHARE) : $(OBJ_FILES) $(LIBCRC) $(HDR_FILES)
+$(LIBRUFSHARE) : $(BIN_DIR) $(OBJ_FILES) $(LIBCRC) $(HDR_FILES)
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[96mlinking modules into" $@ "\e[0m"
 	$(CC) $(CFLAGS) $(CFLAGS_PIC) $(CFLAGS_LOG) -o $@ $(OBJ_FILES) $(LIBCRC)
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[93mstrip" $@ "\e[0m"
 	@strip $@
 	@./cpy.sh
+
+$(BIN_DIR) :
+	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(BIN_DIR)/logging
 
 $(BIN_DIR)/%.o : $(SRC_DIR)/%.c $(INC_DIR)/%.h
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[93mcompiling module" $< "\e[0m"

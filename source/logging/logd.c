@@ -23,7 +23,7 @@ static int create_logfile(const char *path)
 	logc.logfile = fopen(logfile_path, "w+");
 	if (logc.logfile == NULL)
 		return -1;
-	if (ftruncate(fileno(logc.logfile), LOGFILE_FILESIZE) == -1) {
+	if (ftruncate(fileno(logc.logfile), logc.size) == -1) {
 		fclose(logc.logfile);
 		return -1;
 	}
@@ -32,18 +32,18 @@ static int create_logfile(const char *path)
 
 static int map_logfile(void)
 {
-	logc.buffer = mmap(NULL, LOGFILE_FILESIZE, PROT_WRITE | PROT_READ, MAP_SHARED, fileno(logc.logfile), 0);
+	logc.buffer = mmap(NULL, logc.size, PROT_WRITE | PROT_READ, MAP_SHARED, fileno(logc.logfile), 0);
 	if (logc.buffer == MAP_FAILED) {
 		fclose(logc.logfile);
 		return -1;
 	}
-	logc.size = LOGFILE_FILESIZE;
 	logc.pos = logc.logcount = 0;
 	return 0;
 }
 
-int init_logd(const char *path)
+int init_logd(const char *path, size_t count)
 {
+	logc.size = count * sizeof (LogMsg);
 	if (create_logfile(path) == -1)
 		return -1;
 	if (map_logfile() == -1)

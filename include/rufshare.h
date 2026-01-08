@@ -15,7 +15,7 @@
 #include "utils/sstr.h"
 #include <pthread.h>
 
-status_t initiate(const char *logpath);
+status_t initiate(const char *logpath, size_t logcount);
 
 status_t deinitiate(void);
 
