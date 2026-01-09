@@ -95,7 +95,7 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 		rsize -= segsize;
 		LOGD("%zu bytes of the chunk remain", rsize);
 	}
-	CHECK_INT(mfsync(stream, chunk->chunk_size, MS_SYNC), EMFSYNC, "mfsync() failed with errno %d to sync MFILE with pos %zu", errno, chunk->start_pos);
+	CHECK_INT(mfsync(stream, MS_SYNC), EMFSYNC, "mfsync() failed with errno %d to sync MFILE with pos %zu", errno, chunk->start_pos);
 	free(segbuf);
 	LOGD("the chunk with size %zu pulled", chunk->chunk_size);
 	LOGT("return from pull_chunk_data()");

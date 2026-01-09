@@ -18,7 +18,7 @@ size_t mfseek(MFILE *stream, size_t pos);
 
 size_t mftell(MFILE *stream);
 
-int mfsync(MFILE *stream, size_t length, int flags);
+int mfsync(MFILE *stream, int flags);
 
 int mfclose(MFILE *stream);
 

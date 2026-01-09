@@ -63,14 +63,13 @@ size_t mftell(MFILE *stream)
 	return (stream->open) ? stream->pos : 0;
 }
 
-int mfsync(MFILE *stream, size_t length, int flags)
+int mfsync(MFILE *stream, int flags)
 {
 	ssize_t pagesize = (ssize_t) sysconf(_SC_PAGE_SIZE);
 	if (pagesize == -1)
 		return -1;
-	size_t remain = stream->pos % (size_t) pagesize;
-	size_t offset = stream->pos - remain;
-	return msync((void *) ((char *) stream->buf + offset), length + remain, flags);
+	size_t offset = stream->pos - (stream->pos % (size_t) pagesize);
+	return msync((void *) ((char *) stream->buf + offset), stream->size - offset, flags);
 }
 
 int mfclose(MFILE *stream)
