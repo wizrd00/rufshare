@@ -68,9 +68,9 @@ int mfsync(MFILE *stream, size_t length, int flags)
 	ssize_t pagesize = (ssize_t) sysconf(_SC_PAGE_SIZE);
 	if (pagesize == -1)
 		return -1;
-	size_t tailpos = stream->pos % (size_t) pagesize;
-	size_t offset = stream->pos - tailpos;
-	return msync((void *) ((char *) stream->buf + offset), length + tailpos, flags);
+	size_t remain = stream->pos % (size_t) pagesize;
+	size_t offset = stream->pos - remain;
+	return msync((void *) ((char *) stream->buf + offset), length + remain, flags);
 }
 
 int mfclose(MFILE *stream)
