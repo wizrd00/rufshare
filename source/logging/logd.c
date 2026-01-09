@@ -23,7 +23,7 @@ static int create_logfile(const char *path)
 	logc.logfile = fopen(logfile_path, "w+");
 	if (logc.logfile == NULL)
 		return -1;
-	if (ftruncate(fileno(logc.logfile), logc.size) == -1) {
+	if (ftruncate(fileno(logc.logfile), (off_t) logc.size) == -1) {
 		fclose(logc.logfile);
 		return -1;
 	}

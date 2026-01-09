@@ -37,6 +37,8 @@ static inline void tryexec(status_t _stat) {
 	case ERRLSTN : raise_errlstn_error(__func__); break;
 	case ERRPOLL : raise_errpoll_error(__func__); break;
 	case ERRTIME : raise_errtime_error(__func__); break;
+	case EMFSEEK : raise_emfseek_error(__func__); break;
+	case EMFSYNC : raise_emfsync_error(__func__); break;
 	case EMALLOC : raise_emalloc_error(__func__); break;
 	case ETHREAD : raise_ethread_error(__func__); break;
 	case INVSOCK : raise_invsock_error(__func__); break;
