@@ -5,9 +5,9 @@ ifeq ($(CC), pcc)
 	CFLAGS_LOG := -D LOG_TRACE -D LOG_DEBUG -D LOG_ERROR
 
 else ifeq ($(CC), gcc)
-	CFLAGS := -std=c99 -O2 -Wall -Wextra -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion -Wsign-conversion -Wshadow -Wswitch-enum -pthread
+	CFLAGS := -std=c99 -O3 -Wall -Wextra -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion -Wsign-conversion -Wshadow -Wswitch-enum -pthread
 	CFLAGS_PIC := -shared -fPIC
-	CFLAGS_LOG := -D LOG_TRACE -D LOG_DEBUG -D LOG_ERROR
+	CFLAGS_LOG := -D LOG_TRACE -D LOG_ERROR
 else
 	$(error unsupported compiler : $(CC))
 endif
