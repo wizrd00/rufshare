@@ -19,7 +19,7 @@ void setUp(void) {
 	"A computer file is a collection of data on a computer storage device, primarily identified by its filename."
 	" Just as words can be written on paper, so too can data be written to a computer file."
 	" Files can be shared with and transferred between computers and mobile devices via removable media or networks.";
-	fwrite(text, strlen(text) + 1, sizeof (char), file);
+	fwrite(text, strlen(text) + 1, sizeof(char), file);
 	fclose(file);
 	return;
 }

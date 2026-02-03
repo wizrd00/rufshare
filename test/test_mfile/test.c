@@ -40,13 +40,13 @@ void test_mfwrite_mfsync(void) {
 		"It implements demand paging because file contents are not immediately read from disk and initially use no physical RAM at all."
 		"The actual reads from disk are performed after a specific location is accessed, in a lazy manner";
 
-	fakefile(path, sizeof (text));
+	fakefile(path, sizeof(text));
 	MFILE mfile = mfopen(path, "r+", PROT_WRITE | PROT_READ, MAP_SHARED);
 	TEST_ASSERT_NOT_NULL_MESSAGE(mfile.file, "file pointer is NULL");
-	// the size of DEMOFILE1 must be sizeof (text)
-	TEST_ASSERT_EQUAL_MESSAGE(sizeof (text), mfile.size, "size of the file is not equal to size of text");
+	// the size of DEMOFILE1 must be sizeof(text)
+	TEST_ASSERT_EQUAL_MESSAGE(sizeof(text), mfile.size, "size of the file is not equal to size of text");
 	TEST_ASSERT_NOT_NULL_MESSAGE(mfile.buf, "mmap() returns NULL to mfile.buf");
-	TEST_ASSERT_EQUAL_MESSAGE(mfwrite(text, sizeof (char), strlen(text) + 1, &mfile), sizeof (text), "mfwrite returns a size less than sizeof (text), maybe because mfile.size was <= sizeof (text)");
+	TEST_ASSERT_EQUAL_MESSAGE(mfwrite(text, sizeof(char), strlen(text) + 1, &mfile), sizeof(text), "mfwrite returns a size less than sizeof(text), maybe because mfile.size was <= sizeof(text)");
 	TEST_ASSERT_EQUAL_MESSAGE(mfile.pos, mfile.size, "mfile.pos != mfile.size");
 	TEST_ASSERT_EQUAL_MESSAGE(0, mfsync(mfile.buf, mfile.size, MS_SYNC), "mfsync fails");
 	TEST_ASSERT_EQUAL_MESSAGE(0, mfclose(&mfile), "mfclose fails!");

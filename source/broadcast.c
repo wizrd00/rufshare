@@ -4,15 +4,15 @@ static status_t push_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 {
 	status_t _stat = SUCCESS;
 	char infostr[INFOSTRSIZE] = {0};
-	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
+	size_t bufsize = sizeof(CastPacket) + INFOSTRSIZE;
 	buffer_t buf = (buffer_t) malloc(bufsize);
 	struct pollfd pfd = {.fd = sock, .events = POLLOUT};
 	LOGT("in function push_broadcast_header()");
 	CHECK_PTR(buf, EMALLOC, "malloc() failed to allocate buffer with size = %zu", bufsize);
 	LOGD("pack args->cast.info into infostr");
 	pack_into_infostring(infostr, &(args->cast.info));
-	memcpy((void *) buf, (void *) &(args->cast.packet), sizeof (CastPacket));
-	memcpy((void *) (buf + sizeof (CastPacket)), (void *) infostr, sizeof (infostr));
+	memcpy((void *) buf, (void *) &(args->cast.packet), sizeof(CastPacket));
+	memcpy((void *) (buf + sizeof(CastPacket)), (void *) infostr, sizeof(infostr));
 	LOGD("CAST packet prepared and it is ready to push");
 	switch (poll(&pfd, 1, timeout)) {
 	case -1 :

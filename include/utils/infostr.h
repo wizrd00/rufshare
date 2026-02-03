@@ -4,7 +4,7 @@
 #include "types.h"
 #include <stdio.h>
 
-#define INFOSTRSIZE 320 * sizeof (char)
+#define INFOSTRSIZE 320 * sizeof(char)
 
 static inline void pack_into_infostring(char *infostr, CntlAddrs *info)
 {

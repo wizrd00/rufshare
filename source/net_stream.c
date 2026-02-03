@@ -53,12 +53,12 @@ status_t init_tcp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 	CHECK_INT(tmpsock, INVSOCK, "socket() failed");
 	*sock = tmpsock;
 	LOGD("set SO_REUSEADDR option on socket with fd = %d", *sock);
-	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (optval)), FAILSET, "setsockopt() failed to set SO_REUSEADDR option on socket with fd = %d", *sock);
+	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)), FAILSET, "setsockopt() failed to set SO_REUSEADDR option on socket with fd = %d", *sock);
 	LOGD("bind to local address %s:%hu on socket with fd = %d", src_ip, src_port, *sock);
-	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND, "bind() failed on socket with fd = %d", *sock);
+	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof(struct sockaddr_in)), ERRBIND, "bind() failed on socket with fd = %d", *sock);
 	if (conn) {
 		LOGD("connect to remote address %s:%hu on socket with fd = %d", dst_ip, dst_port, *sock);
-		CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN, "connect() failed on socket with fd = %d", *sock);
+		CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof(struct sockaddr_in)), ERRCONN, "connect() failed on socket with fd = %d", *sock);
 	}
 	LOGT("return from init_tcp_socket()");
 	return _stat;
@@ -70,7 +70,7 @@ status_t accept_new_connection(sockfd_t *new_sock, sockfd_t sock, ipv4str_t conn
 	struct sockaddr_storage conn_addr;
 	struct sockaddr_in *tmp_addr;
 	struct pollfd pfd = {.fd = sock, .events = POLLIN};
-	socklen_t addr_len = sizeof (struct sockaddr_storage);
+	socklen_t addr_len = sizeof(struct sockaddr_storage);
 	int tmpsock;
 	LOGT("in function accept_new_connection()");
 	LOGD("listen with backlog %d on socket with fd = %d", BACKLOG, sock);
@@ -149,14 +149,14 @@ status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_port, ipv4
 	*sock = tmpsock;
 	if (broadcast) {
 		LOGD("set SO_BROADCAST option on socket with fd = %d", *sock);
-		CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET, "setsockopt() failed to set SO_BROADCAST on socket with fd = %d", *sock);
+		CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(int)), FAILSET, "setsockopt() failed to set SO_BROADCAST on socket with fd = %d", *sock);
 	}
 	LOGD("set SO_REUSEADDR option on socket with fd = %d", *sock);
-	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (int)), FAILSET, "setsockopt() failed to set SO_REUSEADDR on socket with fd = %d", *sock);
+	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)), FAILSET, "setsockopt() failed to set SO_REUSEADDR on socket with fd = %d", *sock);
 	LOGD("bind to local address %s:%hu on socket with fd = %d", src_ip, src_port, *sock);
-	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND, "bind() failed on socket with fd = %d", *sock);
+	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof(struct sockaddr_in)), ERRBIND, "bind() failed on socket with fd = %d", *sock);
 	LOGD("connect to remote address %s:%hu on socket with fd = %d", dst_ip, dst_port, *sock);
-	CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof (struct sockaddr_in)), ERRCONN, "connect() failed on socket with fd = %d", *sock);
+	CHECK_INT(connect(*sock, (struct sockaddr *) &remote_addr, sizeof(struct sockaddr_in)), ERRCONN, "connect() failed on socket with fd = %d", *sock);
 	LOGT("return from init_udp_socket()");
 	return _stat;
 }
@@ -190,7 +190,7 @@ status_t set_socket_rcvlowsize(sockfd_t sock, size_t size)
 	status_t _stat = SUCCESS;
 	LOGT("in function set_socket_rcvlowsize()");
 	LOGD("set SO_RCVLOWAT option on socket with fd = %d", sock);
-	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVLOWAT , &size, sizeof (size_t)), FAILSET, "setsockopt() failed to set SO_RCVLOWAT on socket with fd = %d", sock);
+	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVLOWAT , &size, sizeof(size_t)), FAILSET, "setsockopt() failed to set SO_RCVLOWAT on socket with fd = %d", sock);
 	LOGT("return from set_socket_rcvlowsize()");
 	return _stat;
 }
@@ -199,7 +199,7 @@ status_t set_socket_sndlowsize(sockfd_t sock, size_t size) {
 	status_t _stat = SUCCESS;
 	LOGT("in function set_socket_sndlowsize()");
 	LOGD("set SO_SNDLOWAT option on socket with fd = %d", sock);
-	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDLOWAT , &size, sizeof (size_t)), FAILSET, "setsockopt() failed to set SO_SNDLOWAT on sockket with fd = %d", sock);
+	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDLOWAT , &size, sizeof(size_t)), FAILSET, "setsockopt() failed to set SO_SNDLOWAT on sockket with fd = %d", sock);
 	LOGT("return from set_socket_sndlowsize()");
 	return _stat;
 }
@@ -209,7 +209,7 @@ status_t set_socket_rcvbufsize(sockfd_t sock, size_t size)
 	status_t _stat = SUCCESS;
 	LOGT("in function set_socket_rcvbufsize()");
 	LOGD("set SO_RCVBUF option on socket with fd = %d", sock);
-	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &size, sizeof (size_t)), FAILSET, "setsockopt() failed to set SO_RCVBUF on socket with fd = %d", sock);
+	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &size, sizeof(size_t)), FAILSET, "setsockopt() failed to set SO_RCVBUF on socket with fd = %d", sock);
 	LOGT("return from set_socket_rcvbufsize()");
 	return _stat;
 }
@@ -219,7 +219,7 @@ status_t set_socket_sndbufsize(sockfd_t sock, size_t size)
 	status_t _stat = SUCCESS;
 	LOGT("in function set_socket_sndbufsize()");
 	LOGD("set SO_SNDBUF option on socket with fd = %d", sock);
-	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &size, sizeof (size_t)), FAILSET, "setsockopt() failed to set SO_SNDBUF on socket with fd = %d", sock);
+	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &size, sizeof(size_t)), FAILSET, "setsockopt() failed to set SO_SNDBUF on socket with fd = %d", sock);
 	LOGT("return from set_socket_sndbufsize()");
 	return _stat;
 }
@@ -233,9 +233,9 @@ status_t set_socket_timeout(sockfd_t sock, time_t second)
 	};
 	LOGT("in function set_socket_timeout()");
 	LOGD("set SO_RCVTIMEO option on socket with fd = %d", sock);
-	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof (struct timeval)), FAILSET, "setsockopt() failed to set SO_RCVTIMEO on socket with fd = %d", sock);
+	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(struct timeval)), FAILSET, "setsockopt() failed to set SO_RCVTIMEO on socket with fd = %d", sock);
 	LOGD("set SO_SNDTIMEO option on socket with fd = %d", sock);
-	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof (struct timeval)), FAILSET, "setsockopt() failed to set SO_SNDTIMEO on socket with fd = %d", sock);
+	CHECK_INT(setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(struct timeval)), FAILSET, "setsockopt() failed to set SO_SNDTIMEO on socket with fd = %d", sock);
 	LOGT("return from set_socket_timeout()");
 	return _stat;
 }

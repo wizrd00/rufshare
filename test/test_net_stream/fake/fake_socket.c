@@ -16,7 +16,7 @@ int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
 	new->sin_family = AF_INET;
 	new->sin_port = htons(80);
 	new->sin_addr = ip;
-	*addrlen = sizeof (struct sockaddr_in);
+	*addrlen = sizeof(struct sockaddr_in);
 	return new_sock;
 }
 

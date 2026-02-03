@@ -14,7 +14,7 @@ static char *sstrncpy(char *dst, const char *src, size_t dsize)
 static int create_logfile(const char *path)
 {
 	size_t pathlen = strlen(path);
-	char *logfile_path = (char *) calloc(pathlen + LOGFILE_NAMESIZE + 1, sizeof (char));
+	char *logfile_path = (char *) calloc(pathlen + LOGFILE_NAMESIZE + 1, sizeof(char));
 	time_t logtime = time(NULL);
 	if ((logtime == -1) || (logfile_path == NULL))
 		return -1;
@@ -43,7 +43,7 @@ static int map_logfile(void)
 
 int init_logd(const char *path, size_t count)
 {
-	logc.size = count * sizeof (LogMsg);
+	logc.size = count * sizeof(LogMsg);
 	if (create_logfile(path) == -1)
 		return -1;
 	if (map_logfile() == -1)
@@ -71,7 +71,7 @@ void logging(const char *level, const char *mod, const char *pos, const char *fm
 	sstrncpy(logmsg.mod, mod, MODSIZE);
 	sstrncpy(logmsg.pos, pos, POSSIZE);
 	va_start(ap, fmt);
-	vsnprintf(msg, sizeof (msg), fmt, ap);
+	vsnprintf(msg, sizeof(msg), fmt, ap);
 	sstrncpy(logmsg.msg, msg, MSGSIZE);
 	va_end(ap);
 	logc.logcount++;

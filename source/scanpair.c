@@ -35,11 +35,11 @@ static status_t init_udp_socket(sockfd_t *sock, ipv4str_t src_ip, port_t src_por
 	CHECK_INT(tmpsock, INVSOCK, "socket() failed");
 	*sock = tmpsock;
 	LOGD("set SO_BROADCAST option on socket with fd = %d", *sock);
-	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof (int)), FAILSET, "setsockopt() failed to set SO_BROADCAST option on socket with fd = %d", *sock);
+	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(int)), FAILSET, "setsockopt() failed to set SO_BROADCAST option on socket with fd = %d", *sock);
 	LOGD("set SO_REUSEADDR option on socket with fd = %d", *sock);
-	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (int)), FAILSET, "setsockopt() failed to set SO_RUSEADDR option on socket with fd = %d", *sock);
+	CHECK_INT(setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)), FAILSET, "setsockopt() failed to set SO_RUSEADDR option on socket with fd = %d", *sock);
 	LOGD("bind to local address %s:%hu on socket with fd = %d", src_ip, src_port, *sock);
-	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof (struct sockaddr_in)), ERRBIND, "bind() failed on socket with fd = %d", *sock);
+	CHECK_INT(bind(*sock, (struct sockaddr *) &local_addr, sizeof(struct sockaddr_in)), ERRBIND, "bind() failed on socket with fd = %d", *sock);
 	LOGT("return from init_udp_socket()");
 	return _stat;
 }
@@ -70,7 +70,7 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	status_t _stat = SUCCESS;
 	CastPacket packet;
 	char infostr[INFOSTRSIZE] = {0};
-	size_t bufsize = sizeof (CastPacket) + INFOSTRSIZE;
+	size_t bufsize = sizeof(CastPacket) + INFOSTRSIZE;
 	buffer_t buf = (buffer_t) malloc(bufsize);
 	LOGT("in function pull_broadcast_header()");
 	CHECK_PTR(buf, EMALLOC, "malloc() failed to allocate buffer with size = %zu", bufsize);
@@ -88,8 +88,8 @@ static status_t pull_broadcast_header(sockfd_t sock, HeaderArgs *args, int timeo
 	LOGD("check packet type == CAST");
 	if (buf[0] != CAST)
 		CHECK_SSTAT(BADTYPE, buf, "invalid type != CAST");
-	memcpy((void *) &packet, buf, sizeof (CastPacket));
-	memcpy((void *) infostr, buf + sizeof (CastPacket), INFOSTRSIZE);
+	memcpy((void *) &packet, buf, sizeof(CastPacket));
+	memcpy((void *) infostr, buf + sizeof(CastPacket), INFOSTRSIZE);
 	args->cast.packet = convert_CastPacket_byteorder(&packet);
 	unpack_from_infostring(infostr, &(args->cast.info));
 	LOGD("CAST packet unpacked");
@@ -117,8 +117,8 @@ status_t start_scanpair(PairInfo **info, size_t *len)
 		if (_stat == SUCCESS) {
 			trycount = conf->sp_trycount;
 			(*len)++;
-			*info = (PairInfo *) realloc(*info, sizeof (PairInfo) * (*len));
-			CHECK_PTR(info, EMALLOC, "realloc() failed to reallocate buffer with size = %zu", sizeof (PairInfo) * (*len));
+			*info = (PairInfo *) realloc(*info, sizeof(PairInfo) * (*len));
+			CHECK_PTR(info, EMALLOC, "realloc() failed to reallocate buffer with size = %zu", sizeof(PairInfo) * (*len));
 			sstrncpy((*info)[*len - 1].name, header.cast.info.name, MAXNAMESIZE);
 			memcpy((void *) (*info)[*len - 1].ip, (void *) header.cast.info.remote_ip, MAXIPV4SIZE);
 			(*info)[*len - 1].port = header.cast.info.remote_port;

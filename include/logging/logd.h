@@ -26,7 +26,7 @@
 #define MSGSIZE 512
 
 #define append_log(log)\
-	do {if (logc.pos == logc.size) {msync(logc.buffer, logc.size, MS_SYNC); logc.pos = 0;} memcpy((void *) ((char *) logc.buffer + logc.pos), (void *) &log, sizeof (LogMsg)); logc.pos += sizeof (LogMsg);} while (0)
+	do {if (logc.pos == logc.size) {msync(logc.buffer, logc.size, MS_SYNC); logc.pos = 0;} memcpy((void *) ((char *) logc.buffer + logc.pos), (void *) &log, sizeof(LogMsg)); logc.pos += sizeof(LogMsg);} while (0)
 
 int init_logd(const char *path, size_t count);
 

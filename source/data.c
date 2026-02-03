@@ -29,7 +29,7 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 {
 	status_t _stat = SUCCESS;
 	MFILE *stream = &(filec->mfile);
-	buffer_t segbuf = (buffer_t) calloc(conf->segsize, sizeof (char));
+	buffer_t segbuf = (buffer_t) calloc(conf->segsize, sizeof(char));
 	size_t rsize = chunk->chunk_size;
 	LOGT("in function push_chunk_data()");
 	CHECK_PTR(segbuf, EMALLOC, "calloc() failed to allocate buffer with size = %zu", conf->segsize);
@@ -39,7 +39,7 @@ status_t push_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 	while (rsize != 0) {
 		size_t segsize = (conf->segsize <= rsize) ? conf->segsize : rsize;
 		struct pollfd pfd = {.fd = sock, .events = POLLOUT};
-		mfread(segbuf, segsize, sizeof (char), stream);
+		mfread(segbuf, segsize, sizeof(char), stream);
 		LOGD("read %zu bytes of the chunk", segsize);
 		switch (poll(&pfd, 1, timeout)) {
 		case -1 :
@@ -66,7 +66,7 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 {
 	status_t _stat = SUCCESS;
 	MFILE *stream = &(filec->mfile);
-	buffer_t segbuf = (buffer_t) calloc(conf->segsize, sizeof (char));
+	buffer_t segbuf = (buffer_t) calloc(conf->segsize, sizeof(char));
 	size_t rsize = chunk->chunk_size;
 	LOGT("in function pull_chunk_data()");
 	CHECK_PTR(segbuf, EMALLOC, "calloc() failed to allocate buffer with size = %zu", conf->segsize);
@@ -89,7 +89,7 @@ status_t pull_chunk_data(sockfd_t sock, FileContext *filec, ChunkContext *chunk,
 			CHECK_SSTAT(_stat, segbuf, "pull_udp_data() failed to pull segment on socket with fd = %d", sock);
 			LOGD("segment with size %zu pulled", segsize);
 		}
-		mfwrite(segbuf, segsize, sizeof (char), stream);
+		mfwrite(segbuf, segsize, sizeof(char), stream);
 		LOGD("write %zu bytes of the chunk", segsize);
 		memset(segbuf, 0, conf->segsize);
 		rsize -= segsize;
