@@ -21,12 +21,16 @@ static int create_logfile(const char *path)
 	sstrncpy(logfile_path, path, pathlen + 1);
 	snprintf(logfile_path + pathlen, LOGFILE_NAMESIZE, "logfile_%u.log", (unsigned int) logtime);
 	logc.logfile = fopen(logfile_path, "w+");
-	if (logc.logfile == NULL)
-		return -1;
-	if (ftruncate(fileno(logc.logfile), (off_t) logc.size) == -1) {
-		fclose(logc.logfile);
+	if (logc.logfile == NULL) {
+		free((void *) logfile_path);
 		return -1;
 	}
+	if (ftruncate(fileno(logc.logfile), (off_t) logc.size) == -1) {
+		fclose(logc.logfile);
+		free((void *) logfile_path);
+		return -1;
+	}
+	free((void *) logfile_path);
 	return 0;
 }
 
