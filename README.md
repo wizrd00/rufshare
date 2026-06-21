@@ -3,6 +3,7 @@
 ![CRC](https://img.shields.io/badge/Integrity-CRC16%20%7C%20CRC32-green)
 ![Language](https://img.shields.io/badge/C-C99-orange)
 ![Platform](https://img.shields.io/badge/Linux-POSIX-red)
+
 RUFShare (Reliable UDP File Sharing) is a lightweight file transfer library built on top of UDP, designed to provide reliable file delivery while maintaining the performance advantages of connectionless communication.
 
 The library implements a custom protocol that handles:
