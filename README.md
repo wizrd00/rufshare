@@ -175,7 +175,7 @@ status_t scanpair(
 
 int main(void)
 {
-    if (initiate("./logs", 10) != STATUS_OK)
+    if (initiate("./logs", 10) != SUCCESS)
         return 1;
 
     InitConfig cfg = {
