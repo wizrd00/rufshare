@@ -33,7 +33,6 @@ $(LIBRUFSHARE) : $(BIN_DIR) $(OBJ_FILES) $(LIBCRC) $(HDR_FILES)
 	$(CC) $(CFLAGS) $(CFLAGS_PIC) $(CFLAGS_LOG) -o $@ $(OBJ_FILES) $(LIBCRC)
 	@/usr/bin/echo -e $(POINTER_SYM) "\e[93mstrip" $@ "\e[0m"
 	@strip $@
-	@./cpy.sh
 
 $(BIN_DIR) :
 	@mkdir -p $(BIN_DIR)
