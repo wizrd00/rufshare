@@ -171,11 +171,11 @@ status_t scanpair(
 ## Example
 
 ```c
-#include <rufshare.h>
+#include "rufshare.h"
 
 int main(void)
 {
-    if (initiate("./logs", 10) != SUCCESS)
+    if (initiate("./logs", 1024) != SUCCESS)
         return 1;
 
     InitConfig cfg = {
